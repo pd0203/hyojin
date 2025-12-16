@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: hyojin-system
+    name: excel-filter
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
