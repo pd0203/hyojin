@@ -1,3 +1,8 @@
+"""
+플레이오토 주문 분류 시스템 - 웹앱 v4.1 Ultra
+원본 데스크톱 앱(main_optimized.py)의 모든 기능 100% 웹 통합
+"""
+
 from flask import Flask, render_template_string, request, send_file, jsonify
 from werkzeug.utils import secure_filename
 import pandas as pd
