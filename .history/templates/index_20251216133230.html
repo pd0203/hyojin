@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스타배송 필터</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/pretendard/1.3.9/static/pretendard.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+        
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 48px 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #00d4aa;
+            background: rgba(0, 212, 170, 0.05);
+        }
+        
+        .drop-zone.dragover {
+            transform: scale(1.02);
+        }
+        
+        .drop-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .drop-text {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .drop-hint {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+        }
+        
+        #fileInput { display: none; }
+        
+        .progress-container {
+            margin-top: 24px;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4aa, #00b894);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .status {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            min-height: 20px;
+        }
+        
+        .status.success { color: #00d4aa; }
+        .status.error { color: #ff6b6b; }
+        
+        .result-card {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .result-card.show { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 16px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00d4aa;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+        }
+        
+        .download-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #00d4aa, #00b894);
+            border: none;
+            border-radius: 12px;
+            color: #1a1a2e;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 170, 0.3);
+        }
+        
+        .reset-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #fff;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 480px) {
+            .card { padding: 24px; }
+            h1 { font-size: 22px; }
+            .drop-zone { padding: 32px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>📦 스타배송 필터</h1>
+            <p class="subtitle">"판매자 스타배송" 행 자동 삭제</p>
+            
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-icon">📁</div>
+                <div class="drop-text">엑셀 파일을 드롭하세요</div>
+                <div class="drop-hint">또는 클릭하여 파일 선택 (.xls, .xlsx)</div>
+                <input type="file" id="fileInput" accept=".xls,.xlsx">
+            </div>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            
+            <div class="status" id="status"></div>
+            
+            <div class="result-card" id="resultCard">
+                <div class="result-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="deletedCount">0</div>
+                        <div class="stat-label">삭제된 행</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="remainCount">0</div>
+                        <div class="stat-label">남은 행</div>
+                    </div>
+                </div>
+                <button class="download-btn" id="downloadBtn">
+                    <span>⬇️</span> 파일 다운로드
+                </button>
+                <button class="reset-btn" id="resetBtn">새 파일 처리하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const status = document.getElementById('status');
+        const resultCard = document.getElementById('resultCard');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        let downloadUrl = null;
+        let downloadFilename = null;
+
+        // 드래그 앤 드롭
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        async function handleFile(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['xls', 'xlsx'].includes(ext)) {
+                showStatus('❌ .xls 또는 .xlsx 파일만 가능합니다', 'error');
+                return;
+            }
+            
+            // UI 초기화
+            resultCard.classList.remove('show');
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            showStatus('<div class="spinner"></div> 처리 중...', '');
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // 가짜 프로그레스
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 200);
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || '처리 실패');
+                }
+                
+                const deleted = response.headers.get('X-Deleted-Count');
+                const original = response.headers.get('X-Original-Count');
+                const remain = original - deleted;
+                
+                // Blob으로 저장
+                const blob = await response.blob();
+                downloadUrl = URL.createObjectURL(blob);
+                
+                const disposition = response.headers.get('Content-Disposition');
+                downloadFilename = disposition ? 
+                    decodeURIComponent(disposition.split("filename=")[1].replace(/['"]/g, '')) : 
+                    'filtered.xlsx';
+                
+                // 결과 표시
+                document.getElementById('deletedCount').textContent = deleted;
+                document.getElementById('remainCount').textContent = remain;
+                resultCard.classList.add('show');
+                showStatus('✅ 처리 완료!', 'success');
+                
+            } catch (error) {
+                clearInterval(progressInterval);
+                showStatus('❌ ' + error.message, 'error');
+                progressContainer.style.display = 'none';
+            }
+        }
+        
+        function showStatus(html, className) {
+            status.innerHTML = html;
+            status.className = 'status ' + className;
+        }
+        
+        downloadBtn.addEventListener('click', () => {
+            if (downloadUrl) {
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = downloadFilename;
+                a.click();
+            }
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            resultCard.classList.remove('show');
+            progressContainer.style.display = 'none';
+            progressFill.style.width = '0%';
+            status.innerHTML = '';
+            fileInput.value = '';
+            if (downloadUrl) {
+                URL.revokeObjectURL(downloadUrl);
+                downloadUrl = null;
+            }
+        });
+    </script>
+</body>
+</html>
