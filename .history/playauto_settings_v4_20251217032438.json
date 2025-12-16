@@ -20,27 +20,7 @@
         },
         {
           "brand": "꽃샘",
-          "product_name": "꿀 생강차 포션 15Tx2",
-          "order_option": "All"
-        },
-        {
-          "brand": "꽃샘",
-          "product_name": "꿀 유자차 포션 15Tx2",
-          "order_option": "All"
-        },
-        {
-          "brand": "꽃샘",
-          "product_name": "호두아몬드 율무차 50개입 2개",
-          "order_option": "All"
-        },
-        {
-          "brand": "꽃샘",
           "product_name": "블랙보리차 티백 100개입 1개",
-          "order_option": "All"
-        },
-        {
-          "brand": "담터",
-          "product_name": "복숭아 허니 블랙티 50T/아이스티/홍차",
           "order_option": "All"
         },
         {
@@ -101,11 +81,6 @@
         {
           "brand": "희창",
           "product_name": "자연생각 복숭아홍차 원액",
-          "order_option": "All"
-        },
-        {
-          "brand": "희창",
-          "product_name": "자연생각 매실차 원액 980ml",
           "order_option": "All"
         },
         {
@@ -302,16 +277,6 @@
           "brand": "[CJ내일오네]",
           "product_name": "담터 복숭아홍차 플러스 1.5L 12개",
           "order_option": "All"
-        },
-        {
-          "brand": "[CJ내일오네]",
-          "product_name": "담터 쌍화차 100개입 1개",
-          "order_option": "All"
-        },
-        {
-          "brand": "[CJ내일오네]",
-          "product_name": "담터 생강차 플러스 100개입 1개",
-          "order_option": "All"
         }
       ],
       "description": "팥빙수재료 및 특정 상품 담당",
@@ -335,11 +300,6 @@
           "brand": "",
           "product_name": "6x25 하트 스트로우 (핑크) 빨대 개별포장 200개",
           "order_option": "단일상품"
-        },
-        {
-          "brand": "담터",
-          "product_name": "All",
-          "order_option": "All"
         },
         {
           "brand": "꽃샘",
@@ -643,11 +603,6 @@
           "brand": "백제",
           "product_name": "우리 햅쌀 즉석떡국 6개입",
           "order_option": "163g 6개"
-        },
-        {
-          "brand": "[CJ내일오네]",
-          "product_name": "백제 떡국 우리쌀 코스트코",
-          "order_option": "163g 6개"
         }
       ],
       "description": "백제 쌀국수, 떡국 담당",
@@ -713,11 +668,6 @@
         {
           "brand": "밀양한천",
           "product_name": "All",
-          "order_option": "All"
-        },
-        {
-          "brand": "자연생각",
-          "product_name": "제로설탕 카페시럽 1.45L",
           "order_option": "All"
         },
         {
@@ -818,21 +768,6 @@
         {
           "brand": "희창",
           "product_name": "자연생각 카페시럽 1.5Lx2병+펌프1개",
-          "order_option": "All"
-        },
-        {
-          "brand": "광야식품",
-          "product_name": "All",
-          "order_option": "All"
-        },
-        {
-          "brand": "광야",
-          "product_name": "All",
-          "order_option": "All"
-        },
-        {
-          "brand": "경남제약",
-          "product_name": "레모비타플러스 레몬맛 120정 비타민캔디",
           "order_option": "All"
         },
         {
