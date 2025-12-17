@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Excel Tools - 효진유통</title>
+    <title>Hyojin</title>
     <style>
       * {
         margin: 0;
@@ -943,107 +943,9 @@
         overflow-x: auto;
         max-height: 70vh;
       }
-
-      /* 유저 프로필 */
-      .user-profile {
-        position: fixed;
-        top: 20px;
-        right: 30px;
-        z-index: 100;
-      }
-
-      .user-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background-color: #1a1a1a;
-        border: 1px solid #333;
-        border-radius: 8px;
-        padding: 10px 16px;
-        color: #e0e0e0;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .user-btn:hover {
-        background-color: #222;
-        border-color: #00ff88;
-      }
-
-      .user-icon {
-        font-size: 18px;
-      }
-
-      .user-name {
-        font-size: 14px;
-      }
-
-      .user-dropdown {
-        display: none;
-        position: absolute;
-        top: 100%;
-        right: 0;
-        margin-top: 8px;
-        background-color: #1a1a1a;
-        border: 1px solid #333;
-        border-radius: 8px;
-        overflow: hidden;
-        min-width: 150px;
-      }
-
-      .user-dropdown.show {
-        display: block;
-      }
-
-      .logout-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-        padding: 12px 16px;
-        background: none;
-        border: none;
-        color: #ff6b6b;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background-color 0.2s;
-      }
-
-      .logout-btn:hover {
-        background-color: rgba(255, 107, 107, 0.1);
-      }
-
-      @media (max-width: 768px) {
-        .user-profile {
-          top: 15px;
-          right: 15px;
-        }
-
-        .user-btn {
-          padding: 8px 12px;
-        }
-
-        .user-name {
-          display: none;
-        }
-      }
     </style>
   </head>
   <body>
-    <!-- 유저 프로필 -->
-    <div class="user-profile">
-      <div class="user-btn" id="userBtn">
-        <span class="user-icon">👤</span>
-        <span class="user-name">효진유통 담당자</span>
-      </div>
-      <div class="user-dropdown" id="userDropdown">
-        <button class="logout-btn" onclick="location.href='/logout'">
-          <span>🚪</span>
-          <span>로그아웃</span>
-        </button>
-      </div>
-    </div>
-
     <!-- 사이드바 -->
     <nav class="sidebar">
       <div class="logo" id="logoBtn" style="cursor: pointer">⚡ 효진유통</div>
@@ -1315,28 +1217,9 @@
         setupUploadAreas();
         setupButtons();
         setupMarginSearch();
-        setupUserProfile();
         checkMobile();
         window.addEventListener("resize", checkMobile);
       });
-
-      // 유저 프로필 드롭다운 설정
-      function setupUserProfile() {
-        const userBtn = document.getElementById("userBtn");
-        const userDropdown = document.getElementById("userDropdown");
-
-        if (userBtn && userDropdown) {
-          userBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            userDropdown.classList.toggle("show");
-          });
-
-          // 외부 클릭 시 닫기
-          document.addEventListener("click", () => {
-            userDropdown.classList.remove("show");
-          });
-        }
-      }
 
       // 모바일 체크
       function checkMobile() {
@@ -1401,11 +1284,11 @@
                                 <th class="col-num">장려금률</th>
                                 <th class="col-num">배송비</th>
                                 <th class="col-num">박스비</th>
-                                <th class="col-num">인상전 총 원가</th>
-                                <th class="col-num">인상후 총 원가</th>
-                                <th class="col-center">인상전 재고</th>
-                                <th class="col-center">1박스 최대 수량</th>
-                                <th>기타사항</th>
+                                <th class="col-num">인상전 총원가</th>
+                                <th class="col-num">인상후 총원가</th>
+                                <th class="col-center">재고</th>
+                                <th class="col-center">박스수량</th>
+                                <th>기타</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1413,8 +1296,8 @@
 
         data.forEach((item) => {
           const stockClass =
-            item["인상전 재고"] === "o" ? "stock-yes" : "stock-no";
-          const stockText = item["인상전 재고"] === "o" ? "O" : "X";
+            item["인상전재고 유무"] === "o" ? "stock-yes" : "stock-no";
+          const stockText = item["인상전재고 유무"] === "o" ? "O" : "X";
 
           tableHtml += `
                     <tr>
@@ -1455,7 +1338,7 @@
         let cardsHtml = '<div class="margin-cards">';
 
         data.forEach((item) => {
-          const hasStock = item["인상전 재고"] === "o";
+          const hasStock = item["인상전재고 유무"] === "o";
           const stockClass = hasStock ? "yes" : "no";
           const stockText = hasStock ? "재고있음" : "재고없음";
 
@@ -1481,13 +1364,13 @@
                                 )}원</span>
                             </div>
                             <div class="margin-card-item">
-                                <span class="margin-card-label">인상전 총 원가</span>
+                                <span class="margin-card-label">인상전 총원가</span>
                                 <span class="margin-card-value">${formatNumber(
                                   item["인상전 총 원가"]
                                 )}원</span>
                             </div>
                             <div class="margin-card-item">
-                                <span class="margin-card-label">인상후 총 원가</span>
+                                <span class="margin-card-label">인상후 총원가</span>
                                 <span class="margin-card-value highlight">${formatNumber(
                                   item["인상후 총 원가"]
                                 )}원</span>
@@ -1514,7 +1397,7 @@
                                 )}원</span>
                             </div>
                             <div class="margin-card-item">
-                                <span class="margin-card-label">1박스 최대 수량</span>
+                                <span class="margin-card-label">박스수량</span>
                                 <span class="margin-card-value">${
                                   item["1박스 최대 수량"] || "-"
                                 }</span>
