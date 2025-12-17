@@ -1919,7 +1919,7 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `pa${Date.now()}.xlsx`;
+            a.download = `pa${Date.now()}_star_filter.xlsx`;
             a.click();
             window.URL.revokeObjectURL(url);
 
