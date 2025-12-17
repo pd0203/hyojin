@@ -16,8 +16,8 @@ app.secret_key = os.environ.get('SECRET_KEY', 'playauto-secret-key-2024')
 
 # ==================== 로그인 설정 ====================
 # 아이디/비밀번호 설정 (환경변수 또는 기본값)
-LOGIN_ID = os.environ.get('LOGIN_ID', 'abc')
-LOGIN_PW = os.environ.get('LOGIN_PW', '1234')
+LOGIN_ID = os.environ.get('LOGIN_ID', 'hyojin')
+LOGIN_PW = os.environ.get('LOGIN_PW', 'hyojin1234')
 
 def login_required(f):
     """로그인 필수 데코레이터"""
