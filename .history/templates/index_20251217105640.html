@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Excel Tools - 효진유통</title>
+    <title>효진유통</title>
     <style>
       * {
         margin: 0;
@@ -618,30 +618,17 @@
   <body>
     <!-- 사이드바 -->
     <nav class="sidebar">
-      <div class="logo" id="logoBtn" style="cursor: pointer">⚡ 효진유통</div>
-      <div class="nav-item active" data-page="home">홈</div>
-      <div class="nav-item" data-page="margin">원가 마진표</div>
-      <div class="nav-item" data-page="classify">송장 분류</div>
+      <div class="logo">⚡ 효진유통</div>
       <div class="nav-item" data-page="starfilter">스타배송 필터링</div>
+      <div class="nav-item active" data-page="classify">송장 분류</div>
+      <div class="nav-item disabled">기능 3 (준비중)</div>
     </nav>
 
     <!-- 메인 콘텐츠 -->
     <main class="main-content">
-      <!-- 홈 페이지 -->
-      <section id="page-home" class="page">
-        <h1 class="page-title">홈</h1>
-        <p class="page-description">효진유통 업무 자동화 시스템</p>
-      </section>
-
-      <!-- 원가 마진표 페이지 -->
-      <section id="page-margin" class="page" style="display: none">
-        <h1 class="page-title">원가 마진표</h1>
-        <p class="page-description">기능 준비중입니다</p>
-      </section>
-
       <!-- 스타배송 필터 페이지 -->
       <section id="page-starfilter" class="page" style="display: none">
-        <h1 class="page-title">스타배송 필터</h1>
+        <h1 class="page-title">스타배송 필터링</h1>
         <p class="page-description">
           엑셀 파일에서 '판매자 스타배송' 주문을 자동으로 제거합니다
         </p>
@@ -673,7 +660,7 @@
       </section>
 
       <!-- 송장 분류 페이지 -->
-      <section id="page-classify" class="page" style="display: none">
+      <section id="page-classify" class="page">
         <h1 class="page-title">송장 분류</h1>
         <p class="page-description">
           주문 엑셀 파일을 담당자별로 자동 분류합니다
@@ -901,37 +888,25 @@
 
       // 네비게이션 설정
       function setupNavigation() {
-        // 로고 클릭 시 홈으로 이동
-        document.getElementById("logoBtn").addEventListener("click", () => {
-          document
-            .querySelectorAll(".nav-item")
-            .forEach((n) => n.classList.remove("active"));
-          document
-            .querySelector('.nav-item[data-page="home"]')
-            .classList.add("active");
-          document
-            .querySelectorAll(".page")
-            .forEach((p) => (p.style.display = "none"));
-          document.getElementById("page-home").style.display = "block";
-        });
+        document
+          .querySelectorAll(".nav-item:not(.disabled)")
+          .forEach((item) => {
+            item.addEventListener("click", () => {
+              const page = item.dataset.page;
 
-        document.querySelectorAll(".nav-item").forEach((item) => {
-          item.addEventListener("click", () => {
-            const page = item.dataset.page;
+              // 네비게이션 활성화
+              document
+                .querySelectorAll(".nav-item")
+                .forEach((n) => n.classList.remove("active"));
+              item.classList.add("active");
 
-            // 네비게이션 활성화
-            document
-              .querySelectorAll(".nav-item")
-              .forEach((n) => n.classList.remove("active"));
-            item.classList.add("active");
-
-            // 페이지 전환
-            document
-              .querySelectorAll(".page")
-              .forEach((p) => (p.style.display = "none"));
-            document.getElementById(`page-${page}`).style.display = "block";
+              // 페이지 전환
+              document
+                .querySelectorAll(".page")
+                .forEach((p) => (p.style.display = "none"));
+              document.getElementById(`page-${page}`).style.display = "block";
+            });
           });
-        });
       }
 
       // 탭 설정
