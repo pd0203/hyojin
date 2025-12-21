@@ -2792,7 +2792,7 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `pa${Date.now()}.xlsx`;
+            a.download = `filtered_${Date.now()}.xlsx`;
             a.click();
             window.URL.revokeObjectURL(url);
 
