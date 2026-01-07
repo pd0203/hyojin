@@ -992,40 +992,16 @@
 
       // 급여 렌더링
       function renderSalary(breakdown) {
-          document.getElementById('basePay').textContent = formatNumber(breakdown.base_pay) + '원';
-          document.getElementById('overtimePay').textContent = formatNumber(breakdown.overtime_pay) + '원';
-          document.getElementById('weeklyPay').textContent = formatNumber(breakdown.weekly_holiday_pay) + '원';
-          document.getElementById('fullBonus').textContent = formatNumber(breakdown.full_attendance_bonus) + '원';
-          document.getElementById('totalPay').textContent = formatNumber(breakdown.total_pay) + '원';
-    
-          // 계산 과정 상세 표시
-          const detailEl = document.getElementById('salaryDetail');
-          if (breakdown.total_pay > 0) {
-              const hourlyWage = attendanceData?.hourly_wage || 10700;
-              let detail = `<div style="color: #00ff88; margin-bottom: 10px; font-weight: 600;">📊 계산 과정</div>`;
-              detail += `<div>• 시급: ${formatNumber(hourlyWage)}원</div>`;
-              detail += `<div>• 총 근무시간: ${breakdown.total_hours || 0}시간</div>`;
-              detail += `<div style="margin-top: 10px;">`;
-              detail += `<div>• 기본급 = 정규근무시간 × ${formatNumber(hourlyWage)}원 = ${formatNumber(breakdown.base_pay)}원</div>`;
-              if (breakdown.overtime_pay > 0) {
-                  detail += `<div>• 초과수당 = 초과시간 × ${formatNumber(hourlyWage)}원 × 1.5 = ${formatNumber(breakdown.overtime_pay)}원</div>`;
-              }
-              if (breakdown.weekly_holiday_pay > 0) {
-                  detail += `<div>• 주휴수당 = (주 근무시간 ÷ 5) × ${formatNumber(hourlyWage)}원 = ${formatNumber(breakdown.weekly_holiday_pay)}원</div>`;
-              }
-              if (breakdown.full_attendance_bonus > 0) {
-                  detail += `<div>• 만근수당 = ${formatNumber(breakdown.full_attendance_bonus)}원 ✓</div>`;
-              }
-              detail += `</div>`;
-              detail += `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #333; color: #fff;">`;
-              detail += `<strong>합계: ${formatNumber(breakdown.base_pay)} + ${formatNumber(breakdown.overtime_pay)} + ${formatNumber(breakdown.weekly_holiday_pay)} + ${formatNumber(breakdown.full_attendance_bonus)} = ${formatNumber(breakdown.total_pay)}원</strong>`;
-              detail += `</div>`;
-              detailEl.innerHTML = detail;
-              detailEl.style.display = 'block';
-          } 
-          else {
-              detailEl.style.display = 'none';
-          }
+        document.getElementById("basePay").textContent =
+          formatNumber(breakdown.base_pay) + "원";
+        document.getElementById("overtimePay").textContent =
+          formatNumber(breakdown.overtime_pay) + "원";
+        document.getElementById("weeklyPay").textContent =
+          formatNumber(breakdown.weekly_holiday_pay) + "원";
+        document.getElementById("fullBonus").textContent =
+          formatNumber(breakdown.full_attendance_bonus) + "원";
+        document.getElementById("totalPay").textContent =
+          formatNumber(breakdown.total_pay) + "원";
       }
 
       // 확정 버튼 체크
