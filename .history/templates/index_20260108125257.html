@@ -968,20 +968,17 @@
           border-top: 1px solid #222;
           z-index: 100;
           padding: 8px 0;
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
         }
 
         .mobile-nav-item {
-          flex: 0 0 auto;
-          min-width: 60px;
+          flex: 1;
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 8px 12px;
+          padding: 8px;
           color: #666;
           text-decoration: none;
-          font-size: 10px;
+          font-size: 11px;
           gap: 4px;
         }
 
@@ -990,7 +987,7 @@
         }
 
         .mobile-nav-icon {
-          font-size: 18px;
+          font-size: 20px;
         }
 
         body {
@@ -2861,14 +2858,6 @@
         <span class="mobile-nav-icon">⭐</span>
         <span>필터</span>
       </a>
-      <a class="mobile-nav-item" data-page="employees">
-        <span class="mobile-nav-icon">👥</span>
-        <span>직원</span>
-      </a>
-      <a class="mobile-nav-item" data-page="admin-attendance">
-        <span class="mobile-nav-icon">📅</span>
-        <span>출퇴근</span>
-      </a>
     </nav>
 
     <script>
@@ -3758,24 +3747,9 @@
           .forEach((p) => (p.style.display = "none"));
         document.getElementById(`page-${page}`).style.display = "block";
 
-        // 페이지별 데이터 로드
+        // 원가 마진표 페이지면 데이터 로드
         if (page === "margin" && marginData.length === 0) {
           loadMarginData();
-        } else if (page === "employees") {
-          loadEmployees();
-          loadHolidays();
-          const now = new Date();
-          if (document.getElementById("holidayYear")) {
-            document.getElementById("holidayYear").value = now.getFullYear();
-            document.getElementById("holidayMonth").value = now.getMonth() + 1;
-          }
-        } else if (page === "admin-attendance") {
-          loadAdminAttendance();
-          const now = new Date();
-          if (document.getElementById("adminAttYear")) {
-            document.getElementById("adminAttYear").value = now.getFullYear();
-            document.getElementById("adminAttMonth").value = now.getMonth() + 1;
-          }
         }
       }
 
@@ -4737,8 +4711,6 @@
           let totalHours = 0;
           let workDays = 0;
           let incompleteCount = 0;
-          let basePay = 0;
-          let overtimePay = 0;
 
           records.forEach((r) => {
             if (r.clock_in && r.clock_out) {
@@ -4746,29 +4718,18 @@
               const [inH, inM] = r.clock_in.split(":").map(Number);
               const [outH, outM] = r.clock_out.split(":").map(Number);
               let mins = outH * 60 + outM - (inH * 60 + inM);
-              // 점심시간 공제
               if (inH < 13 && outH >= 12) mins -= 60;
               totalHours += mins / 60;
-
-              // 급여 계산 (정규 8시간 기준)
-              const dailyHours = mins / 60;
-              const regularHours = Math.min(dailyHours, 8);
-              const overtimeHours = Math.max(0, dailyHours - 8);
-              const multiplier = r.is_holiday_work ? 1.5 : 1.0;
-              basePay += regularHours * emp.hourly_wage * multiplier;
-              overtimePay += overtimeHours * emp.hourly_wage * 1.5 * multiplier;
             } else if (r.clock_in || r.clock_out) {
               incompleteCount++;
             }
           });
 
-          const estimatedPay = Math.round(basePay + overtimePay);
-
           html += `
             <div style="background: #1a1a1a; border-radius: 12px; margin-bottom: 20px; overflow: hidden;">
-              <div style="padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div style="flex: 1; min-width: 200px;">
-                  <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+              <div style="padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">
                     ${emp.name}
                     ${
                       isConfirmed
@@ -4776,22 +4737,18 @@
                         : ""
                     }
                   </div>
-                  <div style="display: flex; flex-wrap: wrap; gap: 15px; color: #888; font-size: 13px;">
-                    <span>📅 출근 <strong style="color: #00ff88;">${workDays}일</strong></span>
-                    <span>⏱️ 근무 <strong style="color: #00ff88;">${totalHours.toFixed(
-                      1
-                    )}시간</strong></span>
-                    <span>💰 예상 <strong style="color: #ffd700;">${estimatedPay.toLocaleString()}원</strong></span>
+                  <div style="color: #666; font-size: 13px;">
+                    출근 ${workDays}일 | 총 ${totalHours.toFixed(1)}시간
                     ${
                       incompleteCount > 0
-                        ? `<span style="color: #ff6b6b;">⚠️ 미완료 ${incompleteCount}건</span>`
+                        ? `| <span style="color: #ff6b6b;">미완료 ${incompleteCount}건</span>`
                         : ""
                     }
                   </div>
                 </div>
                 <button onclick="toggleAttendanceDetail(${
                   emp.id
-                })" style="padding: 10px 20px; background: #333; border: none; border-radius: 8px; color: #fff; cursor: pointer; font-size: 14px;">
+                })" style="padding: 8px 16px; background: #333; border: none; border-radius: 6px; color: #fff; cursor: pointer;">
                   📋 상세보기
                 </button>
               </div>
@@ -4927,75 +4884,46 @@
 
       const originalSetupNavigation = setupNavigation;
       setupNavigation = function () {
-        // 공통 페이지 전환 및 데이터 로드 함수
-        function handlePageChange(page) {
-          // 기존 페이지 전환 로직
-          document
-            .querySelectorAll(".page")
-            .forEach((p) => (p.style.display = "none"));
-          document
-            .querySelectorAll(".nav-item")
-            .forEach((n) => n.classList.remove("active"));
-          document
-            .querySelectorAll(".mobile-nav-item")
-            .forEach((n) => n.classList.remove("active"));
-
-          const targetPage = document.getElementById(`page-${page}`);
-          if (targetPage) targetPage.style.display = "block";
-
-          // 사이드바 활성화
-          const sideNavItem = document.querySelector(
-            `.nav-item[data-page="${page}"]`
-          );
-          if (sideNavItem) sideNavItem.classList.add("active");
-
-          // 모바일 네비게이션 활성화
-          const mobileNavItem = document.querySelector(
-            `.mobile-nav-item[data-page="${page}"]`
-          );
-          if (mobileNavItem) mobileNavItem.classList.add("active");
-
-          // 페이지별 데이터 로드
-          if (page === "employees") {
-            loadEmployees();
-            loadHolidays();
-            const now = new Date();
-            if (document.getElementById("holidayYear")) {
-              document.getElementById("holidayYear").value = now.getFullYear();
-              document.getElementById("holidayMonth").value =
-                now.getMonth() + 1;
-            }
-          } else if (page === "admin-attendance") {
-            loadAdminAttendance();
-            const now = new Date();
-            if (document.getElementById("adminAttYear")) {
-              document.getElementById("adminAttYear").value = now.getFullYear();
-              document.getElementById("adminAttMonth").value =
-                now.getMonth() + 1;
-            }
-          } else if (page === "margin" && marginData.length === 0) {
-            loadMarginData();
-          }
-        }
-
-        // 사이드바 네비게이션
         document.querySelectorAll(".nav-item").forEach((item) => {
           item.addEventListener("click", () => {
-            handlePageChange(item.dataset.page);
-          });
-        });
+            const page = item.dataset.page;
 
-        // 모바일 네비게이션
-        document.querySelectorAll(".mobile-nav-item").forEach((item) => {
-          item.addEventListener("click", (e) => {
-            e.preventDefault();
-            handlePageChange(item.dataset.page);
-          });
-        });
+            // 기존 페이지 전환 로직
+            document
+              .querySelectorAll(".page")
+              .forEach((p) => (p.style.display = "none"));
+            document
+              .querySelectorAll(".nav-item")
+              .forEach((n) => n.classList.remove("active"));
 
-        // 로고 클릭
-        document.getElementById("logoBtn").addEventListener("click", () => {
-          handlePageChange("home");
+            const targetPage = document.getElementById(`page-${page}`);
+            if (targetPage) targetPage.style.display = "block";
+            item.classList.add("active");
+
+            // 페이지별 데이터 로드
+            if (page === "employees") {
+              loadEmployees();
+              loadHolidays();
+              // 현재 년/월 설정
+              const now = new Date();
+              if (document.getElementById("holidayYear")) {
+                document.getElementById("holidayYear").value =
+                  now.getFullYear();
+                document.getElementById("holidayMonth").value =
+                  now.getMonth() + 1;
+              }
+            } else if (page === "admin-attendance") {
+              loadAdminAttendance();
+              // 현재 년/월 설정
+              const now = new Date();
+              if (document.getElementById("adminAttYear")) {
+                document.getElementById("adminAttYear").value =
+                  now.getFullYear();
+                document.getElementById("adminAttMonth").value =
+                  now.getMonth() + 1;
+              }
+            }
+          });
         });
       };
     </script>
