@@ -1639,7 +1639,7 @@ def approve_edit_request(request_id):
         emp_id = req['employee_id']
         work_date = str(req['request_date'])[:10]  # YYYY-MM-DD 형식만 추출
         
-        # 시간 값 안전하게 처리 (HH:MM:SS 형식으로 변환)
+        # 시간 값 안전하게 처리 (HH:MM -> HH:MM:00 변환)
         def safe_time(val):
             if not val or str(val) in ('None', 'null', ''):
                 return None
@@ -1689,9 +1689,6 @@ def approve_edit_request(request_id):
         
         return jsonify({'success': True, 'message': '수정 요청이 승인되었습니다'})
     except Exception as e:
-        import traceback
-        print(f"[승인 오류] request_id={request_id}, error={str(e)}")
-        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
