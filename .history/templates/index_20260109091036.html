@@ -5407,7 +5407,7 @@
       function rejectEditRequest() {
         if (!currentViewingRequest) return;
 
-        document.getElementById("editRequestViewModal").style.display = "none";
+        closeEditRequestViewModal();
         document.getElementById("rejectReasonInput").value = "";
         document.getElementById("rejectReasonModal").style.display = "flex";
       }
@@ -5428,13 +5428,12 @@
 
         if (!currentViewingRequest) return;
 
-        const requestId = currentViewingRequest.id;
         showLoading();
         closeRejectReasonModal();
 
         try {
           const response = await fetch(
-            `/api/attendance-edit-request/${requestId}/reject`,
+            `/api/attendance-edit-request/${currentViewingRequest.id}/reject`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
