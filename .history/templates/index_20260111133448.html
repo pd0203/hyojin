@@ -5243,13 +5243,13 @@
                 now.getMonth() + 1;
             }
           } else if (page === "admin-attendance") {
+            loadAdminAttendance();
             const now = new Date();
             if (document.getElementById("adminAttYear")) {
               document.getElementById("adminAttYear").value = now.getFullYear();
               document.getElementById("adminAttMonth").value =
                 now.getMonth() + 1;
             }
-            loadAdminAttendance();
           } else if (page === "margin" && marginData.length === 0) {
             loadMarginData();
           }
