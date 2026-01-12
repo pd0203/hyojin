@@ -1403,10 +1403,12 @@
         hourWheel.innerHTML = hourHtml;
 
         // 분 (0-59)
-        let minHtml = '<div style="height: 50px;"></div>';
-        for (let m = 0; m < 60; m += 1) {
-            minHtml += `<div class="wheel-item" data-value="${m}" onclick="selectMinute(${m})">${String(m).padStart(2, "0")}</div>`;
-        }
+let minHtml = '<div style="height: 50px;"></div>';
+for (let m = 0; m < 60; m += 1) {
+  minHtml += `<div class="wheel-item" data-value="${m}" onclick="selectMinute(${m})">${String(
+    m
+  ).padStart(2, "0")}</div>`;
+}
         minHtml += '<div style="height: 50px;"></div>';
         minuteWheel.innerHTML = minHtml;
       }
@@ -1417,7 +1419,7 @@
 
         const [h, m] = (currentTime || "09:00").split(":").map(Number);
         selectedHour = h;
-        selectedMinute = m;
+        selectedMinute = Math.floor(m / 10) * 10;
 
         document.getElementById("pickerTitle").textContent =
           type === "in" ? "출근 시간 선택" : "퇴근 시간 선택";
@@ -1554,9 +1556,9 @@
         const [outH, outM] = outTime.split(':');
         
         document.getElementById('editNewClockInHour').value = inH;
-        document.getElementById('editNewClockInMin').value = inM;
+        document.getElementById('editNewClockInMin').value = String(Math.floor(parseInt(inM) / 10) * 10).padStart(2, '0');
         document.getElementById('editNewClockOutHour').value = outH;
-        document.getElementById('editNewClockOutMin').value = outM;
+        document.getElementById('editNewClockOutMin').value = String(Math.floor(parseInt(outM) / 10) * 10).padStart(2, '0');
         
         document.getElementById('editReason').value = '';
         

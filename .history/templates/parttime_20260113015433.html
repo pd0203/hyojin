@@ -1556,7 +1556,7 @@
         document.getElementById('editNewClockInHour').value = inH;
         document.getElementById('editNewClockInMin').value = inM;
         document.getElementById('editNewClockOutHour').value = outH;
-        document.getElementById('editNewClockOutMin').value = outM;
+        document.getElementById('editNewClockOutMin').value = String(Math.floor(parseInt(outM) / 10) * 10).padStart(2, '0');
         
         document.getElementById('editReason').value = '';
         
