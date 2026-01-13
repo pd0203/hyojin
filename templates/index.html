@@ -4989,7 +4989,7 @@
       let adminAttendanceData = [];
       let adminPendingRequests = []; // 직원들의 대기중인 수정 요청
 
-      async function loadAdminAttendance() {
+      async function loadAdminAttendance(y, m) {
         const year =
           y ||
           document.getElementById("adminAttYear")?.value ||
