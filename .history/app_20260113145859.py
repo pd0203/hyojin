@@ -47,7 +47,6 @@ ADMIN_PW = os.environ.get('ADMIN_PW', LOGIN_PW)
 # [수정됨] 한국 시간(KST) 기준 오늘 날짜 구하기
 def get_kst_today():
     return datetime.now(timezone(timedelta(hours=9))).date()
-
 def login_required(f):
     """로그인 필수 데코레이터"""
     @wraps(f)
@@ -1164,12 +1163,9 @@ def get_attendance():
         confirmation_data = confirm_resp.data[0] if is_confirmed else None
         
         records = []
-        # [수정됨] KST 기준 오늘 날짜 계산
-        kst_today = get_kst_today().isoformat()
-
         for log in response.data:
             work_date = log['work_date']
-            is_editable = work_date == kst_today or approvals.get(work_date, False)
+            is_editable = work_date == date.today().isoformat() or approvals.get(work_date, False)
             records.append({
                 'id': log['id'],
                 'work_date': work_date,
@@ -1218,9 +1214,7 @@ def create_attendance():
     if not emp_id or not work_date:
         return jsonify({'error': '필수 정보 누락'}), 400
     
-    # [수정됨] UTC 대신 KST(한국시간) 기준으로 오늘 날짜 계산
-    today = get_kst_today().isoformat()
-
+    today = date.today().isoformat()
     if work_date != today and session.get('user_role') == 'parttime':
         approval = supabase.table('edit_approvals').select('id, used').eq('employee_id', emp_id).eq('approved_date', work_date).execute()
         if not approval.data or approval.data[0]['used']:

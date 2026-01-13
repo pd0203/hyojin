@@ -4006,16 +4006,12 @@
             document.getElementById("holidayMonth").value = now.getMonth() + 1;
           }
         } else if (page === "admin-attendance") {
+          loadAdminAttendance();
           const now = new Date();
-          const currentYear = now.getFullYear();
-          const currentMonth = now.getMonth() + 1;
-
           if (document.getElementById("adminAttYear")) {
-            document.getElementById("adminAttYear").value = currentYear;
-            document.getElementById("adminAttMonth").value = currentMonth;
+            document.getElementById("adminAttYear").value = now.getFullYear();
+            document.getElementById("adminAttMonth").value = now.getMonth() + 1;
           }
-          // [수정됨] 명시적으로 연도와 월을 전달하여 즉시 로딩되게 함
-          loadAdminAttendance(currentYear, currentMonth);
         }
       }
 

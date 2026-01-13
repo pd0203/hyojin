@@ -1166,10 +1166,10 @@ def get_attendance():
         records = []
         # [수정됨] KST 기준 오늘 날짜 계산
         kst_today = get_kst_today().isoformat()
-
+        
         for log in response.data:
             work_date = log['work_date']
-            is_editable = work_date == kst_today or approvals.get(work_date, False)
+            is_editable = work_date == date.today().isoformat() or approvals.get(work_date, False)
             records.append({
                 'id': log['id'],
                 'work_date': work_date,

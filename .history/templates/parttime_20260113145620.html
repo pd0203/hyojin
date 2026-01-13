@@ -971,9 +971,8 @@
         initEditRequestTimeSelects();
       });
 
-      // 24시간제 시간 선택 초기화 (1분 단위 수정)
+      // 24시간제 시간 선택 초기화
       function initEditRequestTimeSelects() {
-        // 시간 (0-23)
         const hourSelects = ['editNewClockInHour', 'editNewClockOutHour'];
         hourSelects.forEach(selectId => {
           const select = document.getElementById(selectId);
@@ -982,19 +981,6 @@
             const option = document.createElement('option');
             option.value = String(h).padStart(2, '0');
             option.textContent = String(h).padStart(2, '0');
-            select.appendChild(option);
-          }
-        });
-
-        // [수정됨] 분 (0-59) - 1분 단위로 생성
-        const minSelects = ['editNewClockInMin', 'editNewClockOutMin'];
-        minSelects.forEach(selectId => {
-          const select = document.getElementById(selectId);
-          select.innerHTML = '';
-          for (let m = 0; m < 60; m++) {
-            const option = document.createElement('option');
-            option.value = String(m).padStart(2, '0');
-            option.textContent = String(m).padStart(2, '0');
             select.appendChild(option);
           }
         });
