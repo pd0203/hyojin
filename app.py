@@ -1346,6 +1346,8 @@ def _calculate_monthly_salary(emp_id, year, month):
     base_pay = 0
     overtime_pay = 0
     total_hours = 0
+    total_regular_hours = 0
+    total_overtime_hours = 0
     work_days = len(records)
     details = []
     
@@ -1363,6 +1365,8 @@ def _calculate_monthly_salary(emp_id, year, month):
         regular_hrs, overtime_hrs = _calculate_daily_hours(clock_in, clock_out)
         total_daily = regular_hrs + overtime_hrs
         total_hours += total_daily
+        total_regular_hours += regular_hrs
+        total_overtime_hours += overtime_hrs
         
         is_special = r.get('is_holiday_work', False)
         multiplier = 1.5 if is_special else 1.0
@@ -1378,6 +1382,8 @@ def _calculate_monthly_salary(emp_id, year, month):
             'clock_in': clock_in,
             'clock_out': clock_out,
             'hours': round(total_daily, 2),
+            'regular_hours': round(regular_hrs, 2),
+            'overtime_hours': round(overtime_hrs, 2),
             'wage': applicable_wage,
             'is_special': is_special,
             'base': day_base,
@@ -1386,6 +1392,7 @@ def _calculate_monthly_salary(emp_id, year, month):
     
     # 주휴수당: 해당 주의 일요일이 속한 달에 귀속
     weekly_holiday_pay = 0
+    weekly_details = []
     
     # 해당 월의 모든 일요일 찾기
     sundays_in_month = []
@@ -1406,15 +1413,17 @@ def _calculate_monthly_salary(emp_id, year, month):
         week_holidays_resp = supabase.table('holidays').select('holiday_date').gte('holiday_date', week_start).lte('holiday_date', week_end).execute()
         week_holidays = set(h['holiday_date'] for h in week_holidays_resp.data)
         
-        week_total_hours = 0.0
-        worked_dates = set()  # 해당 주에 실제 출근한 날짜들
-        for wr in week_attendance.data:
-            if wr['clock_in'] and wr['clock_out']:
-                reg_hrs, ot_hrs = _calculate_daily_hours(wr['clock_in'], wr['clock_out'])
-                week_total_hours += reg_hrs + ot_hrs
-                worked_dates.add(wr['work_date'])
+        week_total_hours = 0
+        worked_dates = set()
+        week_work_days = 0
+        for rec in week_attendance.data:
+            if rec['clock_in'] and rec['clock_out']:
+                reg, ot = _calculate_daily_hours(rec['clock_in'], rec['clock_out'])
+                week_total_hours += reg + ot
+                worked_dates.add(rec['work_date'])
+                week_work_days += 1
         
-        # 해당 주의 소정근로일 찾기 (공휴일 제외)
+        # 소정근로일 계산
         required_work_dates = set()
         for i in range(7):
             d = monday + timedelta(days=i)
@@ -1426,8 +1435,25 @@ def _calculate_monthly_salary(emp_id, year, month):
         
         # 주휴수당 조건: 15시간 이상 + 소정근로일 개근
         is_full_week_attendance = required_work_dates <= worked_dates
-        if week_total_hours >= 15 and is_full_week_attendance:
-            weekly_holiday_pay += int((week_total_hours / 5) * hourly_wage)
+        is_eligible = week_total_hours >= 15 and is_full_week_attendance
+        week_holiday_pay = int((week_total_hours / 5) * hourly_wage) if is_eligible else 0
+        
+        if is_eligible:
+            weekly_holiday_pay += week_holiday_pay
+        
+        # 주휴수당 상세 내역 저장
+        weekly_details.append({
+            'week_start': week_start,
+            'week_end': week_end,
+            'sunday': sunday.isoformat(),
+            'total_hours': round(week_total_hours, 2),
+            'work_days': week_work_days,
+            'required_days': len(required_work_dates),
+            'is_full_attendance': is_full_week_attendance,
+            'is_eligible': is_eligible,
+            'holiday_pay': week_holiday_pay,
+            'reason': '' if is_eligible else ('15시간 미만' if week_total_hours < 15 else '개근 미충족')
+        })
     
     # 만근수당 계산 (소정근로일 기준)
     required_days = []
@@ -1456,10 +1482,14 @@ def _calculate_monthly_salary(emp_id, year, month):
             'full_attendance_bonus': full_attendance_bonus,
             'total_pay': total_pay,
             'total_hours': round(total_hours, 2),
+            'total_regular_hours': round(total_regular_hours, 2),
+            'total_overtime_hours': round(total_overtime_hours, 2),
             'work_days': work_days,
-            'is_full_attendance': is_full_attendance
+            'is_full_attendance': is_full_attendance,
+            'hourly_wage': hourly_wage
         },
         'details': details,
+        'weekly_details': weekly_details,
         'required_days': len(required_days),
         'worked_days': len(worked_days)
     }
