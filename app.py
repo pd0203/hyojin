@@ -148,6 +148,121 @@ def save_margin_data():
 # 시작 시 로드
 load_margin_data()
 
+# ==================== 면세 자료 정리 함수 ====================
+
+def process_tax_free_files(files):
+    """쿠팡 매출자료에서 면세(FREE) 데이터 추출 (중복 파일 체크 포함)"""
+    import hashlib
+    
+    all_free_data = []
+    monthly_stats = {}
+    monthly_files = {}
+    file_hashes = {}
+    duplicate_files = []
+    processed_files = []
+    
+    sales_cols = ['신용카드(판매)', '현금(판매)', '기타(판매)']
+    refund_cols = ['신용카드(환불)', '현금(환불)', '기타(환불)']
+    
+    for file in files:
+        try:
+            file_content = file.read()
+            file.seek(0)
+            
+            file_hash = hashlib.md5(file_content).hexdigest()
+            
+            if file_hash in file_hashes:
+                duplicate_files.append({
+                    'filename': file.filename,
+                    'duplicate_of': file_hashes[file_hash]
+                })
+                continue
+            
+            file_hashes[file_hash] = file.filename
+            
+            from io import BytesIO
+            if file.filename.endswith('.xlsx'):
+                df = pd.read_excel(BytesIO(file_content), engine='openpyxl')
+            else:
+                df = pd.read_excel(BytesIO(file_content), engine='xlrd')
+            
+            if '과세유형' not in df.columns or '매출인식일' not in df.columns:
+                continue
+            
+            df['매출인식일'] = pd.to_datetime(df['매출인식일'])
+            file_months = df['매출인식일'].dt.to_period('M').unique()
+            
+            file_month = str(file_months[0]) if len(file_months) > 0 else None
+            
+            if file_month:
+                if file_month in monthly_files:
+                    duplicate_files.append({
+                        'filename': file.filename,
+                        'duplicate_of': monthly_files[file_month][0],
+                        'month': file_month
+                    })
+                    continue
+                
+                monthly_files[file_month] = [file.filename]
+            
+            processed_files.append(file.filename)
+            
+            for col in sales_cols + refund_cols:
+                if col not in df.columns:
+                    df[col] = 0
+            
+            df['총매출'] = df[sales_cols].sum(axis=1) - df[refund_cols].sum(axis=1)
+            
+            for _, row in df.iterrows():
+                try:
+                    date_val = row['매출인식일']
+                    month_key = f"{date_val.year}-{date_val.month:02d}"
+                    
+                    if month_key not in monthly_stats:
+                        monthly_stats[month_key] = {
+                            'free_count': 0, 'free_sales': 0,
+                            'total_count': 0, 'total_sales': 0,
+                            'file_count': 0, 'files': []
+                        }
+                    
+                    sales_amount = float(row['총매출']) if pd.notna(row['총매출']) else 0
+                    
+                    monthly_stats[month_key]['total_count'] += 1
+                    monthly_stats[month_key]['total_sales'] += sales_amount
+                    
+                    if str(row.get('과세유형', '')).strip().upper() == 'FREE':
+                        monthly_stats[month_key]['free_count'] += 1
+                        monthly_stats[month_key]['free_sales'] += sales_amount
+                except:
+                    pass
+            
+            if file_month and file_month in monthly_stats:
+                if file.filename not in monthly_stats[file_month]['files']:
+                    monthly_stats[file_month]['files'].append(file.filename)
+                    monthly_stats[file_month]['file_count'] = len(monthly_stats[file_month]['files'])
+            
+            free_mask = df['과세유형'].astype(str).str.strip().str.upper() == 'FREE'
+            free_df = df[free_mask].copy()
+            
+            if len(free_df) > 0:
+                all_free_data.append(free_df)
+                
+        except Exception as e:
+            print(f"파일 처리 오류 ({file.filename}): {e}")
+            import traceback
+            traceback.print_exc()
+            continue
+    
+    combined_df = pd.concat(all_free_data, ignore_index=True) if all_free_data else pd.DataFrame()
+    
+    for month_key in monthly_stats:
+        if month_key in monthly_files:
+            monthly_stats[month_key]['files'] = monthly_files[month_key]
+            monthly_stats[month_key]['file_count'] = len(monthly_files[month_key])
+    
+    return combined_df, monthly_stats, duplicate_files, processed_files
+
+
 # ==================== 스타배송 필터 함수 ====================
 
 def check_star_delivery(df):
@@ -964,6 +1079,88 @@ class OrderClassifierV41:
             if config.get('type') == 'multiple_quantity':
                 return work_name
         return None
+
+# ==================== 면세 자료 정리 API ====================
+
+@app.route('/api/tax-free/process', methods=['POST'])
+@admin_required
+def process_tax_free():
+    """면세 자료 처리"""
+    if 'files' not in request.files:
+        return jsonify({'error': '파일이 없습니다'}), 400
+    
+    files = request.files.getlist('files')
+    if not files or all(f.filename == '' for f in files):
+        return jsonify({'error': '파일을 선택해주세요'}), 400
+    
+    try:
+        combined_df, monthly_stats, duplicate_files, processed_files = process_tax_free_files(files)
+        
+        if combined_df.empty:
+            return jsonify({'error': '면세(FREE) 데이터가 없습니다'}), 400
+        
+        session_id = f"taxfree_{int(time.time() * 1000)}"
+        
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            combined_df.to_excel(writer, index=False, sheet_name='면세자료')
+        output.seek(0)
+        
+        TEMP_RESULTS[session_id] = {
+            'data': output.getvalue(),
+            'stats': monthly_stats,
+            'row_count': len(combined_df),
+            'created_at': time.time()
+        }
+        
+        yearly_free_count = sum(s['free_count'] for s in monthly_stats.values())
+        yearly_free_sales = sum(s['free_sales'] for s in monthly_stats.values())
+        yearly_total_count = sum(s['total_count'] for s in monthly_stats.values())
+        yearly_total_sales = sum(s['total_sales'] for s in monthly_stats.values())
+        
+        return jsonify({
+            'success': True,
+            'session_id': session_id,
+            'row_count': len(combined_df),
+            'monthly_stats': monthly_stats,
+            'yearly_summary': {
+                'free_count': yearly_free_count,
+                'free_sales': yearly_free_sales,
+                'total_count': yearly_total_count,
+                'total_sales': yearly_total_sales
+            },
+            'file_info': {
+                'total_uploaded': len(files),
+                'processed': len(processed_files),
+                'duplicates': duplicate_files,
+                'processed_files': processed_files,
+                'total_months': len(monthly_stats)
+            }
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/tax-free/download/<session_id>')
+@admin_required
+def download_tax_free(session_id):
+    """면세 자료 다운로드"""
+    if session_id not in TEMP_RESULTS:
+        return jsonify({'error': '세션이 만료되었습니다'}), 404
+    
+    result = TEMP_RESULTS[session_id]
+    output = BytesIO(result['data'])
+    
+    filename = f"면세자료_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+    
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=filename
+    )
 
 
 # ==================== 출퇴근 관리 API (신규) ====================

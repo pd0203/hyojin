@@ -1651,6 +1651,7 @@
       <div class="nav-item" data-page="calculator">종합 계산기</div>
       <div class="nav-item" data-page="classify">송장 분류</div>
       <div class="nav-item" data-page="starfilter">스타배송 필터링</div>
+      <div class="nav-item" data-page="tax-free">면세 자료 정리</div>
       <div class="nav-item" data-page="employees">직원 관리</div>
       <div class="nav-item" data-page="admin-attendance">직원 출퇴근일지</div>
     </nav>
@@ -2845,6 +2846,341 @@
                   파일을 업로드하고 분류를 시작해주세요
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 면세 자료 정리 페이지 -->
+      <section id="page-tax-free" class="page" style="display: none">
+        <h1 class="page-title">📋 면세 자료 정리</h1>
+        <p class="page-description">
+          쿠팡 매출자료에서 면세(FREE) 데이터만 추출합니다
+        </p>
+
+        <!-- 업로드 영역 -->
+        <div id="taxFreeUploadSection">
+          <div
+            class="upload-area"
+            id="taxFreeUploadArea"
+            onclick="document.getElementById('taxFreeInput').click()"
+          >
+            <div class="upload-icon">📊</div>
+            <div class="upload-text">
+              쿠팡 매출자료 엑셀 파일을 업로드하세요
+            </div>
+            <div class="upload-hint">여러 파일 선택 가능 (.xls, .xlsx)</div>
+            <input
+              type="file"
+              id="taxFreeInput"
+              accept=".xls,.xlsx"
+              multiple
+              style="display: none"
+              onchange="handleTaxFreeFiles(this.files)"
+            />
+          </div>
+
+          <div class="file-info" id="taxFreeFileInfo">
+            <span>📁</span>
+            <span class="file-name" id="taxFreeFileName"></span>
+            <span class="file-size" id="taxFreeFileSize"></span>
+          </div>
+
+          <div class="button-group" style="margin-top: 20px">
+            <button
+              class="btn btn-primary"
+              id="taxFreeProcessBtn"
+              onclick="processTaxFree()"
+              disabled
+            >
+              🚀 면세 자료 정리 시작
+            </button>
+            <button class="btn btn-outline" onclick="resetTaxFree()">
+              🔄 초기화
+            </button>
+          </div>
+        </div>
+
+        <!-- 결과 영역 -->
+        <div id="taxFreeResultSection" style="display: none; margin-top: 30px">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+            "
+          >
+            <h2 style="color: #00ff88; font-size: 20px">📊 분석 결과</h2>
+            <div style="display: flex; gap: 10px">
+              <button class="btn btn-primary" onclick="downloadTaxFree()">
+                📥 엑셀 다운로드
+              </button>
+              <button class="btn btn-outline" onclick="resetTaxFree()">
+                🔄 새로 분석
+              </button>
+            </div>
+          </div>
+
+          <!-- 파일 처리 정보 -->
+          <div
+            id="taxFreeFileStatus"
+            style="
+              background: #1a1a1a;
+              border-radius: 12px;
+              padding: 16px 20px;
+              margin-bottom: 20px;
+              border: 1px solid #333;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                align-items: center;
+              "
+            >
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span style="color: #888">📁 업로드:</span>
+                <span
+                  style="color: #fff; font-weight: 600"
+                  id="taxFreeUploadedCount"
+                  >0</span
+                >
+                <span style="color: #666">개</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span style="color: #888">✅ 처리됨:</span>
+                <span
+                  style="color: #00ff88; font-weight: 600"
+                  id="taxFreeProcessedCount"
+                  >0</span
+                >
+                <span style="color: #666">개</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span style="color: #888">📅 분석 월:</span>
+                <span
+                  style="color: #a855f7; font-weight: 600"
+                  id="taxFreeMonthCount"
+                  >0</span
+                >
+                <span style="color: #666">개월</span>
+              </div>
+              <div
+                id="taxFreeDuplicateInfo"
+                style="display: none; align-items: center; gap: 8px"
+              >
+                <span style="color: #ff6b6b">⚠️ 중복 제외:</span>
+                <span
+                  style="color: #ff6b6b; font-weight: 600"
+                  id="taxFreeDuplicateCount"
+                  >0</span
+                >
+                <span style="color: #666">개</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 중복 파일 경고 -->
+          <div
+            id="taxFreeDuplicateWarning"
+            style="
+              display: none;
+              background: rgba(255, 107, 107, 0.1);
+              border: 1px solid #ff6b6b;
+              border-radius: 12px;
+              padding: 16px 20px;
+              margin-bottom: 20px;
+            "
+          >
+            <div style="color: #ff6b6b; font-weight: 600; margin-bottom: 10px">
+              ⚠️ 중복 파일이 감지되어 자동으로 제외되었습니다
+            </div>
+            <div
+              id="taxFreeDuplicateList"
+              style="color: #888; font-size: 13px"
+            ></div>
+          </div>
+
+          <!-- 요약 카드 -->
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+              gap: 20px;
+              margin-bottom: 30px;
+            "
+          >
+            <div
+              style="
+                background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
+                border-radius: 16px;
+                padding: 25px;
+                border: 1px solid #00ff88;
+              "
+            >
+              <div style="color: #888; font-size: 14px; margin-bottom: 8px">
+                📋 추출된 면세 데이터
+              </div>
+              <div
+                style="font-size: 32px; font-weight: bold; color: #00ff88"
+                id="taxFreeRowCount"
+              >
+                0
+              </div>
+              <div style="color: #666; font-size: 13px">건</div>
+            </div>
+            <div
+              style="
+                background: linear-gradient(135deg, #2a1a47 0%, #18102b 100%);
+                border-radius: 16px;
+                padding: 25px;
+                border: 1px solid #a855f7;
+              "
+            >
+              <div style="color: #888; font-size: 14px; margin-bottom: 8px">
+                💰 연간 면세 매출 합계
+              </div>
+              <div
+                style="font-size: 32px; font-weight: bold; color: #a855f7"
+                id="taxFreeYearlySales"
+              >
+                0
+              </div>
+              <div style="color: #666; font-size: 13px">원</div>
+            </div>
+            <div
+              style="
+                background: linear-gradient(135deg, #473a1a 0%, #2b2510 100%);
+                border-radius: 16px;
+                padding: 25px;
+                border: 1px solid #ffd700;
+              "
+            >
+              <div style="color: #888; font-size: 14px; margin-bottom: 8px">
+                📦 연간 전체 매출 합계
+              </div>
+              <div
+                style="font-size: 32px; font-weight: bold; color: #ffd700"
+                id="taxFreeTotalSales"
+              >
+                0
+              </div>
+              <div style="color: #666; font-size: 13px">원</div>
+            </div>
+          </div>
+
+          <!-- 월별 상세 테이블 -->
+          <div
+            style="
+              background: #111;
+              border-radius: 12px;
+              border: 1px solid #222;
+              overflow: hidden;
+            "
+          >
+            <div
+              style="
+                padding: 20px;
+                border-bottom: 1px solid #222;
+                background: #0a0a0a;
+              "
+            >
+              <h3 style="color: #fff; font-size: 16px; margin: 0">
+                📅 월별 상세 내역
+              </h3>
+            </div>
+            <div style="overflow-x: auto">
+              <table style="width: 100%; border-collapse: collapse">
+                <thead>
+                  <tr style="background: #1a1a1a">
+                    <th
+                      style="
+                        padding: 14px;
+                        text-align: left;
+                        color: #888;
+                        font-weight: 500;
+                        border-bottom: 1px solid #333;
+                      "
+                    >
+                      월
+                    </th>
+                    <th
+                      style="
+                        padding: 14px;
+                        text-align: center;
+                        color: #888;
+                        font-weight: 500;
+                        border-bottom: 1px solid #333;
+                      "
+                    >
+                      파일수
+                    </th>
+                    <th
+                      style="
+                        padding: 14px;
+                        text-align: right;
+                        color: #00ff88;
+                        font-weight: 500;
+                        border-bottom: 1px solid #333;
+                      "
+                    >
+                      면세 주문수
+                    </th>
+                    <th
+                      style="
+                        padding: 14px;
+                        text-align: right;
+                        color: #00ff88;
+                        font-weight: 500;
+                        border-bottom: 1px solid #333;
+                      "
+                    >
+                      면세 매출
+                    </th>
+                    <th
+                      style="
+                        padding: 14px;
+                        text-align: right;
+                        color: #ffd700;
+                        font-weight: 500;
+                        border-bottom: 1px solid #333;
+                      "
+                    >
+                      전체 주문수
+                    </th>
+                    <th
+                      style="
+                        padding: 14px;
+                        text-align: right;
+                        color: #ffd700;
+                        font-weight: 500;
+                        border-bottom: 1px solid #333;
+                      "
+                    >
+                      전체 매출
+                    </th>
+                    <th
+                      style="
+                        padding: 14px;
+                        text-align: right;
+                        color: #a855f7;
+                        font-weight: 500;
+                        border-bottom: 1px solid #333;
+                      "
+                    >
+                      면세 비율
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="taxFreeMonthlyTable"></tbody>
+                <tfoot
+                  id="taxFreeYearlyTotal"
+                  style="background: #1a1a1a; font-weight: 600"
+                ></tfoot>
+              </table>
             </div>
           </div>
         </div>
@@ -4126,6 +4462,190 @@
         if (bytes < 1024) return bytes + " B";
         if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
         return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+      }
+
+      // ==================== 면세 자료 정리 ====================
+
+      let taxFreeFiles = [];
+      let taxFreeSessionId = null;
+
+      function handleTaxFreeFiles(files) {
+        taxFreeFiles = Array.from(files);
+
+        if (taxFreeFiles.length > 0) {
+          const totalSize = taxFreeFiles.reduce((sum, f) => sum + f.size, 0);
+          document.getElementById("taxFreeFileInfo").classList.add("show");
+          document.getElementById("taxFreeFileName").textContent =
+            taxFreeFiles.length === 1
+              ? taxFreeFiles[0].name
+              : `${taxFreeFiles.length}개 파일 선택됨`;
+          document.getElementById("taxFreeFileSize").textContent =
+            formatFileSize(totalSize);
+          document.getElementById("taxFreeProcessBtn").disabled = false;
+        }
+      }
+
+      function resetTaxFree() {
+        taxFreeFiles = [];
+        taxFreeSessionId = null;
+        document.getElementById("taxFreeInput").value = "";
+        document.getElementById("taxFreeFileInfo").classList.remove("show");
+        document.getElementById("taxFreeProcessBtn").disabled = true;
+        document.getElementById("taxFreeResultSection").style.display = "none";
+        document.getElementById("taxFreeUploadSection").style.display = "block";
+      }
+
+      async function processTaxFree() {
+        if (taxFreeFiles.length === 0) {
+          showToast("error", "파일을 선택해주세요");
+          return;
+        }
+
+        const formData = new FormData();
+        taxFreeFiles.forEach((file) => formData.append("files", file));
+
+        document.getElementById("taxFreeProcessBtn").disabled = true;
+        document.getElementById("taxFreeProcessBtn").textContent = "처리 중...";
+
+        try {
+          const response = await fetch("/api/tax-free/process", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            taxFreeSessionId = result.session_id;
+            displayTaxFreeResult(result);
+            showToast("success", `면세 데이터 ${result.row_count}건 추출 완료`);
+          } else {
+            showToast("error", result.error || "처리 실패");
+          }
+        } catch (error) {
+          showToast("error", "서버 오류");
+        }
+
+        document.getElementById("taxFreeProcessBtn").disabled = false;
+        document.getElementById("taxFreeProcessBtn").textContent =
+          "🚀 면세 자료 정리 시작";
+      }
+
+      function displayTaxFreeResult(result) {
+        document.getElementById("taxFreeUploadSection").style.display = "none";
+        document.getElementById("taxFreeResultSection").style.display = "block";
+
+        const fileInfo = result.file_info;
+        document.getElementById("taxFreeUploadedCount").textContent =
+          fileInfo.total_uploaded;
+        document.getElementById("taxFreeProcessedCount").textContent =
+          fileInfo.processed;
+        document.getElementById("taxFreeMonthCount").textContent =
+          fileInfo.total_months;
+
+        if (fileInfo.duplicates && fileInfo.duplicates.length > 0) {
+          document.getElementById("taxFreeDuplicateInfo").style.display =
+            "flex";
+          document.getElementById("taxFreeDuplicateCount").textContent =
+            fileInfo.duplicates.length;
+          document.getElementById("taxFreeDuplicateWarning").style.display =
+            "block";
+
+          let dupHtml = "";
+          fileInfo.duplicates.forEach((dup) => {
+            const monthInfo = dup.month
+              ? ` (${dup.month}월 중복)`
+              : " (동일 파일)";
+            dupHtml += `<div>• ${dup.filename} → ${dup.duplicate_of}${monthInfo}</div>`;
+          });
+          document.getElementById("taxFreeDuplicateList").innerHTML = dupHtml;
+        } else {
+          document.getElementById("taxFreeDuplicateInfo").style.display =
+            "none";
+          document.getElementById("taxFreeDuplicateWarning").style.display =
+            "none";
+        }
+
+        document.getElementById("taxFreeRowCount").textContent =
+          result.row_count.toLocaleString();
+        document.getElementById("taxFreeYearlySales").textContent = Math.round(
+          result.yearly_summary.free_sales
+        ).toLocaleString();
+        document.getElementById("taxFreeTotalSales").textContent = Math.round(
+          result.yearly_summary.total_sales
+        ).toLocaleString();
+
+        const tbody = document.getElementById("taxFreeMonthlyTable");
+        const tfoot = document.getElementById("taxFreeYearlyTotal");
+
+        const sortedMonths = Object.keys(result.monthly_stats).sort();
+
+        let html = "";
+        let totalFileCount = 0;
+        sortedMonths.forEach((month) => {
+          const stats = result.monthly_stats[month];
+          const freeRatio =
+            stats.total_count > 0
+              ? ((stats.free_count / stats.total_count) * 100).toFixed(1)
+              : 0;
+          const fileCount = stats.file_count || 1;
+          totalFileCount += fileCount;
+
+          const fileCountStyle =
+            fileCount > 1
+              ? "color: #ff6b6b; font-weight: bold;"
+              : "color: #888;";
+          const fileCountWarning = fileCount > 1 ? " ⚠️" : "";
+
+          html += `
+            <tr style="border-bottom: 1px solid #222;">
+              <td style="padding: 14px; color: #fff;">${month}</td>
+              <td style="padding: 14px; text-align: center; ${fileCountStyle}" title="${(
+            stats.files || []
+          ).join(", ")}">${fileCount}개${fileCountWarning}</td>
+              <td style="padding: 14px; text-align: right; color: #00ff88;">${stats.free_count.toLocaleString()}건</td>
+              <td style="padding: 14px; text-align: right; color: #00ff88;">${Math.round(
+                stats.free_sales
+              ).toLocaleString()}원</td>
+              <td style="padding: 14px; text-align: right; color: #ffd700;">${stats.total_count.toLocaleString()}건</td>
+              <td style="padding: 14px; text-align: right; color: #ffd700;">${Math.round(
+                stats.total_sales
+              ).toLocaleString()}원</td>
+              <td style="padding: 14px; text-align: right; color: #a855f7;">${freeRatio}%</td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+
+        const yearly = result.yearly_summary;
+        const yearlyRatio =
+          yearly.total_count > 0
+            ? ((yearly.free_count / yearly.total_count) * 100).toFixed(1)
+            : 0;
+
+        tfoot.innerHTML = `
+          <tr style="border-top: 2px solid #333;">
+            <td style="padding: 14px; color: #fff;">연간 합계</td>
+            <td style="padding: 14px; text-align: center; color: #888;">${totalFileCount}개</td>
+            <td style="padding: 14px; text-align: right; color: #00ff88; font-weight: bold;">${yearly.free_count.toLocaleString()}건</td>
+            <td style="padding: 14px; text-align: right; color: #00ff88; font-weight: bold;">${Math.round(
+              yearly.free_sales
+            ).toLocaleString()}원</td>
+            <td style="padding: 14px; text-align: right; color: #ffd700; font-weight: bold;">${yearly.total_count.toLocaleString()}건</td>
+            <td style="padding: 14px; text-align: right; color: #ffd700; font-weight: bold;">${Math.round(
+              yearly.total_sales
+            ).toLocaleString()}원</td>
+            <td style="padding: 14px; text-align: right; color: #a855f7; font-weight: bold;">${yearlyRatio}%</td>
+          </tr>
+        `;
+      }
+
+      function downloadTaxFree() {
+        if (!taxFreeSessionId) {
+          showToast("error", "다운로드할 데이터가 없습니다");
+          return;
+        }
+        window.location.href = `/api/tax-free/download/${taxFreeSessionId}`;
       }
 
       // 버튼 설정
