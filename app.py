@@ -214,28 +214,26 @@ def process_tax_free_files(files):
             
             df['총매출'] = df[sales_cols].sum(axis=1) - df[refund_cols].sum(axis=1)
             
-            for _, row in df.iterrows():
-                try:
-                    date_val = row['_parsed_date']
-                    month_key = f"{date_val.year}-{date_val.month:02d}"
-                    
-                    if month_key not in monthly_stats:
-                        monthly_stats[month_key] = {
-                            'free_count': 0, 'free_sales': 0,
-                            'total_count': 0, 'total_sales': 0,
-                            'file_count': 0, 'files': []
-                        }
-                    
-                    sales_amount = float(row['총매출']) if pd.notna(row['총매출']) else 0
-                    
-                    monthly_stats[month_key]['total_count'] += 1
-                    monthly_stats[month_key]['total_sales'] += sales_amount
-                    
-                    if str(row.get('과세유형', '')).strip().upper() == 'FREE':
-                        monthly_stats[month_key]['free_count'] += 1
-                        monthly_stats[month_key]['free_sales'] += sales_amount
-                except:
-                    pass
+            # 벡터화 연산으로 월별 통계 계산 (성능 최적화)
+            df['_month_key'] = df['_parsed_date'].dt.to_period('M').astype(str)
+            df['_is_free'] = df['과세유형'].astype(str).str.strip().str.upper() == 'FREE'
+            
+            for month_key in df['_month_key'].unique():
+                month_df = df[df['_month_key'] == month_key]
+                
+                if month_key not in monthly_stats:
+                    monthly_stats[month_key] = {
+                        'free_count': 0, 'free_sales': 0,
+                        'total_count': 0, 'total_sales': 0,
+                        'file_count': 0, 'files': []
+                    }
+                
+                monthly_stats[month_key]['total_count'] += len(month_df)
+                monthly_stats[month_key]['total_sales'] += month_df['총매출'].sum()
+                
+                free_df_month = month_df[month_df['_is_free']]
+                monthly_stats[month_key]['free_count'] += len(free_df_month)
+                monthly_stats[month_key]['free_sales'] += free_df_month['총매출'].sum()
             
             if file_month and file_month in monthly_stats:
                 if file.filename not in monthly_stats[file_month]['files']:
@@ -245,9 +243,9 @@ def process_tax_free_files(files):
             free_mask = df['과세유형'].astype(str).str.strip().str.upper() == 'FREE'
             free_df = df[free_mask].copy()
             
-            # 임시 파싱 컬럼 제거
-            if '_parsed_date' in free_df.columns:
-                free_df = free_df.drop(columns=['_parsed_date'])
+            # 임시 컬럼들 제거
+            temp_cols = ['_parsed_date', '_month_key', '_is_free']
+            free_df = free_df.drop(columns=[c for c in temp_cols if c in free_df.columns])
             
             if len(free_df) > 0:
                 all_free_data.append(free_df)
