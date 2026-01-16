@@ -228,12 +228,12 @@ def process_tax_free_files(files):
                         'file_count': 0, 'files': []
                     }
                 
-                monthly_stats[month_key]['total_count'] += len(month_df)
-                monthly_stats[month_key]['total_sales'] += month_df['총매출'].sum()
+                monthly_stats[month_key]['total_count'] += int(len(month_df))
+                monthly_stats[month_key]['total_sales'] += float(month_df['총매출'].sum())
                 
                 free_df_month = month_df[month_df['_is_free']]
-                monthly_stats[month_key]['free_count'] += len(free_df_month)
-                monthly_stats[month_key]['free_sales'] += free_df_month['총매출'].sum()
+                monthly_stats[month_key]['free_count'] += int(len(free_df_month))
+                monthly_stats[month_key]['free_sales'] += float(free_df_month['총매출'].sum())
             
             if file_month and file_month in monthly_stats:
                 if file.filename not in monthly_stats[file_month]['files']:
