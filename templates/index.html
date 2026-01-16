@@ -5069,7 +5069,9 @@
             }
           });
 
-          const estimatedPay = Math.round(basePay + overtimePay);
+          const estimatedPay = empData.salary_breakdown
+            ? empData.salary_breakdown.total_pay
+            : Math.round(basePay + overtimePay);
 
           html += `
             <div style="background: #1a1a1a; border-radius: 12px; margin-bottom: 20px; overflow: hidden;">

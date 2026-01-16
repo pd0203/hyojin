@@ -1608,6 +1608,10 @@ def admin_get_attendance():
             attendance = supabase.table('attendance_logs').select('*').eq('employee_id', emp['id']).gte('work_date', start_date).lte('work_date', end_date).order('work_date').execute()
             confirmation = supabase.table('salary_confirmations').select('*').eq('employee_id', emp['id']).eq('year_month', f"{year}-{month:02d}").execute()
             
+            # 급여 계산 결과 가져오기
+            salary_calc = _calculate_monthly_salary(emp['id'], year, month)
+            salary_breakdown = salary_calc.get('breakdown') if salary_calc.get('success') else None
+            
             result.append({
                 'employee': {
                     'id': emp['id'],
@@ -1616,7 +1620,8 @@ def admin_get_attendance():
                 },
                 'records': attendance.data,
                 'is_confirmed': len(confirmation.data) > 0,
-                'confirmation': confirmation.data[0] if confirmation.data else None
+                'confirmation': confirmation.data[0] if confirmation.data else None,
+                'salary_breakdown': salary_breakdown
             })
         
         return jsonify({'success': True, 'data': result, 'year_month': f"{year}-{month:02d}"})
