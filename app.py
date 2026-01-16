@@ -189,8 +189,9 @@ def process_tax_free_files(files):
             if '과세유형' not in df.columns or '매출인식일' not in df.columns:
                 continue
             
-            df['매출인식일'] = pd.to_datetime(df['매출인식일'])
-            file_months = df['매출인식일'].dt.to_period('M').unique()
+            # 원본 날짜 보존을 위해 별도 컬럼으로 날짜 파싱
+            df['_parsed_date'] = pd.to_datetime(df['매출인식일'])
+            file_months = df['_parsed_date'].dt.to_period('M').unique()
             
             file_month = str(file_months[0]) if len(file_months) > 0 else None
             
@@ -215,7 +216,7 @@ def process_tax_free_files(files):
             
             for _, row in df.iterrows():
                 try:
-                    date_val = row['매출인식일']
+                    date_val = row['_parsed_date']
                     month_key = f"{date_val.year}-{date_val.month:02d}"
                     
                     if month_key not in monthly_stats:
@@ -244,6 +245,10 @@ def process_tax_free_files(files):
             free_mask = df['과세유형'].astype(str).str.strip().str.upper() == 'FREE'
             free_df = df[free_mask].copy()
             
+            # 임시 파싱 컬럼 제거
+            if '_parsed_date' in free_df.columns:
+                free_df = free_df.drop(columns=['_parsed_date'])
+            
             if len(free_df) > 0:
                 all_free_data.append(free_df)
                 
@@ -254,6 +259,10 @@ def process_tax_free_files(files):
             continue
     
     combined_df = pd.concat(all_free_data, ignore_index=True) if all_free_data else pd.DataFrame()
+    
+    # Unnamed 컬럼명을 빈 문자열로 변경
+    if not combined_df.empty:
+        combined_df.columns = ['' if 'Unnamed' in str(col) else col for col in combined_df.columns]
     
     for month_key in monthly_stats:
         if month_key in monthly_files:
