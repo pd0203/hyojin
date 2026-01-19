@@ -2079,6 +2079,186 @@ def mark_rejection_viewed(request_id):
         return jsonify({'error': str(e)}), 500
 
 
+# ==================== 메모장 API ====================
+
+@app.route('/api/memos', methods=['GET'])
+@admin_required
+def get_memos():
+    """메모 목록 조회"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    try:
+        response = supabase.table('memos').select('*').order('is_pinned', desc=True).order('updated_at', desc=True).execute()
+        return jsonify({'success': True, 'data': response.data})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/memos', methods=['POST'])
+@admin_required
+def create_memo():
+    """메모 생성"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    data = request.get_json()
+    try:
+        new_memo = {
+            'title': data.get('title', '').strip() or '제목 없음',
+            'content': data.get('content', ''),
+            'is_pinned': data.get('is_pinned', False)
+        }
+        response = supabase.table('memos').insert(new_memo).execute()
+        return jsonify({'success': True, 'data': response.data[0]})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/memos/<int:memo_id>', methods=['PUT'])
+@admin_required
+def update_memo(memo_id):
+    """메모 수정"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    data = request.get_json()
+    try:
+        update_data = {
+            'title': data.get('title', '').strip() or '제목 없음',
+            'content': data.get('content', ''),
+            'is_pinned': data.get('is_pinned', False),
+            'updated_at': datetime.utcnow().isoformat()
+        }
+        response = supabase.table('memos').update(update_data).eq('id', memo_id).execute()
+        return jsonify({'success': True, 'data': response.data[0] if response.data else None})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/memos/<int:memo_id>', methods=['DELETE'])
+@admin_required
+def delete_memo(memo_id):
+    """메모 삭제"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    try:
+        supabase.table('memos').delete().eq('id', memo_id).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/memos/<int:memo_id>/pin', methods=['POST'])
+@admin_required
+def toggle_memo_pin(memo_id):
+    """메모 고정/해제"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    try:
+        current = supabase.table('memos').select('is_pinned').eq('id', memo_id).execute()
+        if not current.data:
+            return jsonify({'error': '메모를 찾을 수 없습니다'}), 404
+        new_pinned = not current.data[0]['is_pinned']
+        supabase.table('memos').update({'is_pinned': new_pinned, 'updated_at': datetime.utcnow().isoformat()}).eq('id', memo_id).execute()
+        return jsonify({'success': True, 'is_pinned': new_pinned})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ==================== 품절상품 API ====================
+
+@app.route('/api/out-of-stock', methods=['GET'])
+@admin_required
+def get_out_of_stock():
+    """품절상품 목록 조회"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    try:
+        show_restocked = request.args.get('show_restocked', 'false').lower() == 'true'
+        query = supabase.table('out_of_stock').select('*')
+        if not show_restocked:
+            query = query.eq('is_restocked', False)
+        response = query.order('out_date', desc=True).execute()
+        return jsonify({'success': True, 'data': response.data})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/out-of-stock', methods=['POST'])
+@admin_required
+def create_out_of_stock():
+    """품절상품 등록"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    data = request.get_json()
+    try:
+        new_item = {
+            'product_name': data.get('product_name', '').strip(),
+            'out_date': data.get('out_date') or date.today().isoformat(),
+            'restock_date': data.get('restock_date') or None,
+            'notes': data.get('notes', ''),
+            'is_restocked': False
+        }
+        if not new_item['product_name']:
+            return jsonify({'error': '상품명은 필수입니다'}), 400
+        response = supabase.table('out_of_stock').insert(new_item).execute()
+        return jsonify({'success': True, 'data': response.data[0]})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/out-of-stock/<int:item_id>', methods=['PUT'])
+@admin_required
+def update_out_of_stock(item_id):
+    """품절상품 수정"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    data = request.get_json()
+    try:
+        update_data = {
+            'product_name': data.get('product_name', '').strip(),
+            'out_date': data.get('out_date'),
+            'restock_date': data.get('restock_date') or None,
+            'notes': data.get('notes', ''),
+            'is_restocked': data.get('is_restocked', False),
+            'updated_at': datetime.utcnow().isoformat()
+        }
+        if not update_data['product_name']:
+            return jsonify({'error': '상품명은 필수입니다'}), 400
+        response = supabase.table('out_of_stock').update(update_data).eq('id', item_id).execute()
+        return jsonify({'success': True, 'data': response.data[0] if response.data else None})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/out-of-stock/<int:item_id>', methods=['DELETE'])
+@admin_required
+def delete_out_of_stock(item_id):
+    """품절상품 삭제"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    try:
+        supabase.table('out_of_stock').delete().eq('id', item_id).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/out-of-stock/<int:item_id>/restock', methods=['POST'])
+@admin_required
+def mark_restocked(item_id):
+    """재입고 완료 처리"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    try:
+        supabase.table('out_of_stock').update({
+            'is_restocked': True,
+            'restock_date': date.today().isoformat(),
+            'updated_at': datetime.utcnow().isoformat()
+        }).eq('id', item_id).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)

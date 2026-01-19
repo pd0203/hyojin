@@ -93,6 +93,28 @@ CREATE TABLE IF NOT EXISTS attendance_edit_requests (
     UNIQUE(employee_id, request_date, status)
 );
 
+-- 8. 메모장 테이블 (관리자용)
+CREATE TABLE IF NOT EXISTS memos (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT,
+    is_pinned BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 9. 품절상품 테이블
+CREATE TABLE IF NOT EXISTS out_of_stock (
+    id SERIAL PRIMARY KEY,
+    product_name TEXT NOT NULL,
+    out_date DATE NOT NULL,
+    restock_date DATE,
+    notes TEXT,
+    is_restocked BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 인덱스 생성
 CREATE INDEX IF NOT EXISTS idx_attendance_employee_date ON attendance_logs(employee_id, work_date);
 CREATE INDEX IF NOT EXISTS idx_attendance_work_date ON attendance_logs(work_date);

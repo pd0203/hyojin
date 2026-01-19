@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
@@ -12,8 +12,8 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         background-color: #0a0a0a;
         color: #e0e0e0;
         min-height: 100vh;
@@ -1217,7 +1217,9 @@
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
       }
 
       .calc-btn:hover {
@@ -1626,6 +1628,501 @@
           display: block;
         }
       }
+
+      /* ==================== 홈 대시보드 스타일 ==================== */
+      .home-dashboard {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        margin-top: 24px;
+      }
+
+      .dashboard-card {
+        background: linear-gradient(145deg, #151515 0%, #0d0d0d 100%);
+        border: 1px solid #222;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        height: 520px;
+        overflow: hidden;
+      }
+
+      .dashboard-card-header {
+        padding: 16px 20px;
+        background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
+        border-bottom: 1px solid #2a2a2a;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+      }
+
+      .dashboard-card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .dashboard-card-title .icon {
+        font-size: 18px;
+      }
+
+      .dashboard-card-badge {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+        color: #fff;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+      }
+
+      .dashboard-card-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .dashboard-add-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+        color: #000;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+
+      .dashboard-add-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+      }
+
+      .dashboard-card-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+      }
+
+      .dashboard-card-body::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      .dashboard-card-body::-webkit-scrollbar-track {
+        background: #1a1a1a;
+      }
+
+      .dashboard-card-body::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 3px;
+      }
+
+      /* 메모 아이템 */
+      .memo-item {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .memo-item:hover {
+        background: #222;
+        border-color: #333;
+        transform: translateY(-2px);
+      }
+
+      .memo-item.pinned {
+        border-color: #00ff88;
+        background: linear-gradient(145deg, #1a2a1f 0%, #1a1a1a 100%);
+      }
+
+      .memo-item-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+
+      .memo-pin-icon {
+        color: #00ff88;
+        font-size: 12px;
+      }
+
+      .memo-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .memo-content {
+        font-size: 13px;
+        color: #888;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.5;
+      }
+
+      .memo-date {
+        font-size: 11px;
+        color: #555;
+        margin-top: 8px;
+      }
+
+      /* 품절상품 아이템 */
+      .stock-item {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+        transition: all 0.2s;
+      }
+
+      .stock-item:hover {
+        background: #222;
+        border-color: #333;
+      }
+
+      .stock-item-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .stock-product-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #fff;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .stock-item-actions {
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .stock-item:hover .stock-item-actions {
+        opacity: 1;
+      }
+
+      .stock-action-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        border: none;
+        background: #333;
+        color: #888;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .stock-action-btn:hover {
+        background: #444;
+        color: #fff;
+      }
+
+      .stock-action-btn.restock:hover {
+        background: #00ff88;
+        color: #000;
+      }
+
+      .stock-action-btn.delete:hover {
+        background: #ff6b6b;
+        color: #fff;
+      }
+
+      .stock-dates {
+        display: flex;
+        gap: 16px;
+        font-size: 12px;
+      }
+
+      .stock-date-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .stock-date-label {
+        color: #666;
+      }
+
+      .stock-date-value {
+        color: #ff6b6b;
+      }
+
+      .stock-date-value.restock {
+        color: #00ff88;
+      }
+
+      .stock-date-value.pending {
+        color: #ffd700;
+      }
+
+      /* 요청 알림 아이템 */
+      .request-item {
+        background: linear-gradient(145deg, #2a2520 0%, #1a1a1a 100%);
+        border: 1px solid #3a3530;
+        border-left: 3px solid #ffd700;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .request-item:hover {
+        background: linear-gradient(145deg, #352f28 0%, #222 100%);
+        transform: translateX(3px);
+      }
+
+      .request-item-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .request-employee {
+        font-size: 14px;
+        font-weight: 600;
+        color: #ffd700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .request-time {
+        font-size: 11px;
+        color: #666;
+      }
+
+      .request-detail {
+        font-size: 13px;
+        color: #aaa;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .request-detail span {
+        color: #888;
+      }
+
+      /* 빈 상태 */
+      .dashboard-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 20px;
+        text-align: center;
+      }
+
+      .dashboard-empty-icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+        opacity: 0.4;
+      }
+
+      .dashboard-empty-text {
+        color: #555;
+        font-size: 14px;
+      }
+
+      /* 메모 모달 */
+      .memo-modal-content {
+        padding: 0;
+      }
+
+      .memo-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        border-bottom: 1px solid #2a2a2a;
+      }
+
+      .memo-modal-title-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        font-weight: 600;
+        color: #fff;
+        outline: none;
+      }
+
+      .memo-modal-title-input::placeholder {
+        color: #555;
+      }
+
+      .memo-modal-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .memo-modal-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: none;
+        background: #222;
+        color: #888;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .memo-modal-btn:hover {
+        background: #333;
+        color: #fff;
+      }
+
+      .memo-modal-btn.pin.active {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+      }
+
+      .memo-modal-btn.delete:hover {
+        background: rgba(255, 107, 107, 0.2);
+        color: #ff6b6b;
+      }
+
+      .memo-modal-body {
+        padding: 20px 24px;
+        min-height: 250px;
+      }
+
+      .memo-textarea {
+        width: 100%;
+        min-height: 200px;
+        background: transparent;
+        border: none;
+        color: #e0e0e0;
+        font-size: 15px;
+        line-height: 1.7;
+        resize: none;
+        outline: none;
+      }
+
+      .memo-textarea::placeholder {
+        color: #444;
+      }
+
+      .memo-modal-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        border-top: 1px solid #2a2a2a;
+        background: #151515;
+      }
+
+      .memo-date-info {
+        font-size: 12px;
+        color: #555;
+      }
+
+      .memo-save-btn {
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+        border: none;
+        border-radius: 8px;
+        color: #000;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .memo-save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+      }
+
+      /* 품절상품 모달 */
+      .stock-form-group {
+        margin-bottom: 20px;
+      }
+
+      .stock-form-label {
+        display: block;
+        font-size: 13px;
+        color: #888;
+        margin-bottom: 8px;
+      }
+
+      .stock-form-input {
+        width: 100%;
+        padding: 12px 16px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .stock-form-input:focus {
+        border-color: #00ff88;
+      }
+
+      .stock-form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      /* 홈 대시보드 반응형 */
+      @media (max-width: 1200px) {
+        .home-dashboard {
+          grid-template-columns: 1fr 1fr;
+        }
+        .dashboard-card:last-child {
+          grid-column: span 2;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .home-dashboard {
+          grid-template-columns: 1fr;
+        }
+        .dashboard-card {
+          height: 400px;
+        }
+        .dashboard-card:last-child {
+          grid-column: span 1;
+        }
+      }
     </style>
   </head>
   <body>
@@ -1636,7 +2133,7 @@
         <span class="user-name">효진유통 담당자</span>
       </div>
       <div class="user-dropdown" id="userDropdown">
-        <button class="logout-btn" onclick="location.href='/logout'">
+        <button class="logout-btn" onclick="location.href = '/logout'">
           <span>🚪</span>
           <span>로그아웃</span>
         </button>
@@ -1663,38 +2160,194 @@
         <h1 class="page-title">홈</h1>
         <p class="page-description">효진유통 업무 자동화 시스템</p>
 
-        <!-- 수정 요청 알림 섹션 (관리자용) -->
-        <div id="editRequestsSection" style="margin-top: 30px; display: none">
-          <h3
-            style="
-              color: #ffd700;
-              margin-bottom: 15px;
-              display: flex;
-              align-items: center;
-              gap: 10px;
-            "
-          >
-            <span>📬</span> 출퇴근 수정 요청
-            <span
-              id="editRequestCount"
-              style="
-                background: #ff6b6b;
-                color: #fff;
-                padding: 2px 8px;
-                border-radius: 12px;
-                font-size: 13px;
-              "
-              >0</span
-            >
-          </h3>
-          <div
-            id="editRequestsList"
-            style="display: flex; flex-direction: column; gap: 10px"
-          >
-            <!-- 동적 생성 -->
+        <!-- 3컬럼 대시보드 -->
+        <div class="home-dashboard">
+          <!-- 메모장 -->
+          <div class="dashboard-card">
+            <div class="dashboard-card-header">
+              <div class="dashboard-card-title">
+                <span class="icon">📝</span>
+                메모장
+              </div>
+              <div class="dashboard-card-actions">
+                <button
+                  class="dashboard-add-btn"
+                  onclick="openMemoModal()"
+                  title="새 메모"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div class="dashboard-card-body" id="memoList">
+              <div class="dashboard-empty">
+                <div class="dashboard-empty-icon">📝</div>
+                <div class="dashboard-empty-text">메모가 없습니다</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 품절상품 리스트 -->
+          <div class="dashboard-card">
+            <div class="dashboard-card-header">
+              <div class="dashboard-card-title">
+                <span class="icon">📦</span>
+                품절상품
+              </div>
+              <div class="dashboard-card-actions">
+                <button
+                  class="dashboard-add-btn"
+                  onclick="openStockModal()"
+                  title="품절상품 등록"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div class="dashboard-card-body" id="stockList">
+              <div class="dashboard-empty">
+                <div class="dashboard-empty-icon">✅</div>
+                <div class="dashboard-empty-text">품절상품이 없습니다</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 직원 요청 알림 -->
+          <div class="dashboard-card">
+            <div class="dashboard-card-header">
+              <div class="dashboard-card-title">
+                <span class="icon">📬</span>
+                직원 요청
+              </div>
+              <span
+                class="dashboard-card-badge"
+                id="requestBadge"
+                style="display: none"
+                >0</span
+              >
+            </div>
+            <div class="dashboard-card-body" id="requestList">
+              <div class="dashboard-empty">
+                <div class="dashboard-empty-icon">✨</div>
+                <div class="dashboard-empty-text">새로운 요청이 없습니다</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      <!-- 메모 작성/수정 모달 -->
+      <div class="modal-overlay" id="memoModal" style="display: none">
+        <div class="modal" style="max-width: 550px; padding: 0">
+          <div class="memo-modal-content">
+            <div class="memo-modal-header">
+              <input
+                type="text"
+                class="memo-modal-title-input"
+                id="memoTitleInput"
+                placeholder="제목을 입력하세요"
+              />
+              <div class="memo-modal-actions">
+                <button
+                  class="memo-modal-btn pin"
+                  id="memoPinBtn"
+                  onclick="toggleMemoPin()"
+                  title="고정"
+                >
+                  📌
+                </button>
+                <button
+                  class="memo-modal-btn delete"
+                  id="memoDeleteBtn"
+                  onclick="deleteMemoFromModal()"
+                  title="삭제"
+                  style="display: none"
+                >
+                  🗑️
+                </button>
+                <button
+                  class="memo-modal-btn"
+                  onclick="closeMemoModal()"
+                  title="닫기"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div class="memo-modal-body">
+              <textarea
+                class="memo-textarea"
+                id="memoContentInput"
+                placeholder="내용을 입력하세요..."
+              ></textarea>
+            </div>
+            <div class="memo-modal-footer">
+              <div class="memo-date-info" id="memoDateInfo"></div>
+              <button class="memo-save-btn" onclick="saveMemo()">저장</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 품절상품 등록/수정 모달 -->
+      <div class="modal-overlay" id="stockModal" style="display: none">
+        <div class="modal" style="max-width: 450px">
+          <div class="modal-header">
+            <div class="modal-icon">📦</div>
+            <div class="modal-title" id="stockModalTitle">품절상품 등록</div>
+          </div>
+          <div style="padding: 20px 0">
+            <div class="stock-form-group">
+              <label class="stock-form-label">상품명 *</label>
+              <input
+                type="text"
+                class="stock-form-input"
+                id="stockProductName"
+                placeholder="품절된 상품명 입력"
+              />
+            </div>
+            <div class="stock-form-row">
+              <div class="stock-form-group">
+                <label class="stock-form-label">품절 날짜</label>
+                <input type="date" class="stock-form-input" id="stockOutDate" />
+              </div>
+              <div class="stock-form-group">
+                <label class="stock-form-label">재입고 예정일</label>
+                <input
+                  type="date"
+                  class="stock-form-input"
+                  id="stockRestockDate"
+                />
+              </div>
+            </div>
+            <div class="stock-form-group">
+              <label class="stock-form-label">비고</label>
+              <input
+                type="text"
+                class="stock-form-input"
+                id="stockNotes"
+                placeholder="추가 메모 (선택사항)"
+              />
+            </div>
+          </div>
+          <div class="modal-actions" style="display: flex; gap: 10px">
+            <button
+              class="btn btn-outline"
+              onclick="closeStockModal()"
+              style="flex: 1"
+            >
+              취소
+            </button>
+            <button
+              class="btn btn-primary"
+              onclick="saveStock()"
+              style="flex: 1"
+            >
+              저장
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- 수정 요청 열람 모달 -->
       <div
@@ -3467,8 +4120,10 @@
         checkMobile();
         window.addEventListener("resize", checkMobile);
 
-        // 관리자인 경우 수정 요청 로드
+        // 관리자 홈 대시보드 로드
         loadEditRequests();
+        loadMemos();
+        loadOutOfStock();
       });
 
       // DB 연결 상태 확인
@@ -3532,9 +4187,8 @@
           const result = await response.json();
 
           marginData = result.data;
-          document.getElementById(
-            "resultCount"
-          ).textContent = `총 ${result.total}개 상품`;
+          document.getElementById("resultCount").textContent =
+            `총 ${result.total}개 상품`;
 
           renderMarginTable(marginData);
         } catch (error) {
@@ -3600,26 +4254,26 @@
                     <tr>
                         <td class="col-name">${item["상품명"]}</td>
                         <td class="col-num ${preHighlight}">${formatNumber(
-            item["인상전 상품가"]
-          )}</td>
+                          item["인상전 상품가"],
+                        )}</td>
                         <td class="col-num ${postHighlight}">${formatNumber(
-            item["인상후 상품가"]
-          )}</td>
+                          item["인상후 상품가"],
+                        )}</td>
                         <td class="col-num">${item["물량지원"]}</td>
                         <td class="col-num">${formatPercent(
-                          item["프로모션할인률"]
+                          item["프로모션할인률"],
                         )}</td>
                         <td class="col-num">${formatPercent(
-                          item["장려금률"]
+                          item["장려금률"],
                         )}</td>
                         <td class="col-num">${formatNumber(item["배송비"])}</td>
                         <td class="col-num">${formatNumber(item["박스비"])}</td>
                         <td class="col-num ${preHighlight}">${formatNumber(
-            item["인상전 총 원가"]
-          )}</td>
+                          item["인상전 총 원가"],
+                        )}</td>
                         <td class="col-num ${postHighlight}">${formatNumber(
-            item["인상후 총 원가"]
-          )}</td>
+                          item["인상후 총 원가"],
+                        )}</td>
                         <td class="col-center ${stockClass}">${stockText}</td>
                         <td class="col-center">${
                           item["1박스 최대 수량"] || "-"
@@ -3630,7 +4284,7 @@
                             ? `
                         <td class="col-center">
                           <button onclick='showEditMarginModal(${JSON.stringify(
-                            item
+                            item,
                           )})' style="padding: 4px 8px; background: #333; border: none; border-radius: 4px; color: #fff; cursor: pointer; margin-right: 4px;">✏️</button>
                           <button onclick="deleteMarginProduct(${
                             item.id
@@ -3638,8 +4292,8 @@
                         </td>
                         `
                             : dbConnected
-                            ? '<td class="col-center">-</td>'
-                            : ""
+                              ? '<td class="col-center">-</td>'
+                              : ""
                         }
                     </tr>
                 `;
@@ -3671,26 +4325,26 @@
                             <div class="margin-card-item">
                                 <span class="margin-card-label">인상전 상품가</span>
                                 <span class="margin-card-value ${preHighlight}">${formatNumber(
-            item["인상전 상품가"]
-          )}원</span>
+                                  item["인상전 상품가"],
+                                )}원</span>
                             </div>
                             <div class="margin-card-item">
                                 <span class="margin-card-label">인상후 상품가</span>
                                 <span class="margin-card-value ${postHighlight}">${formatNumber(
-            item["인상후 상품가"]
-          )}원</span>
+                                  item["인상후 상품가"],
+                                )}원</span>
                             </div>
                             <div class="margin-card-item">
                                 <span class="margin-card-label">인상전 총 원가</span>
                                 <span class="margin-card-value ${preHighlight}">${formatNumber(
-            item["인상전 총 원가"]
-          )}원</span>
+                                  item["인상전 총 원가"],
+                                )}원</span>
                             </div>
                             <div class="margin-card-item">
                                 <span class="margin-card-label">인상후 총 원가</span>
                                 <span class="margin-card-value ${postHighlight}">${formatNumber(
-            item["인상후 총 원가"]
-          )}원</span>
+                                  item["인상후 총 원가"],
+                                )}원</span>
                             </div>
                         </div>
                         <div class="margin-card-divider"></div>
@@ -3704,13 +4358,13 @@
                             <div class="margin-card-item">
                                 <span class="margin-card-label">장려금률</span>
                                 <span class="margin-card-value">${formatPercent(
-                                  item["장려금률"]
+                                  item["장려금률"],
                                 )}</span>
                             </div>
                             <div class="margin-card-item">
                                 <span class="margin-card-label">배송비</span>
                                 <span class="margin-card-value">${formatNumber(
-                                  item["배송비"]
+                                  item["배송비"],
                                 )}원</span>
                             </div>
                             <div class="margin-card-item">
@@ -3781,9 +4435,8 @@
           const data = await response.json();
 
           if (data.status === "loaded") {
-            document.getElementById(
-              "settingsInfo"
-            ).textContent = `${data.workers.length}명의 담당자, ${data.total_products}개 상품 규칙`;
+            document.getElementById("settingsInfo").textContent =
+              `${data.workers.length}명의 담당자, ${data.total_products}개 상품 규칙`;
 
             // 담당자 목록은 새 API로 로드
             loadWorkers();
@@ -3835,12 +4488,12 @@
                 <div class="worker-item" style="cursor: ${
                   canEdit ? "pointer" : "default"
                 };" ${
-              canEdit
-                ? `onclick="openWorkerProducts(${worker.id}, '${
-                    worker.name
-                  }', '${worker.icon || "📋"}')"`
-                : ""
-            }>
+                  canEdit
+                    ? `onclick="openWorkerProducts(${worker.id}, '${
+                        worker.name
+                      }', '${worker.icon || "📋"}')"`
+                    : ""
+                }>
                     <span class="worker-item-icon">${worker.icon || "📋"}</span>
                     <div class="worker-item-info">
                         <div class="worker-item-name">${worker.name}</div>
@@ -3855,7 +4508,7 @@
                       ${canEdit ? '<span style="color: #00ff88;">▶</span>' : ""}
                     </div>
                 </div>
-            `
+            `,
           )
           .join("");
       }
@@ -3898,7 +4551,7 @@
                         }</div>
                     </div>
                 </div>
-            `
+            `,
           )
           .join("");
       }
@@ -3962,10 +4615,10 @@
                   ? `
               <div style="display: flex; gap: 8px;">
                 <button onclick="editWorkerProduct(${product.id}, '${escapeHtml(
-                      product.brand || ""
-                    )}', '${escapeHtml(product.product_name)}', '${escapeHtml(
-                      product.order_option
-                    )}')" style="padding: 6px 12px; background: #333; border: none; border-radius: 4px; color: #fff; cursor: pointer;">✏️</button>
+                  product.brand || "",
+                )}', '${escapeHtml(product.product_name)}', '${escapeHtml(
+                  product.order_option,
+                )}')" style="padding: 6px 12px; background: #333; border: none; border-radius: 4px; color: #fff; cursor: pointer;">✏️</button>
                 <button onclick="deleteWorkerProduct(${
                   product.id
                 })" style="padding: 6px 12px; background: #ff4444; border: none; border-radius: 4px; color: #fff; cursor: pointer;">🗑️</button>
@@ -3974,7 +4627,7 @@
                   : ""
               }
             </div>
-          `
+          `,
             )
             .join("");
         } catch (error) {
@@ -4028,7 +4681,7 @@
                 product_name: productName,
                 order_option: orderOption,
               }),
-            }
+            },
           );
 
           const result = await response.json();
@@ -4080,7 +4733,7 @@
                 product_name: productName,
                 order_option: orderOption,
               }),
-            }
+            },
           );
 
           const result = await response.json();
@@ -4105,7 +4758,7 @@
             `/api/workers/${currentWorkerId}/products/${productId}`,
             {
               method: "DELETE",
-            }
+            },
           );
 
           const result = await response.json();
@@ -4246,7 +4899,7 @@
           if (result.success) {
             showToast(
               "success",
-              productId ? "수정되었습니다" : "추가되었습니다"
+              productId ? "수정되었습니다" : "추가되었습니다",
             );
             closeMarginModal();
             loadMarginData(document.getElementById("marginSearch").value);
@@ -4311,7 +4964,7 @@
           .querySelectorAll(".nav-item")
           .forEach((n) => n.classList.remove("active"));
         const sideNavItem = document.querySelector(
-          `.nav-item[data-page="${page}"]`
+          `.nav-item[data-page="${page}"]`,
         );
         if (sideNavItem) sideNavItem.classList.add("active");
 
@@ -4320,7 +4973,7 @@
           .querySelectorAll(".mobile-nav-item")
           .forEach((n) => n.classList.remove("active"));
         const mobileNavItem = document.querySelector(
-          `.mobile-nav-item[data-page="${page}"]`
+          `.mobile-nav-item[data-page="${page}"]`,
         );
         if (mobileNavItem) mobileNavItem.classList.add("active");
 
@@ -4387,7 +5040,7 @@
         classifyArea.addEventListener("dragleave", handleDragLeave);
         classifyArea.addEventListener("drop", (e) => handleDrop(e, "classify"));
         classifyInput.addEventListener("change", (e) =>
-          handleFileSelect(e, "classify")
+          handleFileSelect(e, "classify"),
         );
 
         // 스타배송 필터 업로드
@@ -4399,7 +5052,7 @@
         starArea.addEventListener("dragleave", handleDragLeave);
         starArea.addEventListener("drop", (e) => handleDrop(e, "star"));
         starInput.addEventListener("change", (e) =>
-          handleFileSelect(e, "star")
+          handleFileSelect(e, "star"),
         );
       }
 
@@ -4443,16 +5096,14 @@
         if (type === "classify") {
           selectedFile = file;
           document.getElementById("classifyFileName").textContent = file.name;
-          document.getElementById(
-            "classifyFileSize"
-          ).textContent = `크기: ${formatFileSize(file.size)}`;
+          document.getElementById("classifyFileSize").textContent =
+            `크기: ${formatFileSize(file.size)}`;
           document.getElementById("classifyFileInfo").classList.add("show");
           document.getElementById("classifyBtn").disabled = false;
         } else {
           document.getElementById("starFileName").textContent = file.name;
-          document.getElementById(
-            "starFileSize"
-          ).textContent = `크기: ${formatFileSize(file.size)}`;
+          document.getElementById("starFileSize").textContent =
+            `크기: ${formatFileSize(file.size)}`;
           document.getElementById("starFileInfo").classList.add("show");
           document.getElementById("starFilterBtn").disabled = false;
         }
@@ -4569,10 +5220,10 @@
         document.getElementById("taxFreeRowCount").textContent =
           result.row_count.toLocaleString();
         document.getElementById("taxFreeYearlySales").textContent = Math.round(
-          result.yearly_summary.free_sales
+          result.yearly_summary.free_sales,
         ).toLocaleString();
         document.getElementById("taxFreeTotalSales").textContent = Math.round(
-          result.yearly_summary.total_sales
+          result.yearly_summary.total_sales,
         ).toLocaleString();
 
         const tbody = document.getElementById("taxFreeMonthlyTable");
@@ -4601,15 +5252,15 @@
             <tr style="border-bottom: 1px solid #222;">
               <td style="padding: 14px; color: #fff;">${month}</td>
               <td style="padding: 14px; text-align: center; ${fileCountStyle}" title="${(
-            stats.files || []
-          ).join(", ")}">${fileCount}개${fileCountWarning}</td>
+                stats.files || []
+              ).join(", ")}">${fileCount}개${fileCountWarning}</td>
               <td style="padding: 14px; text-align: right; color: #00ff88;">${stats.free_count.toLocaleString()}건</td>
               <td style="padding: 14px; text-align: right; color: #00ff88;">${Math.round(
-                stats.free_sales
+                stats.free_sales,
               ).toLocaleString()}원</td>
               <td style="padding: 14px; text-align: right; color: #ffd700;">${stats.total_count.toLocaleString()}건</td>
               <td style="padding: 14px; text-align: right; color: #ffd700;">${Math.round(
-                stats.total_sales
+                stats.total_sales,
               ).toLocaleString()}원</td>
               <td style="padding: 14px; text-align: right; color: #a855f7;">${freeRatio}%</td>
             </tr>
@@ -4629,11 +5280,11 @@
             <td style="padding: 14px; text-align: center; color: #888;">${totalFileCount}개</td>
             <td style="padding: 14px; text-align: right; color: #00ff88; font-weight: bold;">${yearly.free_count.toLocaleString()}건</td>
             <td style="padding: 14px; text-align: right; color: #00ff88; font-weight: bold;">${Math.round(
-              yearly.free_sales
+              yearly.free_sales,
             ).toLocaleString()}원</td>
             <td style="padding: 14px; text-align: right; color: #ffd700; font-weight: bold;">${yearly.total_count.toLocaleString()}건</td>
             <td style="padding: 14px; text-align: right; color: #ffd700; font-weight: bold;">${Math.round(
-              yearly.total_sales
+              yearly.total_sales,
             ).toLocaleString()}원</td>
             <td style="padding: 14px; text-align: right; color: #a855f7; font-weight: bold;">${yearlyRatio}%</td>
           </tr>
@@ -4770,7 +5421,7 @@
 
             showToast(
               "success",
-              `${deletedCount}개의 스타배송 주문이 삭제되었습니다`
+              `${deletedCount}개의 스타배송 주문이 삭제되었습니다`,
             );
           } else {
             const error = await response.json();
@@ -4796,9 +5447,8 @@
           summary.auto_classification_rate + "%";
         document.getElementById("progressFill").style.width =
           summary.auto_classification_rate + "%";
-        document.getElementById(
-          "modalSubtitle"
-        ).textContent = `총 ${summary.total_orders}건의 주문이 처리되었습니다`;
+        document.getElementById("modalSubtitle").textContent =
+          `총 ${summary.total_orders}건의 주문이 처리되었습니다`;
 
         // 스타배송 필터링 메시지 표시
         const starMsgEl = document.getElementById("starFilterMessage");
@@ -5097,8 +5747,8 @@
                   <div style="color: #666; font-size: 13px;">ID: ${
                     emp.username
                   } | 시급: ${emp.hourly_wage.toLocaleString()}원 | 만근: ${(
-            emp.full_attendance_bonus || 100000
-          ).toLocaleString()}원</div>
+                    emp.full_attendance_bonus || 100000
+                  ).toLocaleString()}원</div>
                 </div>
               </div>
               <div style="display: flex; gap: 8px;">
@@ -5106,10 +5756,10 @@
                   emp.id
                 })" style="padding: 8px 12px; background: #333; border: none; border-radius: 6px; color: #fff; cursor: pointer;">✏️ 수정</button>
                 <button onclick="toggleEmployeeStatus(${emp.id}, ${
-            emp.enabled
-          })" style="padding: 8px 12px; background: ${
-            emp.enabled ? "#ff4444" : "#00cc6a"
-          }; border: none; border-radius: 6px; color: #fff; cursor: pointer;">
+                  emp.enabled
+                })" style="padding: 8px 12px; background: ${
+                  emp.enabled ? "#ff4444" : "#00cc6a"
+                }; border: none; border-radius: 6px; color: #fff; cursor: pointer;">
                   ${emp.enabled ? "🚫 비활성화" : "✅ 활성화"}
                 </button>
               </div>
@@ -5192,7 +5842,7 @@
 
       function getSelectedDays() {
         const dayToggles = document.querySelectorAll(
-          "#employeeModal .day-toggle.selected"
+          "#employeeModal .day-toggle.selected",
         );
         const days = [];
         dayToggles.forEach((el) => days.push(el.dataset.day));
@@ -5382,7 +6032,7 @@
 
         try {
           const response = await fetch(
-            `/api/holidays?year=${year}&month=${month}`
+            `/api/holidays?year=${year}&month=${month}`,
           );
           const result = await response.json();
 
@@ -5412,8 +6062,8 @@
           html += `
             <div style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 15px; background: #222; border-radius: 8px;">
               <span>📅 ${dateObj.getMonth() + 1}/${dateObj.getDate()} (${
-            dayNames[dateObj.getDay()]
-          }) - ${h.name}</span>
+                dayNames[dateObj.getDay()]
+              }) - ${h.name}</span>
               <button onclick="deleteHoliday(${
                 h.id
               })" style="background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 16px;">✕</button>
@@ -5608,7 +6258,7 @@
                   <div style="display: flex; flex-wrap: wrap; gap: 15px; color: #888; font-size: 13px;">
                     <span>📅 출근 <strong style="color: #00ff88;">${workDays}일</strong></span>
                     <span>⏱️ 근무 <strong style="color: #00ff88;">${totalHours.toFixed(
-                      1
+                      1,
                     )}시간</strong></span>
                     <span>💰 예상 <strong style="color: #ffd700;">${estimatedPay.toLocaleString()}원</strong></span>
                     ${
@@ -5637,7 +6287,7 @@
                       confirmation?.total_amount || 0
                     ).toLocaleString()}원 |
                     확정일: ${new Date(
-                      confirmation?.confirmed_at
+                      confirmation?.confirmed_at,
                     ).toLocaleString()}
                   </div>
                 </div>
@@ -5651,7 +6301,7 @@
                 ${renderAttendanceDetailTable(
                   records,
                   emp.id,
-                  adminPendingRequests.filter((r) => r.employee_id === emp.id)
+                  adminPendingRequests.filter((r) => r.employee_id === emp.id),
                 )}
               </div>
             </div>
@@ -5664,7 +6314,7 @@
       function renderAttendanceDetailTable(
         records,
         empId,
-        pendingRequests = []
+        pendingRequests = [],
       ) {
         if (!records.length) {
           return '<div style="text-align: center; padding: 20px; color: #666;">출퇴근 기록이 없습니다</div>';
@@ -5748,7 +6398,7 @@
       async function approveEdit(empId, date) {
         if (
           !confirm(
-            `${date} 출퇴근 기록 수정을 승인하시겠습니까?\n(해당 수정 요청이 반영됩니다)`
+            `${date} 출퇴근 기록 수정을 승인하시겠습니까?\n(해당 수정 요청이 반영됩니다)`,
           )
         )
           return;
@@ -5756,7 +6406,7 @@
         try {
           // 먼저 해당 날짜의 수정 요청을 찾아서 승인
           const pendingReq = adminPendingRequests.find(
-            (r) => r.employee_id === empId && r.request_date === date
+            (r) => r.employee_id === empId && r.request_date === date,
           );
 
           if (pendingReq) {
@@ -5765,7 +6415,7 @@
               `/api/attendance-edit-request/${pendingReq.id}/approve`,
               {
                 method: "POST",
-              }
+              },
             );
 
             const result = await response.json();
@@ -5793,7 +6443,7 @@
       async function loadEditRequests() {
         try {
           const response = await fetch(
-            "/api/attendance-edit-requests?status=pending"
+            "/api/attendance-edit-requests?status=pending",
           );
           const result = await response.json();
 
@@ -5807,47 +6457,62 @@
       }
 
       function renderEditRequests() {
-        const section = document.getElementById("editRequestsSection");
-        const list = document.getElementById("editRequestsList");
-        const countEl = document.getElementById("editRequestCount");
+        const list = document.getElementById("requestList");
+        const badge = document.getElementById("requestBadge");
 
-        if (!section || !list) return;
+        if (!list) return;
 
         if (editRequests.length === 0) {
-          section.style.display = "none";
+          badge.style.display = "none";
+          list.innerHTML = `
+            <div class="dashboard-empty">
+              <div class="dashboard-empty-icon">✨</div>
+              <div class="dashboard-empty-text">새로운 요청이 없습니다</div>
+            </div>
+          `;
           return;
         }
 
-        section.style.display = "block";
-        countEl.textContent = editRequests.length;
+        badge.style.display = "inline";
+        badge.textContent = editRequests.length;
 
         let html = "";
         editRequests.forEach((req) => {
           const [y, m, d] = req.request_date.split("-");
           const empName = req.users?.name || "직원";
+          const createdAt = new Date(req.created_at);
+          const timeAgo = getTimeAgo(createdAt);
 
           html += `
-            <div style="background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-              <div style="flex: 1; min-width: 200px;">
-                <div style="color: #ffd700; font-size: 14px; margin-bottom: 5px;">
-                  📨 ${empName}님이 ${parseInt(m)}/${parseInt(
-            d
-          )}일의 출퇴근시간 수정 요청을 보냈습니다!
+            <div class="request-item" onclick="viewEditRequest(${req.id})">
+              <div class="request-item-header">
+                <div class="request-employee">
+                  <span>👤</span> ${empName}
                 </div>
-                <div style="color: #666; font-size: 12px;">
-                  ${new Date(req.created_at).toLocaleString()}
-                </div>
+                <div class="request-time">${timeAgo}</div>
               </div>
-              <button onclick="viewEditRequest(${
-                req.id
-              })" style="padding: 8px 16px; background: #00ff88; border: none; border-radius: 6px; color: #000; cursor: pointer; font-weight: 500; font-size: 13px;">
-                열람
-              </button>
+              <div class="request-detail">
+                <span>${parseInt(m)}월 ${parseInt(d)}일</span> 출퇴근 수정 요청
+              </div>
             </div>
           `;
         });
 
         list.innerHTML = html;
+      }
+
+      function getTimeAgo(date) {
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+
+        if (minutes < 1) return "방금 전";
+        if (minutes < 60) return `${minutes}분 전`;
+        if (hours < 24) return `${hours}시간 전`;
+        if (days < 7) return `${days}일 전`;
+        return date.toLocaleDateString();
       }
 
       function viewEditRequest(requestId) {
@@ -5859,9 +6524,8 @@
         const [y, m, d] = req.request_date.split("-");
         const empName = req.users?.name || "직원";
 
-        document.getElementById(
-          "editRequestViewSubtitle"
-        ).textContent = `${empName} - ${parseInt(m)}월 ${parseInt(d)}일`;
+        document.getElementById("editRequestViewSubtitle").textContent =
+          `${empName} - ${parseInt(m)}월 ${parseInt(d)}일`;
         document.getElementById("viewOldClockIn").textContent = req.old_clock_in
           ? req.old_clock_in.substring(0, 5)
           : "--:--";
@@ -5896,7 +6560,7 @@
             `/api/attendance-edit-request/${requestId}/approve`,
             {
               method: "POST",
-            }
+            },
           );
 
           const result = await response.json();
@@ -5948,7 +6612,7 @@
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ reject_reason: reason }),
-            }
+            },
           );
 
           const result = await response.json();
@@ -5965,6 +6629,380 @@
         hideLoading();
         currentViewingRequest = null;
       }
+
+      // ==================== 메모장 기능 ====================
+      let memoData = [];
+      let currentMemoId = null;
+      let currentMemoPinned = false;
+
+      async function loadMemos() {
+        try {
+          const response = await fetch("/api/memos");
+          const result = await response.json();
+          if (result.success) {
+            memoData = result.data;
+            renderMemos();
+          }
+        } catch (error) {
+          console.error("메모 로드 오류:", error);
+        }
+      }
+
+      function renderMemos() {
+        const container = document.getElementById("memoList");
+        if (!container) return;
+
+        if (!memoData.length) {
+          container.innerHTML = `
+            <div class="dashboard-empty">
+              <div class="dashboard-empty-icon">📝</div>
+              <div class="dashboard-empty-text">메모가 없습니다</div>
+            </div>
+          `;
+          return;
+        }
+
+        let html = "";
+        memoData.forEach((memo) => {
+          const updatedAt = new Date(memo.updated_at).toLocaleDateString();
+          html += `
+            <div class="memo-item ${memo.is_pinned ? "pinned" : ""}" onclick="openMemoModal(${memo.id})">
+              <div class="memo-item-header">
+                ${memo.is_pinned ? '<span class="memo-pin-icon">📌</span>' : ""}
+                <div class="memo-title">${escapeHtml(memo.title)}</div>
+              </div>
+              <div class="memo-content">${escapeHtml(memo.content || "")}</div>
+              <div class="memo-date">${updatedAt}</div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      function openMemoModal(memoId = null) {
+        const modal = document.getElementById("memoModal");
+        const titleInput = document.getElementById("memoTitleInput");
+        const contentInput = document.getElementById("memoContentInput");
+        const pinBtn = document.getElementById("memoPinBtn");
+        const deleteBtn = document.getElementById("memoDeleteBtn");
+        const dateInfo = document.getElementById("memoDateInfo");
+
+        currentMemoId = memoId;
+
+        if (memoId) {
+          const memo = memoData.find((m) => m.id === memoId);
+          if (memo) {
+            titleInput.value = memo.title;
+            contentInput.value = memo.content || "";
+            currentMemoPinned = memo.is_pinned;
+            pinBtn.classList.toggle("active", memo.is_pinned);
+            deleteBtn.style.display = "flex";
+            dateInfo.textContent = `수정: ${new Date(memo.updated_at).toLocaleString()}`;
+          }
+        } else {
+          titleInput.value = "";
+          contentInput.value = "";
+          currentMemoPinned = false;
+          pinBtn.classList.remove("active");
+          deleteBtn.style.display = "none";
+          dateInfo.textContent = "";
+        }
+
+        modal.style.display = "flex";
+        titleInput.focus();
+      }
+
+      function closeMemoModal() {
+        document.getElementById("memoModal").style.display = "none";
+        currentMemoId = null;
+      }
+
+      function toggleMemoPin() {
+        currentMemoPinned = !currentMemoPinned;
+        document
+          .getElementById("memoPinBtn")
+          .classList.toggle("active", currentMemoPinned);
+      }
+
+      async function saveMemo() {
+        const title = document.getElementById("memoTitleInput").value.trim();
+        const content = document.getElementById("memoContentInput").value;
+
+        if (!title && !content) {
+          showToast("error", "제목 또는 내용을 입력하세요");
+          return;
+        }
+
+        showLoading();
+        try {
+          const url = currentMemoId
+            ? `/api/memos/${currentMemoId}`
+            : "/api/memos";
+          const method = currentMemoId ? "PUT" : "POST";
+
+          const response = await fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title,
+              content,
+              is_pinned: currentMemoPinned,
+            }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            showToast(
+              "success",
+              currentMemoId ? "메모가 수정되었습니다" : "메모가 저장되었습니다",
+            );
+            closeMemoModal();
+            loadMemos();
+          } else {
+            showToast("error", result.error || "저장 실패");
+          }
+        } catch (error) {
+          showToast("error", "서버 오류");
+        }
+        hideLoading();
+      }
+
+      async function deleteMemoFromModal() {
+        if (!currentMemoId) return;
+        if (!confirm("이 메모를 삭제하시겠습니까?")) return;
+
+        showLoading();
+        try {
+          const response = await fetch(`/api/memos/${currentMemoId}`, {
+            method: "DELETE",
+          });
+          const result = await response.json();
+          if (result.success) {
+            showToast("success", "메모가 삭제되었습니다");
+            closeMemoModal();
+            loadMemos();
+          } else {
+            showToast("error", result.error || "삭제 실패");
+          }
+        } catch (error) {
+          showToast("error", "서버 오류");
+        }
+        hideLoading();
+      }
+
+      // ==================== 품절상품 기능 ====================
+      let stockData = [];
+      let currentStockId = null;
+
+      async function loadOutOfStock() {
+        try {
+          const response = await fetch("/api/out-of-stock");
+          const result = await response.json();
+          if (result.success) {
+            stockData = result.data;
+            renderStock();
+          }
+        } catch (error) {
+          console.error("품절상품 로드 오류:", error);
+        }
+      }
+
+      function renderStock() {
+        const container = document.getElementById("stockList");
+        if (!container) return;
+
+        if (!stockData.length) {
+          container.innerHTML = `
+            <div class="dashboard-empty">
+              <div class="dashboard-empty-icon">✅</div>
+              <div class="dashboard-empty-text">품절상품이 없습니다</div>
+            </div>
+          `;
+          return;
+        }
+
+        let html = "";
+        stockData.forEach((item) => {
+          const outDate = item.out_date ? formatDate(item.out_date) : "-";
+          const restockDate = item.restock_date
+            ? formatDate(item.restock_date)
+            : null;
+
+          html += `
+            <div class="stock-item">
+              <div class="stock-item-header">
+                <div class="stock-product-name">${escapeHtml(item.product_name)}</div>
+                <div class="stock-item-actions">
+                  <button class="stock-action-btn restock" onclick="markRestocked(${item.id})" title="재입고 완료">✓</button>
+                  <button class="stock-action-btn" onclick="openStockModal(${item.id})" title="수정">✏️</button>
+                  <button class="stock-action-btn delete" onclick="deleteStock(${item.id})" title="삭제">🗑️</button>
+                </div>
+              </div>
+              <div class="stock-dates">
+                <div class="stock-date-item">
+                  <span class="stock-date-label">품절:</span>
+                  <span class="stock-date-value">${outDate}</span>
+                </div>
+                <div class="stock-date-item">
+                  <span class="stock-date-label">재입고:</span>
+                  <span class="stock-date-value ${restockDate ? "restock" : "pending"}">${restockDate || "미정"}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr) return "";
+        const [y, m, d] = dateStr.split("-");
+        return `${parseInt(m)}/${parseInt(d)}`;
+      }
+
+      function openStockModal(itemId = null) {
+        const modal = document.getElementById("stockModal");
+        const title = document.getElementById("stockModalTitle");
+        const nameInput = document.getElementById("stockProductName");
+        const outDateInput = document.getElementById("stockOutDate");
+        const restockDateInput = document.getElementById("stockRestockDate");
+        const notesInput = document.getElementById("stockNotes");
+
+        currentStockId = itemId;
+
+        if (itemId) {
+          const item = stockData.find((s) => s.id === itemId);
+          if (item) {
+            title.textContent = "품절상품 수정";
+            nameInput.value = item.product_name;
+            outDateInput.value = item.out_date || "";
+            restockDateInput.value = item.restock_date || "";
+            notesInput.value = item.notes || "";
+          }
+        } else {
+          title.textContent = "품절상품 등록";
+          nameInput.value = "";
+          outDateInput.value = new Date().toISOString().split("T")[0];
+          restockDateInput.value = "";
+          notesInput.value = "";
+        }
+
+        modal.style.display = "flex";
+        nameInput.focus();
+      }
+
+      function closeStockModal() {
+        document.getElementById("stockModal").style.display = "none";
+        currentStockId = null;
+      }
+
+      async function saveStock() {
+        const productName = document
+          .getElementById("stockProductName")
+          .value.trim();
+        const outDate = document.getElementById("stockOutDate").value;
+        const restockDate = document.getElementById("stockRestockDate").value;
+        const notes = document.getElementById("stockNotes").value;
+
+        if (!productName) {
+          showToast("error", "상품명을 입력하세요");
+          return;
+        }
+
+        showLoading();
+        try {
+          const url = currentStockId
+            ? `/api/out-of-stock/${currentStockId}`
+            : "/api/out-of-stock";
+          const method = currentStockId ? "PUT" : "POST";
+
+          const response = await fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              product_name: productName,
+              out_date: outDate,
+              restock_date: restockDate || null,
+              notes,
+            }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            showToast(
+              "success",
+              currentStockId ? "수정되었습니다" : "등록되었습니다",
+            );
+            closeStockModal();
+            loadOutOfStock();
+          } else {
+            showToast("error", result.error || "저장 실패");
+          }
+        } catch (error) {
+          showToast("error", "서버 오류");
+        }
+        hideLoading();
+      }
+
+      async function deleteStock(itemId) {
+        if (!confirm("이 품절상품을 삭제하시겠습니까?")) return;
+
+        showLoading();
+        try {
+          const response = await fetch(`/api/out-of-stock/${itemId}`, {
+            method: "DELETE",
+          });
+          const result = await response.json();
+          if (result.success) {
+            showToast("success", "삭제되었습니다");
+            loadOutOfStock();
+          } else {
+            showToast("error", result.error || "삭제 실패");
+          }
+        } catch (error) {
+          showToast("error", "서버 오류");
+        }
+        hideLoading();
+      }
+
+      async function markRestocked(itemId) {
+        if (!confirm("재입고 완료 처리하시겠습니까?")) return;
+
+        showLoading();
+        try {
+          const response = await fetch(`/api/out-of-stock/${itemId}/restock`, {
+            method: "POST",
+          });
+          const result = await response.json();
+          if (result.success) {
+            showToast("success", "재입고 완료 처리되었습니다");
+            loadOutOfStock();
+          } else {
+            showToast("error", result.error || "처리 실패");
+          }
+        } catch (error) {
+          showToast("error", "서버 오류");
+        }
+        hideLoading();
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // 모달 외부 클릭 시 닫기
+      document
+        .getElementById("memoModal")
+        ?.addEventListener("click", function (e) {
+          if (e.target === this) closeMemoModal();
+        });
+      document
+        .getElementById("stockModal")
+        ?.addEventListener("click", function (e) {
+          if (e.target === this) closeStockModal();
+        });
 
       function showLoading() {
         const overlay = document.getElementById("loadingOverlay");
