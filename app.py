@@ -2370,13 +2370,11 @@ def save_arrival_customer_id():
 @app.route('/api/arrival-invoice/generate', methods=['POST'])
 @admin_required
 def generate_arrival_invoice():
-    """입고내역서 PDF 생성 (HTML → PDF 변환)"""
-    from weasyprint import HTML, CSS
+    """입고내역서 PDF 생성 (시스템 폰트 사용)"""
+    from weasyprint import HTML
     from weasyprint.text.fonts import FontConfiguration
     from urllib.parse import quote
     import zipfile
-    import requests
-    import base64
     
     data = request.get_json()
     items = data.get('items', [])
@@ -2386,21 +2384,8 @@ def generate_arrival_invoice():
     if not items:
         return jsonify({'error': '상품 정보가 없습니다'}), 400
     
-    # 폰트 다운로드 및 Base64 인코딩 (캐시)
-    font_cache_path = '/tmp/nanumgothic.ttf'
-    font_base64 = None
-    
-    try:
-        if not os.path.exists(font_cache_path):
-            font_url = 'https://github.com/nicoolaslee/NanumGothic-font/raw/master/NanumGothic-Regular.ttf'
-            resp = requests.get(font_url, timeout=30)
-            with open(font_cache_path, 'wb') as f:
-                f.write(resp.content)
-        
-        with open(font_cache_path, 'rb') as f:
-            font_base64 = base64.b64encode(f.read()).decode('utf-8')
-    except Exception as e:
-        print(f"폰트 다운로드 실패: {e}")
+    # [수정됨] 복잡한 폰트 다운로드/Base64 변환 코드를 모두 제거했습니다.
+    # render.yaml에서 설치한 시스템 폰트(NanumGothic)를 바로 사용합니다.
     
     def create_pdf(item_list, doc_type):
         """HTML 테이블로 PDF 생성"""
@@ -2418,6 +2403,7 @@ def generate_arrival_invoice():
             </tr>
             """
         
+        # 빈 행 채우기 (10줄까지)
         for idx in range(len(item_list) + 1, 11):
             rows_html += f"""
             <tr>
@@ -2431,33 +2417,19 @@ def generate_arrival_invoice():
             </tr>
             """
         
-        # Base64 폰트 임베드
-        font_face_css = ""
-        if font_base64:
-            font_face_css = f"""
-                @font-face {{
-                    font-family: 'NanumGothic';
-                    src: url(data:font/truetype;base64,{font_base64}) format('truetype');
-                    font-weight: normal;
-                    font-style: normal;
-                }}
-            """
-        
+        # [수정됨] CSS 간소화: 시스템에 설치된 나눔고딕을 직접 호출합니다.
         html_content = f"""
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
             <style>
-                {font_face_css}
                 @page {{
                     size: A4 landscape;
                     margin: 15mm;
                 }}
-                * {{
-                    font-family: 'NanumGothic', 'Noto Sans CJK KR', sans-serif;
-                }}
                 body {{
+                    font-family: 'NanumGothic', 'Nanum Gothic', 'Noto Sans CJK KR', sans-serif;
                     margin: 0;
                     padding: 0;
                 }}
@@ -2517,15 +2489,17 @@ def generate_arrival_invoice():
         return pdf_buffer
     
     def get_filename(item_list):
-        """파일명 생성: MMDD입고내역서_상품명.pdf"""
+        """파일명 생성"""
         if item_list:
             arrival_date = item_list[0].get('arrival_date', '')
+            # 날짜 포맷 안전하게 처리
             if len(arrival_date) >= 8:
                 mmdd = arrival_date[4:8]
             else:
                 mmdd = datetime.now().strftime('%m%d')
             
             if len(item_list) == 1:
+                # 파일명에서 공백 제거 등 안전하게 처리
                 product_name = item_list[0].get('product_name', '상품').replace(' ', '')
             else:
                 product_name = f"{len(item_list)}개상품"
@@ -2538,8 +2512,6 @@ def generate_arrival_invoice():
         buffer.seek(0)
         response = make_response(buffer.read())
         response.headers['Content-Type'] = 'application/pdf'
-        
-        # RFC 5987 형식으로 한글 파일명 인코딩
         encoded_filename = quote(filename)
         response.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_filename}"
         return response
@@ -2549,7 +2521,6 @@ def generate_arrival_invoice():
         buffer.seek(0)
         response = make_response(buffer.read())
         response.headers['Content-Type'] = 'application/zip'
-        
         encoded_filename = quote(filename)
         response.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_filename}"
         return response
