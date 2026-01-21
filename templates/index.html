@@ -2610,7 +2610,7 @@
       .box-inventory-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 1600px;
+        min-width: 1100px;
       }
 
       .box-inventory-table thead {
@@ -2620,26 +2620,29 @@
       }
 
       .box-inventory-table th {
-        background: #1a1a1a;
-        color: #888;
+        background: linear-gradient(180deg, #1a2a1f 0%, #0f1a14 100%);
+        color: #00ff88;
         font-size: 11px;
-        font-weight: 600;
-        padding: 12px 6px;
-        text-align: left;
-        border-bottom: 2px solid #333;
+        font-weight: 700;
+        padding: 14px 4px;
+        text-align: center;
+        border-bottom: 2px solid #00ff88;
         white-space: nowrap;
         user-select: none;
+        letter-spacing: 0.5px;
       }
 
       .box-inventory-table th.stock-col {
         color: #00ff88;
-        background: linear-gradient(180deg, #1a2a1a 0%, #1a1a1a 100%);
+        background: linear-gradient(180deg, #1a3a1f 0%, #0f1a14 100%);
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
       }
 
       .box-inventory-table td {
         padding: 2px;
         border-bottom: 1px solid #1a1a1a;
         vertical-align: middle;
+        text-align: center;
       }
 
       .box-inventory-table tr:hover td {
@@ -2652,13 +2655,14 @@
 
       .box-input {
         width: 100%;
-        padding: 8px 6px;
+        padding: 8px 4px;
         background: transparent;
         border: 1px solid transparent;
         border-radius: 4px;
         color: #e0e0e0;
         font-size: 12px;
         transition: all 0.2s;
+        text-align: center;
       }
 
       .box-input:hover {
@@ -2684,7 +2688,7 @@
 
       .box-select {
         width: 100%;
-        padding: 8px 6px;
+        padding: 8px 4px;
         background: transparent;
         border: 1px solid transparent;
         border-radius: 4px;
@@ -2693,10 +2697,12 @@
         cursor: pointer;
         transition: all 0.2s;
         appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        text-align: center;
+        text-align-last: center;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: right 6px center;
-        padding-right: 24px;
+        background-position: right 4px center;
+        padding-right: 18px;
       }
 
       .box-select:hover {
@@ -2760,37 +2766,40 @@
       }
 
       .col-row-num {
-        width: 32px;
+        width: 28px;
+        text-align: center;
       }
       .col-name {
-        min-width: 100px;
+        width: 90px;
+        max-width: 90px;
       }
       .col-spec {
-        min-width: 100px;
+        width: 95px;
+        max-width: 95px;
       }
       .col-material {
-        width: 70px;
+        width: 55px;
       }
       .col-strength {
-        width: 70px;
+        width: 55px;
       }
       .col-print {
-        width: 90px;
-      }
-      .col-price {
-        width: 80px;
-      }
-      .col-vendor {
-        width: 90px;
-      }
-      .col-moq {
         width: 70px;
       }
+      .col-price {
+        width: 65px;
+      }
+      .col-vendor {
+        width: 75px;
+      }
+      .col-moq {
+        width: 60px;
+      }
       .col-stock {
-        width: 80px;
+        width: 70px;
       }
       .col-action {
-        width: 40px;
+        width: 32px;
       }
 
       .btn-save-pulse {
@@ -4007,7 +4016,7 @@
                   <th class="col-row-num">#</th>
                   <th class="col-name">박스명(CJ)</th>
                   <th class="col-name">박스명(박스포유)</th>
-                  <th class="col-name">박스명(오피셜)</th>
+                  <th class="col-name">박스명(기타)</th>
                   <th class="col-spec">박스규격</th>
                   <th class="col-material">재질</th>
                   <th class="col-strength">강도</th>
@@ -4030,10 +4039,12 @@
               style="display: none"
             >
               <div class="empty-icon">📦</div>
-              <p>등록된 박스 재고가 없습니다.</p>
-              <button class="btn btn-primary" onclick="addBoxRow()">
-                <span>➕</span> 첫 번째 박스 추가하기
-              </button>
+              <p>
+                등록된 박스 재고가 없습니다.<br /><span
+                  style="font-size: 12px; color: #555"
+                  >우측 상단의 [행 추가] 버튼을 눌러 추가하세요.</span
+                >
+              </p>
             </div>
           </div>
         </div>
@@ -8733,7 +8744,7 @@
               <input type="text" class="box-input" 
                      value="${escapeHtmlBox(item.name_official || "")}" 
                      onchange="updateBoxField(${index}, 'name_official', this.value)"
-                     placeholder="오피셜 명">
+                     placeholder="기타 명">
             </td>
             <td>
               <input type="text" class="box-input" 
@@ -8933,6 +8944,34 @@
         if (boxInventoryData.length === 0) {
           showToast("error", "저장할 데이터가 없습니다");
           return;
+        }
+
+        // 필수 필드 검증
+        const requiredFields = [
+          { key: "name_cj", label: "박스명(CJ)" },
+          { key: "spec", label: "박스규격" },
+          { key: "material", label: "재질" },
+          { key: "strength", label: "강도" },
+          { key: "print_type", label: "인쇄" },
+          { key: "vendor", label: "구매처" },
+        ];
+
+        for (let i = 0; i < boxInventoryData.length; i++) {
+          const item = boxInventoryData[i];
+          const emptyFields = [];
+
+          for (const field of requiredFields) {
+            if (!item[field.key] || item[field.key].toString().trim() === "") {
+              emptyFields.push(field.label);
+            }
+          }
+
+          if (emptyFields.length > 0) {
+            alert(
+              `${i + 1}번째 줄에 내용 기입이 덜 되었습니다.\n\n미입력 항목: ${emptyFields.join(", ")}`,
+            );
+            return;
+          }
         }
 
         showLoading();
