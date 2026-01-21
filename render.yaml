@@ -2,7 +2,7 @@ services:
   - type: web
     name: hyojin-system
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: apt-get update && apt-get install -y libreoffice-calc && pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION

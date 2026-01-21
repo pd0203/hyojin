@@ -2370,11 +2370,13 @@ def save_arrival_customer_id():
 @app.route('/api/arrival-invoice/generate', methods=['POST'])
 @admin_required
 def generate_arrival_invoice():
-    """입고내역서 Excel 생성"""
+    """입고내역서 Excel 생성 후 PDF 변환"""
     from openpyxl import Workbook
     from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
     from openpyxl.utils import get_column_letter
     import zipfile
+    import subprocess
+    import tempfile
     
     data = request.get_json()
     items = data.get('items', [])
@@ -2461,38 +2463,103 @@ def generate_arrival_invoice():
             ws.row_dimensions[row_num].height = 22
             current_row += 1
         
-        buffer = BytesIO()
-        wb.save(buffer)
-        buffer.seek(0)
-        return buffer
+        return wb
+    
+    def excel_to_pdf(wb, pdf_filename):
+        """Excel을 PDF로 변환"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            xlsx_path = os.path.join(temp_dir, 'temp.xlsx')
+            wb.save(xlsx_path)
+            
+            # LibreOffice로 PDF 변환
+            try:
+                result = subprocess.run([
+                    'libreoffice', '--headless', '--convert-to', 'pdf',
+                    '--outdir', temp_dir, xlsx_path
+                ], capture_output=True, timeout=30)
+                
+                pdf_path = os.path.join(temp_dir, 'temp.pdf')
+                if os.path.exists(pdf_path):
+                    with open(pdf_path, 'rb') as f:
+                        return BytesIO(f.read())
+            except Exception as e:
+                print(f"PDF 변환 오류: {e}")
+            
+            # LibreOffice 실패 시 Excel 반환 (fallback)
+            buffer = BytesIO()
+            wb.save(buffer)
+            buffer.seek(0)
+            return buffer
+    
+    def get_filename(item_list, is_pdf=True):
+        """파일명 생성: MMDD입고내역서_상품명"""
+        if item_list:
+            # 입고예정일에서 MMDD 추출
+            arrival_date = item_list[0].get('arrival_date', '')
+            if len(arrival_date) >= 8:
+                mmdd = arrival_date[4:8]  # YYYYMMDD에서 MMDD
+            else:
+                mmdd = datetime.now().strftime('%m%d')
+            
+            # 상품명 (띄어쓰기 제거)
+            if len(item_list) == 1:
+                product_name = item_list[0].get('product_name', '상품').replace(' ', '')
+            else:
+                product_name = f"{len(item_list)}개상품"
+            
+            ext = 'pdf' if is_pdf else 'xlsx'
+            return f"{mmdd}입고내역서_{product_name}.{ext}"
+        return f"입고내역서.{'pdf' if is_pdf else 'xlsx'}"
     
     try:
         if generate_separate and len(items) > 1:
+            # 개별 PDF 생성 후 ZIP
             zip_buffer = BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 for idx, item in enumerate(items, 1):
-                    excel_buffer = create_single_excel([item], delivery_type)
-                    safe_name = ''.join(c for c in item.get('product_name', 'item') if c.isalnum() or c in (' ', '_', '-') or '\uac00' <= c <= '\ud7a3')[:30]
-                    if not safe_name:
-                        safe_name = f"item_{idx}"
-                    filename = f"입고내역서_{idx}_{safe_name}.xlsx"
-                    zip_file.writestr(filename, excel_buffer.getvalue())
+                    wb = create_single_excel([item], delivery_type)
+                    pdf_buffer = excel_to_pdf(wb, f"temp_{idx}.pdf")
+                    filename = get_filename([item], is_pdf=True)
+                    zip_file.writestr(filename, pdf_buffer.getvalue())
+            
+            # ZIP 파일명: MMDD입고내역서_N개상품.zip
+            arrival_date = items[0].get('arrival_date', '')
+            mmdd = arrival_date[4:8] if len(arrival_date) >= 8 else datetime.now().strftime('%m%d')
+            zip_filename = f"{mmdd}입고내역서_{len(items)}개상품.zip"
             
             zip_buffer.seek(0)
             return send_file(
                 zip_buffer,
                 mimetype='application/zip',
                 as_attachment=True,
-                download_name=f"입고내역서_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+                download_name=zip_filename
             )
         else:
-            excel_buffer = create_single_excel(items, delivery_type)
-            return send_file(
-                excel_buffer,
-                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                as_attachment=True,
-                download_name=f"입고내역서_{delivery_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-            )
+            # 단일 PDF 생성
+            wb = create_single_excel(items, delivery_type)
+            pdf_buffer = excel_to_pdf(wb, "output.pdf")
+            filename = get_filename(items, is_pdf=True)
+            
+            # PDF 변환 성공 여부 확인
+            pdf_buffer.seek(0)
+            header = pdf_buffer.read(4)
+            pdf_buffer.seek(0)
+            
+            if header == b'%PDF':
+                return send_file(
+                    pdf_buffer,
+                    mimetype='application/pdf',
+                    as_attachment=True,
+                    download_name=filename
+                )
+            else:
+                # Excel fallback
+                return send_file(
+                    pdf_buffer,
+                    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    as_attachment=True,
+                    download_name=get_filename(items, is_pdf=False)
+                )
     except Exception as e:
         import traceback
         traceback.print_exc()

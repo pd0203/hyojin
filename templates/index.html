@@ -8130,7 +8130,7 @@
           : false;
 
         try {
-          showToast("success", "Excel 생성 중...");
+          showToast("success", "PDF 생성 중...");
 
           const response = await fetch("/api/arrival-invoice/generate", {
             method: "POST",
@@ -8156,15 +8156,14 @@
           const contentDisposition = response.headers.get(
             "Content-Disposition",
           );
-          let filename = generateSeparate
-            ? "입고내역서.zip"
-            : "입고내역서.xlsx";
+          let filename = generateSeparate ? "입고내역서.zip" : "입고내역서.pdf";
           if (contentDisposition) {
             const match = contentDisposition.match(
-              /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+              /filename\*?=(?:UTF-8'')?([^;\n]*)/i,
             );
-            if (match)
+            if (match) {
               filename = decodeURIComponent(match[1].replace(/['"]/g, ""));
+            }
           }
 
           a.download = filename;
