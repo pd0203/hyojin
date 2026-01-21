@@ -2372,8 +2372,11 @@ def save_arrival_customer_id():
 def generate_arrival_invoice():
     """입고내역서 PDF 생성 (HTML → PDF 변환)"""
     from weasyprint import HTML, CSS
+    from weasyprint.text.fonts import FontConfiguration
     from urllib.parse import quote
     import zipfile
+    import requests
+    import base64
     
     data = request.get_json()
     items = data.get('items', [])
@@ -2383,9 +2386,24 @@ def generate_arrival_invoice():
     if not items:
         return jsonify({'error': '상품 정보가 없습니다'}), 400
     
+    # 폰트 다운로드 및 Base64 인코딩 (캐시)
+    font_cache_path = '/tmp/nanumgothic.ttf'
+    font_base64 = None
+    
+    try:
+        if not os.path.exists(font_cache_path):
+            font_url = 'https://github.com/nicoolaslee/NanumGothic-font/raw/master/NanumGothic-Regular.ttf'
+            resp = requests.get(font_url, timeout=30)
+            with open(font_cache_path, 'wb') as f:
+                f.write(resp.content)
+        
+        with open(font_cache_path, 'rb') as f:
+            font_base64 = base64.b64encode(f.read()).decode('utf-8')
+    except Exception as e:
+        print(f"폰트 다운로드 실패: {e}")
+    
     def create_pdf(item_list, doc_type):
         """HTML 테이블로 PDF 생성"""
-        # 데이터 행 생성
         rows_html = ""
         for idx, item in enumerate(item_list, 1):
             rows_html += f"""
@@ -2400,7 +2418,6 @@ def generate_arrival_invoice():
             </tr>
             """
         
-        # 빈 행 추가 (총 10행)
         for idx in range(len(item_list) + 1, 11):
             rows_html += f"""
             <tr>
@@ -2414,18 +2431,31 @@ def generate_arrival_invoice():
             </tr>
             """
         
+        # Base64 폰트 임베드
+        font_face_css = ""
+        if font_base64:
+            font_face_css = f"""
+                @font-face {{
+                    font-family: 'NanumGothic';
+                    src: url(data:font/truetype;base64,{font_base64}) format('truetype');
+                    font-weight: normal;
+                    font-style: normal;
+                }}
+            """
+        
         html_content = f"""
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
             <style>
+                {font_face_css}
                 @page {{
                     size: A4 landscape;
                     margin: 15mm;
                 }}
                 * {{
-                    font-family: 'Noto Sans CJK KR', 'Noto Sans KR', sans-serif;
+                    font-family: 'NanumGothic', 'Noto Sans CJK KR', sans-serif;
                 }}
                 body {{
                     margin: 0;
@@ -2435,7 +2465,7 @@ def generate_arrival_invoice():
                     text-align: center;
                     font-size: 24px;
                     margin-bottom: 20px;
-                    font-weight: 700;
+                    font-weight: bold;
                 }}
                 table {{
                     width: 100%;
@@ -2450,7 +2480,7 @@ def generate_arrival_invoice():
                 }}
                 th {{
                     background-color: #e0e0e0;
-                    font-weight: 700;
+                    font-weight: bold;
                     font-size: 12px;
                 }}
                 tr {{
@@ -2480,9 +2510,9 @@ def generate_arrival_invoice():
         </html>
         """
         
-        # PDF 생성
+        font_config = FontConfiguration()
         pdf_buffer = BytesIO()
-        HTML(string=html_content).write_pdf(pdf_buffer)
+        HTML(string=html_content).write_pdf(pdf_buffer, font_config=font_config)
         pdf_buffer.seek(0)
         return pdf_buffer
     

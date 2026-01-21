@@ -2,7 +2,7 @@ services:
   - type: web
     name: hyojin-system
     runtime: python
-    buildCommand: apt-get update && apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info fonts-noto-cjk && pip install -r requirements.txt
+    buildCommand: apt-get update && apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info fonts-noto-cjk && fc-cache -fv && pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
