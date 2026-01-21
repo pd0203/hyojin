@@ -1010,11 +1010,26 @@
       let selectedMinute = 0;
 
       // 초기화
-      document.addEventListener("DOMContentLoaded", () => {
-        loadSessionInfo();
-        loadAttendance();
-        initTimeWheels();
-        initEditRequestTimeSelects();
+      // [수정] 초기 로딩 시 모든 데이터를 기다리도록 변경
+      document.addEventListener("DOMContentLoaded", async () => {
+        showLoading(); // 1. 로딩 시작
+  
+        try {
+          // 병렬로 세션 정보와 출퇴근 기록(내부에 월급 계산 포함)을 가져옴
+          await Promise.all([
+              loadSessionInfo(),
+              loadAttendance() 
+          ]);
+    
+          // UI 초기화
+          initTimeWheels();
+          initEditRequestTimeSelects();
+    
+        } catch (e) {
+          console.error("초기화 오류:", e);
+        } finally {
+          hideLoading(); // 2. 모든 작업이 끝나면 로딩 종료
+        }
       });
 
       // 24시간제 시간 선택 초기화 (1분 단위 수정)
@@ -1059,8 +1074,10 @@
       }
 
       // 출퇴근 데이터 로드
+      // [수정] 출퇴근 데이터 로드 (월급 계산까지 기다림)
       async function loadAttendance() {
-        showLoading();
+        showLoading(); // 로딩 시작
+  
         try {
           const response = await fetch(
             `/api/attendance?year=${currentYear}&month=${currentMonth}`
@@ -1070,11 +1087,11 @@
           if (attendanceData.success) {
             document.getElementById("hourlyWage").textContent =
               formatNumber(attendanceData.hourly_wage) + "원";
-            
-            // 소정근로일 표시
+      
+            // 소정근로일 표시 로직
             const scheduledDays = attendanceData.scheduled_days || '1,2,3,4,5';
             const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-            const dayOrder = [1, 2, 3, 4, 5, 6, 0]; // 월~일 순서
+            const dayOrder = [1, 2, 3, 4, 5, 6, 0];
             const selectedDays = scheduledDays.split(',').map(d => parseInt(d));
             let daysHtml = '';
             dayOrder.forEach(dayNum => {
@@ -1084,20 +1101,25 @@
               daysHtml += `<span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: ${bgColor}; color: ${textColor}; border-radius: 6px; font-size: 12px; font-weight: 600;">${dayNames[dayNum]}</span>`;
             });
             document.getElementById("scheduledDays").innerHTML = `<span style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">${daysHtml}</span>`;
-            
+      
             updateMonthDisplay();
-            
-            // 수정 요청 데이터 로드 후 테이블 렌더링
+      
             await checkMyEditRequests();
             renderAttendanceTable();
-            loadSalary();
+      
+            // [핵심 수정] 월급 데이터가 다 로드될 때까지 기다림 (await 추가)
+            await loadSalary(); 
+      
           } else {
             showToast("error", attendanceData.error || "데이터 로드 실패");
           }
         } catch (error) {
+          console.error(error);
           showToast("error", "서버 연결 오류");
+        } finally {
+          // [핵심 수정] 성공하든 실패하든 마지막에 로딩 끔 (안전장치)
+          hideLoading(); 
         }
-        hideLoading();
       }
 
       // 급여 계산 로드

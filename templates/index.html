@@ -4852,23 +4852,34 @@
       const toast = document.getElementById("toast");
 
       // 초기화
-      document.addEventListener("DOMContentLoaded", () => {
-        checkDbStatus(); // DB 상태 먼저 확인
-        loadSettings();
-        setupNavigation();
-        setupTabs();
-        setupUploadAreas();
-        setupButtons();
-        setupMarginSearch();
-        setupUserProfile();
-        setupCalculator();
-        checkMobile();
-        window.addEventListener("resize", checkMobile);
+      document.addEventListener("DOMContentLoaded", async () => {
+        showLoading(); // [추가] 전체 로딩 시작
 
-        // 관리자 홈 대시보드 로드
-        loadEditRequests();
-        loadMemos();
-        loadOutOfStock();
+        try {
+          await checkDbStatus();
+          await loadSettings();
+
+          setupNavigation();
+          setupTabs();
+          setupUploadAreas();
+          setupButtons();
+          setupMarginSearch();
+          setupUserProfile();
+          setupCalculator();
+          checkMobile();
+          window.addEventListener("resize", checkMobile);
+
+          // 관리자 홈 대시보드 로드 (병렬 처리로 속도 향상)
+          await Promise.all([
+            loadEditRequests(),
+            loadMemos(),
+            loadOutOfStock(),
+          ]);
+        } catch (e) {
+          console.error("초기화 중 오류:", e);
+        } finally {
+          hideLoading(); // [추가] 모든 초기화가 끝나면 로딩 제거
+        }
       });
 
       // DB 연결 상태 확인
@@ -4920,9 +4931,8 @@
 
       // 원가 마진표 데이터 로드
       async function loadMarginData(search = "") {
+        showLoading(); // [추가] 로딩 시작
         const container = document.getElementById("marginTableContainer");
-        container.innerHTML =
-          '<div class="loading-data">데이터 로딩중...</div>';
 
         try {
           const url = search
@@ -4940,6 +4950,8 @@
           console.error("원가 마진표 로드 오류:", error);
           container.innerHTML =
             '<div class="loading-data">데이터 로드 실패</div>';
+        } finally {
+          hideLoading(); // [추가] 로딩 종료 (성공하든 실패하든 무조건 실행)
         }
       }
 
@@ -6450,7 +6462,9 @@
 
       let employeesData = [];
 
+      // 직원 목록 로드
       async function loadEmployees() {
+        showLoading(); // [추가] 로딩 시작
         try {
           const response = await fetch("/api/employees");
           const result = await response.json();
@@ -6464,6 +6478,8 @@
           }
         } catch (error) {
           console.error("직원 로드 오류:", error);
+        } finally {
+          hideLoading(); // [추가] 로딩 종료
         }
       }
 
@@ -6769,7 +6785,9 @@
 
       let holidaysData = [];
 
+      // 공휴일 로드
       async function loadHolidays() {
+        showLoading(); // [추가]
         const year =
           document.getElementById("holidayYear")?.value ||
           new Date().getFullYear();
@@ -6789,6 +6807,8 @@
           }
         } catch (error) {
           console.error("공휴일 로드 오류:", error);
+        } finally {
+          hideLoading(); // [추가]
         }
       }
 
@@ -6906,7 +6926,9 @@
       let adminAttendanceData = [];
       let adminPendingRequests = []; // 직원들의 대기중인 수정 요청
 
+      // 직원 출퇴근일지 로드
       async function loadAdminAttendance(y, m) {
+        showLoading(); // [추가]
         const year =
           y ||
           document.getElementById("adminAttYear")?.value ||
@@ -6916,7 +6938,6 @@
           document.getElementById("adminAttMonth")?.value ||
           new Date().getMonth() + 1;
         try {
-          // 출퇴근 데이터와 수정 요청을 동시에 로드
           const [attResponse, reqResponse] = await Promise.all([
             fetch(`/api/admin/attendance?year=${year}&month=${month}`),
             fetch("/api/attendance-edit-requests?status=pending"),
@@ -6937,6 +6958,8 @@
           }
         } catch (error) {
           console.error("출퇴근 로드 오류:", error);
+        } finally {
+          hideLoading(); // [추가]
         }
       }
 
@@ -7914,6 +7937,7 @@
       }
 
       async function loadArrivalProducts() {
+        showLoading(); // [추가]
         try {
           const response = await fetch("/api/arrival-products");
           const result = await response.json();
@@ -7924,6 +7948,8 @@
           }
         } catch (error) {
           console.error("상품 목록 로드 실패:", error);
+        } finally {
+          hideLoading(); // [추가]
         }
       }
 
