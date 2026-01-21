@@ -4337,6 +4337,16 @@
               />
             </div>
 
+            <div class="arrival-form-group">
+              <label class="arrival-form-label">특이사항</label>
+              <input
+                type="text"
+                id="arrivalNote"
+                class="arrival-form-input"
+                placeholder="특이사항 입력 (선택)"
+              />
+            </div>
+
             <div class="separate-checkbox">
               <input type="checkbox" id="generateSeparate" />
               <label for="generateSeparate"
@@ -7990,11 +8000,13 @@
         const productSelect = document.getElementById("arrivalProductSelect");
         const barcodeInput = document.getElementById("arrivalBarcode");
         const quantityInput = document.getElementById("arrivalQuantity");
+        const noteInput = document.getElementById("arrivalNote");
 
         if (dateInput) dateInput.value = "";
         if (productSelect) productSelect.value = "";
         if (barcodeInput) barcodeInput.value = "";
         if (quantityInput) quantityInput.value = "";
+        if (noteInput) noteInput.value = "";
 
         addedItems = [];
         renderAddedItems();
@@ -8011,6 +8023,7 @@
           document.getElementById("arrivalBarcode")?.value.trim() || "";
         const quantity =
           document.getElementById("arrivalQuantity")?.value.trim() || "";
+        const note = document.getElementById("arrivalNote")?.value.trim() || "";
 
         if (!arrivalDate) {
           showToast("error", "입고예정일을 입력하세요");
@@ -8031,7 +8044,7 @@
           product_name: selectedOption.textContent,
           barcode: barcode,
           quantity: parseInt(quantity),
-          note: "",
+          note: note,
         });
 
         renderAddedItems();
@@ -8039,8 +8052,10 @@
         if (productSelect) productSelect.value = "";
         const barcodeInput = document.getElementById("arrivalBarcode");
         const quantityInput = document.getElementById("arrivalQuantity");
+        const noteInput = document.getElementById("arrivalNote");
         if (barcodeInput) barcodeInput.value = "";
         if (quantityInput) quantityInput.value = "";
+        if (noteInput) noteInput.value = "";
 
         showToast("success", "상품이 추가되었습니다");
       }
@@ -8091,6 +8106,8 @@
             document.getElementById("arrivalBarcode")?.value.trim() || "";
           const quantity =
             document.getElementById("arrivalQuantity")?.value.trim() || "";
+          const note =
+            document.getElementById("arrivalNote")?.value.trim() || "";
 
           if (!arrivalDate || !productSelect?.value || !quantity) {
             showToast("error", "상품 정보를 입력하세요");
@@ -8103,7 +8120,7 @@
             product_name: selectedOption.textContent,
             barcode: barcode,
             quantity: parseInt(quantity),
-            note: "",
+            note: note,
           });
         }
 
@@ -8113,7 +8130,7 @@
           : false;
 
         try {
-          showToast("success", "PDF 생성 중...");
+          showToast("success", "Excel 생성 중...");
 
           const response = await fetch("/api/arrival-invoice/generate", {
             method: "POST",
@@ -8140,8 +8157,8 @@
             "Content-Disposition",
           );
           let filename = generateSeparate
-            ? "arrival_invoices.zip"
-            : "arrival_invoice.pdf";
+            ? "입고내역서.zip"
+            : "입고내역서.xlsx";
           if (contentDisposition) {
             const match = contentDisposition.match(
               /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,

@@ -2370,16 +2370,11 @@ def save_arrival_customer_id():
 @app.route('/api/arrival-invoice/generate', methods=['POST'])
 @admin_required
 def generate_arrival_invoice():
-    """입고내역서 PDF 생성"""
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.units import mm
-    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
+    """입고내역서 Excel 생성"""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+    from openpyxl.utils import get_column_letter
     import zipfile
-    import subprocess
     
     data = request.get_json()
     items = data.get('items', [])
@@ -2389,108 +2384,85 @@ def generate_arrival_invoice():
     if not items:
         return jsonify({'error': '상품 정보가 없습니다'}), 400
     
-    # 한글 폰트 설정
-    font_name = 'Helvetica'
-    font_paths = [
-        '/usr/share/fonts/truetype/nanum/NanumGothic.ttf',
-        '/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf',
-        '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
-        '/System/Library/Fonts/AppleSDGothicNeo.ttc',
-    ]
-    
-    for font_path in font_paths:
-        if os.path.exists(font_path):
-            try:
-                pdfmetrics.registerFont(TTFont('KoreanFont', font_path))
-                font_name = 'KoreanFont'
-                break
-            except:
-                continue
-    
-    # 폰트가 없으면 다운로드 시도
-    if font_name == 'Helvetica':
-        try:
-            subprocess.run(['apt-get', 'update'], capture_output=True, timeout=30)
-            subprocess.run(['apt-get', 'install', '-y', 'fonts-nanum'], capture_output=True, timeout=60)
-            for font_path in font_paths:
-                if os.path.exists(font_path):
-                    pdfmetrics.registerFont(TTFont('KoreanFont', font_path))
-                    font_name = 'KoreanFont'
-                    break
-        except:
-            pass
-    
-    def create_single_pdf(item_list, doc_type):
-        buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=20*mm, bottomMargin=20*mm, 
-                                leftMargin=15*mm, rightMargin=15*mm)
-        elements = []
+    def create_single_excel(item_list, doc_type):
+        """단일 Excel 파일 생성"""
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "입고내역서"
         
-        styles = getSampleStyleSheet()
-        title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
-            fontName=font_name,
-            fontSize=18,
-            alignment=1,
-            spaceAfter=20
-        )
-        cell_style = ParagraphStyle(
-            'CellStyle',
-            fontName=font_name,
-            fontSize=9,
-            alignment=1,
-            leading=12
+        # 스타일 정의
+        thin_border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
         )
         
-        title_text = f"입고 내역서({doc_type})"
-        if font_name == 'Helvetica':
-            title_text = f"Arrival Invoice ({doc_type})"
-        title = Paragraph(title_text, title_style)
-        elements.append(title)
-        elements.append(Spacer(1, 10*mm))
+        header_font = Font(bold=True, size=11)
+        title_font = Font(bold=True, size=18)
+        cell_font = Font(size=10)
         
-        if font_name == 'Helvetica':
-            headers = ['No.', 'Customer ID', 'Arrival Date', 'Product', 'Barcode', 'Qty(EA)', 'Note']
-        else:
-            headers = ['No.', '고객ID', '입고예정일', '상품명', '상품바코드', '수량(EA)', '특이사항']
+        header_fill = PatternFill(start_color="E0E0E0", end_color="E0E0E0", fill_type="solid")
+        center_align = Alignment(horizontal='center', vertical='center')
         
-        table_data = [headers]
+        # 컬럼 너비 설정
+        col_widths = [8, 15, 15, 35, 20, 12, 15]
+        for i, width in enumerate(col_widths, 1):
+            ws.column_dimensions[get_column_letter(i)].width = width
         
+        # 제목 행 (병합)
+        ws.merge_cells('A1:G1')
+        title_cell = ws['A1']
+        title_cell.value = f"입고 내역서({doc_type})"
+        title_cell.font = title_font
+        title_cell.alignment = center_align
+        ws.row_dimensions[1].height = 40
+        
+        # 헤더 행
+        headers = ['No.', '고객ID', '입고예정일', '상품명', '상품바코드', '수량(EA)', '특이사항']
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=2, column=col, value=header)
+            cell.font = header_font
+            cell.alignment = center_align
+            cell.border = thin_border
+            cell.fill = header_fill
+        ws.row_dimensions[2].height = 25
+        
+        # 데이터 행
         for idx, item in enumerate(item_list, 1):
-            row = [
-                str(idx),
+            row_num = idx + 2
+            row_data = [
+                idx,
                 item.get('customer_id', ''),
                 item.get('arrival_date', ''),
-                Paragraph(item.get('product_name', ''), cell_style),
+                item.get('product_name', ''),
                 item.get('barcode', ''),
-                str(item.get('quantity', '')),
+                item.get('quantity', ''),
                 item.get('note', '')
             ]
-            table_data.append(row)
+            
+            for col, value in enumerate(row_data, 1):
+                cell = ws.cell(row=row_num, column=col, value=value)
+                cell.font = cell_font
+                cell.alignment = center_align
+                cell.border = thin_border
+            
+            ws.row_dimensions[row_num].height = 22
         
-        while len(table_data) < 12:
-            table_data.append([str(len(table_data)), '', '', '', '', '', ''])
+        # 빈 행 추가 (총 10행까지)
+        current_row = len(item_list) + 3
+        while current_row <= 12:
+            row_num = current_row
+            for col in range(1, 8):
+                cell = ws.cell(row=row_num, column=col, value='' if col > 1 else row_num - 2)
+                cell.font = cell_font
+                cell.alignment = center_align
+                cell.border = thin_border
+            ws.row_dimensions[row_num].height = 22
+            current_row += 1
         
-        col_widths = [25*mm, 35*mm, 35*mm, 55*mm, 45*mm, 25*mm, 30*mm]
-        table = Table(table_data, colWidths=col_widths)
-        
-        table.setStyle(TableStyle([
-            ('FONTNAME', (0, 0), (-1, -1), font_name),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0.9, 0.9, 0.9)),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('ROWHEIGHTS', (0, 0), (-1, -1), 10*mm),
-            ('LEFTPADDING', (0, 0), (-1, -1), 3),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
-        ]))
-        
-        elements.append(table)
-        doc.build(elements)
+        buffer = BytesIO()
+        wb.save(buffer)
         buffer.seek(0)
         return buffer
     
@@ -2499,25 +2471,27 @@ def generate_arrival_invoice():
             zip_buffer = BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 for idx, item in enumerate(items, 1):
-                    pdf_buffer = create_single_pdf([item], delivery_type)
-                    safe_name = ''.join(c for c in item.get('product_name', 'item') if c.isalnum() or c in (' ', '_', '-'))[:30]
-                    filename = f"invoice_{idx}_{safe_name}.pdf"
-                    zip_file.writestr(filename, pdf_buffer.getvalue())
+                    excel_buffer = create_single_excel([item], delivery_type)
+                    safe_name = ''.join(c for c in item.get('product_name', 'item') if c.isalnum() or c in (' ', '_', '-') or '\uac00' <= c <= '\ud7a3')[:30]
+                    if not safe_name:
+                        safe_name = f"item_{idx}"
+                    filename = f"입고내역서_{idx}_{safe_name}.xlsx"
+                    zip_file.writestr(filename, excel_buffer.getvalue())
             
             zip_buffer.seek(0)
             return send_file(
                 zip_buffer,
                 mimetype='application/zip',
                 as_attachment=True,
-                download_name=f"arrival_invoices_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+                download_name=f"입고내역서_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
             )
         else:
-            pdf_buffer = create_single_pdf(items, delivery_type)
+            excel_buffer = create_single_excel(items, delivery_type)
             return send_file(
-                pdf_buffer,
-                mimetype='application/pdf',
+                excel_buffer,
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 as_attachment=True,
-                download_name=f"arrival_invoice_{delivery_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+                download_name=f"입고내역서_{delivery_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
             )
     except Exception as e:
         import traceback
