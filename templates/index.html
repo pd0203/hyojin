@@ -4474,10 +4474,14 @@
                 style="display: none; margin-bottom: 15px"
               >
                 <div class="add-product-row">
-                  <input type="text" id="newProductName" placeholder="상품명" />
                   <input
                     type="text"
-                    id="newProductBarcode"
+                    id="arrivalNewProductName"
+                    placeholder="상품명"
+                  />
+                  <input
+                    type="text"
+                    id="arrivalNewProductBarcode"
                     placeholder="바코드"
                   />
                 </div>
@@ -4494,7 +4498,7 @@
                     type="button"
                     class="arrival-btn arrival-btn-primary"
                     style="flex: 1; padding: 8px"
-                    onclick="saveNewProduct()"
+                    onclick="saveNewArrivalProduct()"
                   >
                     저장
                   </button>
@@ -7918,17 +7922,21 @@
 
         form.style.display = form.style.display === "none" ? "block" : "none";
         if (form.style.display === "block") {
-          const nameInput = document.getElementById("newProductName");
-          const barcodeInput = document.getElementById("newProductBarcode");
+          const nameInput = document.getElementById("arrivalNewProductName");
+          const barcodeInput = document.getElementById(
+            "arrivalNewProductBarcode",
+          );
           if (nameInput) nameInput.value = "";
           if (barcodeInput) barcodeInput.value = "";
           if (nameInput) nameInput.focus();
         }
       }
 
-      async function saveNewProduct() {
-        const nameInput = document.getElementById("newProductName");
-        const barcodeInput = document.getElementById("newProductBarcode");
+      async function saveNewArrivalProduct() {
+        const nameInput = document.getElementById("arrivalNewProductName");
+        const barcodeInput = document.getElementById(
+          "arrivalNewProductBarcode",
+        );
 
         const name = nameInput ? nameInput.value.trim() : "";
         const barcode = barcodeInput ? barcodeInput.value.trim() : "";
