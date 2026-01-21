@@ -2123,6 +2123,424 @@
           grid-column: span 1;
         }
       }
+
+      /* ==================== 도착보장 입고내역서 스타일 ==================== */
+      .arrival-container {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 25px;
+      }
+
+      @media (max-width: 1024px) {
+        .arrival-container {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .arrival-main {
+        background: #111;
+        border: 1px solid #222;
+        border-radius: 12px;
+        padding: 25px;
+      }
+
+      .arrival-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .arrival-card {
+        background: #111;
+        border: 1px solid #222;
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .arrival-card-title {
+        color: #00ff88;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .delivery-type-toggle {
+        display: flex;
+        background: #1a1a1a;
+        border-radius: 8px;
+        padding: 4px;
+        gap: 4px;
+      }
+
+      .delivery-type-btn {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: transparent;
+        color: #666;
+      }
+
+      .delivery-type-btn.active {
+        background: #00ff88;
+        color: #000;
+      }
+
+      .delivery-type-btn:not(.active):hover {
+        background: #222;
+        color: #fff;
+      }
+
+      .mini-calendar {
+        margin-top: 15px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        padding: 15px;
+      }
+
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .calendar-nav {
+        background: none;
+        border: none;
+        color: #888;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 5px 10px;
+        transition: color 0.2s;
+      }
+
+      .calendar-nav:hover {
+        color: #00ff88;
+      }
+
+      .calendar-month {
+        color: #fff;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        text-align: center;
+      }
+
+      .calendar-day-header {
+        color: #666;
+        font-size: 12px;
+        padding: 5px;
+      }
+
+      .calendar-day {
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #888;
+        transition: all 0.2s;
+      }
+
+      .calendar-day:hover {
+        background: #333;
+        color: #fff;
+      }
+
+      .calendar-day.selected {
+        background: #00ff88;
+        color: #000;
+      }
+
+      .calendar-day.today {
+        border: 1px solid #00ff88;
+      }
+
+      .calendar-day.other-month {
+        color: #444;
+      }
+
+      .arrival-form-group {
+        margin-bottom: 20px;
+      }
+
+      .arrival-form-label {
+        display: block;
+        color: #888;
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      .arrival-form-input {
+        width: 100%;
+        padding: 12px 16px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-size: 14px;
+        transition: border-color 0.2s;
+      }
+
+      .arrival-form-input:focus {
+        outline: none;
+        border-color: #00ff88;
+      }
+
+      .arrival-form-input:read-only {
+        background: #0d0d0d;
+        color: #666;
+      }
+
+      .product-select {
+        width: 100%;
+        padding: 12px 16px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-size: 14px;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+      }
+
+      .product-select:focus {
+        outline: none;
+        border-color: #00ff88;
+      }
+
+      .added-products-list {
+        margin-top: 20px;
+        border-top: 1px solid #222;
+        padding-top: 20px;
+      }
+
+      .added-product-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 15px;
+        background: #1a1a1a;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+
+      .added-product-info {
+        flex: 1;
+      }
+
+      .added-product-name {
+        color: #fff;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .added-product-detail {
+        color: #666;
+        font-size: 12px;
+      }
+
+      .added-product-remove {
+        background: none;
+        border: none;
+        color: #ff6b6b;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 5px;
+        transition: color 0.2s;
+      }
+
+      .added-product-remove:hover {
+        color: #ff4444;
+      }
+
+      .arrival-btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 25px;
+      }
+
+      .arrival-btn {
+        flex: 1;
+        padding: 14px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+      }
+
+      .arrival-btn-primary {
+        background: #00ff88;
+        color: #000;
+      }
+
+      .arrival-btn-primary:hover {
+        background: #00cc6a;
+      }
+
+      .arrival-btn-secondary {
+        background: #333;
+        color: #fff;
+      }
+
+      .arrival-btn-secondary:hover {
+        background: #444;
+      }
+
+      .arrival-btn-outline {
+        background: transparent;
+        border: 1px solid #444;
+        color: #888;
+      }
+
+      .arrival-btn-outline:hover {
+        border-color: #00ff88;
+        color: #00ff88;
+      }
+
+      .separate-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+        padding: 12px 15px;
+        background: #1a1a1a;
+        border-radius: 8px;
+      }
+
+      .separate-checkbox input {
+        accent-color: #00ff88;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      .separate-checkbox label {
+        color: #888;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .customer-id-section {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .customer-id-input {
+        flex: 1;
+        padding: 10px 14px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #e0e0e0;
+        font-size: 14px;
+      }
+
+      .customer-id-input:focus {
+        outline: none;
+        border-color: #00ff88;
+      }
+
+      .customer-id-save {
+        padding: 10px 16px;
+        background: #00ff88;
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .customer-id-save:hover {
+        background: #00cc6a;
+      }
+
+      .product-manage-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .product-manage-table th,
+      .product-manage-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #222;
+      }
+
+      .product-manage-table th {
+        background: #1a1a1a;
+        color: #888;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .product-manage-table td {
+        color: #e0e0e0;
+        font-size: 14px;
+      }
+
+      .product-manage-table tr:hover td {
+        background: #1a1a1a;
+      }
+
+      .product-action-btn {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        padding: 5px 8px;
+        font-size: 13px;
+        transition: color 0.2s;
+      }
+
+      .product-action-btn:hover {
+        color: #00ff88;
+      }
+
+      .product-action-btn.delete:hover {
+        color: #ff6b6b;
+      }
+
+      .add-product-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .add-product-row input {
+        flex: 1;
+        padding: 10px 14px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #e0e0e0;
+        font-size: 14px;
+      }
+
+      .add-product-row input:focus {
+        outline: none;
+        border-color: #00ff88;
+      }
     </style>
   </head>
   <body>
@@ -2149,6 +2567,9 @@
       <div class="nav-item" data-page="classify">송장 분류</div>
       <div class="nav-item" data-page="starfilter">스타배송 필터링</div>
       <div class="nav-item" data-page="tax-free">면세 자료 정리</div>
+      <div class="nav-item" data-page="arrival-invoice">
+        도착보장 입고내역서
+      </div>
       <div class="nav-item" data-page="employees">직원 관리</div>
       <div class="nav-item" data-page="admin-attendance">직원 출퇴근일지</div>
     </nav>
@@ -3839,6 +4260,249 @@
         </div>
       </section>
 
+      <!-- 도착보장 입고내역서 페이지 -->
+      <section id="page-arrival-invoice" class="page" style="display: none">
+        <h1 class="page-title">도착보장 입고내역서</h1>
+        <p class="page-description">네이버 도착보장 입고내역서를 생성합니다</p>
+
+        <div class="arrival-container">
+          <!-- 메인 입력 영역 -->
+          <div class="arrival-main">
+            <div class="arrival-form-group">
+              <label class="arrival-form-label">배송 유형</label>
+              <div class="delivery-type-toggle">
+                <button
+                  type="button"
+                  class="delivery-type-btn active"
+                  data-type="화물"
+                  onclick="selectDeliveryType('화물')"
+                >
+                  🚛 화물
+                </button>
+                <button
+                  type="button"
+                  class="delivery-type-btn"
+                  data-type="택배"
+                  onclick="selectDeliveryType('택배')"
+                >
+                  📦 택배
+                </button>
+              </div>
+            </div>
+
+            <div class="arrival-form-group">
+              <label class="arrival-form-label">입고예정일</label>
+              <div class="date-picker-container">
+                <input
+                  type="text"
+                  id="arrivalDate"
+                  class="arrival-form-input"
+                  placeholder="YYYYMMDD 형식으로 입력"
+                  maxlength="8"
+                />
+                <div class="mini-calendar" id="miniCalendar"></div>
+              </div>
+            </div>
+
+            <div class="arrival-form-group">
+              <label class="arrival-form-label">상품명</label>
+              <select
+                id="arrivalProductSelect"
+                class="product-select"
+                onchange="onProductSelect()"
+              >
+                <option value="">-- 상품을 선택하세요 --</option>
+              </select>
+            </div>
+
+            <div class="arrival-form-group">
+              <label class="arrival-form-label">상품 바코드</label>
+              <input
+                type="text"
+                id="arrivalBarcode"
+                class="arrival-form-input"
+                readonly
+                placeholder="상품 선택 시 자동 입력"
+              />
+            </div>
+
+            <div class="arrival-form-group">
+              <label class="arrival-form-label">수량 (EA)</label>
+              <input
+                type="number"
+                id="arrivalQuantity"
+                class="arrival-form-input"
+                placeholder="수량 입력"
+                min="1"
+              />
+            </div>
+
+            <div class="arrival-btn-group">
+              <button
+                type="button"
+                class="arrival-btn arrival-btn-outline"
+                onclick="clearArrivalForm()"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                class="arrival-btn arrival-btn-secondary"
+                onclick="addArrivalItem()"
+              >
+                ➕ 상품 추가
+              </button>
+              <button
+                type="button"
+                class="arrival-btn arrival-btn-primary"
+                onclick="generateArrivalInvoice()"
+              >
+                📄 입고내역서 생성
+              </button>
+            </div>
+
+            <!-- 추가된 상품 리스트 -->
+            <div
+              class="added-products-list"
+              id="addedProductsList"
+              style="display: none"
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 15px;
+                "
+              >
+                <span style="color: #00ff88; font-weight: 600"
+                  >추가된 상품</span
+                >
+                <span id="addedCount" style="color: #888; font-size: 13px"
+                  >0개</span
+                >
+              </div>
+              <div id="addedProductsContainer"></div>
+
+              <div class="separate-checkbox">
+                <input type="checkbox" id="generateSeparate" />
+                <label for="generateSeparate"
+                  >상품별 개별 입고내역서 생성 (ZIP 다운로드)</label
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- 사이드바 설정 영역 -->
+          <div class="arrival-sidebar">
+            <!-- 고객ID 설정 -->
+            <div class="arrival-card">
+              <div class="arrival-card-title">🆔 고객ID 설정</div>
+              <div class="customer-id-section">
+                <input
+                  type="text"
+                  id="customerIdInput"
+                  class="customer-id-input"
+                  placeholder="고객ID 입력"
+                />
+                <button
+                  type="button"
+                  class="customer-id-save"
+                  onclick="saveCustomerId()"
+                >
+                  저장
+                </button>
+              </div>
+              <p style="color: #666; font-size: 12px; margin-top: 10px">
+                한번 저장하면 자동으로 입력됩니다
+              </p>
+            </div>
+
+            <!-- 상품 관리 -->
+            <div
+              class="arrival-card"
+              style="
+                flex: 1;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+              "
+            >
+              <div
+                class="arrival-card-title"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <span>📦 도착보장 상품 관리</span>
+                <button
+                  type="button"
+                  class="product-action-btn"
+                  onclick="toggleAddProductForm()"
+                  style="color: #00ff88; font-size: 14px"
+                >
+                  + 추가
+                </button>
+              </div>
+
+              <!-- 상품 추가 폼 -->
+              <div
+                id="addProductForm"
+                style="display: none; margin-bottom: 15px"
+              >
+                <div class="add-product-row">
+                  <input type="text" id="newProductName" placeholder="상품명" />
+                  <input
+                    type="text"
+                    id="newProductBarcode"
+                    placeholder="바코드"
+                  />
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px">
+                  <button
+                    type="button"
+                    class="arrival-btn arrival-btn-outline"
+                    style="flex: 1; padding: 8px"
+                    onclick="toggleAddProductForm()"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    class="arrival-btn arrival-btn-primary"
+                    style="flex: 1; padding: 8px"
+                    onclick="saveNewProduct()"
+                  >
+                    저장
+                  </button>
+                </div>
+              </div>
+
+              <div style="flex: 1; overflow-y: auto; max-height: 400px">
+                <table class="product-manage-table">
+                  <thead>
+                    <tr>
+                      <th>상품명</th>
+                      <th>바코드</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="arrivalProductsTableBody">
+                    <tr>
+                      <td colspan="3" style="text-align: center; color: #666">
+                        상품을 등록하세요
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- 직원 관리 페이지 -->
       <section id="page-employees" class="page" style="display: none">
         <h1 class="page-title">직원 관리</h1>
@@ -5005,6 +5669,8 @@
           }
           // [수정됨] 명시적으로 연도와 월을 전달하여 즉시 로딩되게 함
           loadAdminAttendance(currentYear, currentMonth);
+        } else if (page === "arrival-invoice") {
+          initArrivalInvoice();
         }
       }
 
@@ -7012,6 +7678,446 @@
       function hideLoading() {
         const overlay = document.getElementById("loadingOverlay");
         if (overlay) overlay.classList.remove("show");
+      }
+
+      // ==================== 도착보장 입고내역서 관련 ====================
+
+      let arrivalProducts = [];
+      let addedItems = [];
+      let currentCustomerId = "";
+      let selectedDeliveryType = "화물";
+      let calendarDate = new Date();
+
+      function initArrivalInvoice() {
+        loadArrivalProducts();
+        loadCustomerId();
+        renderMiniCalendar();
+      }
+
+      function selectDeliveryType(type) {
+        selectedDeliveryType = type;
+        document.querySelectorAll(".delivery-type-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.type === type);
+        });
+      }
+
+      function renderMiniCalendar() {
+        const calendar = document.getElementById("miniCalendar");
+        if (!calendar) return;
+
+        const year = calendarDate.getFullYear();
+        const month = calendarDate.getMonth();
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDay = firstDay.getDay();
+
+        const today = new Date();
+        const selectedDate =
+          document.getElementById("arrivalDate")?.value || "";
+
+        let html = `
+          <div class="calendar-header">
+            <button type="button" class="calendar-nav" onclick="changeCalendarMonth(-1)">‹</button>
+            <span class="calendar-month">${year}년 ${month + 1}월</span>
+            <button type="button" class="calendar-nav" onclick="changeCalendarMonth(1)">›</button>
+          </div>
+          <div class="calendar-grid">
+            <div class="calendar-day-header">일</div>
+            <div class="calendar-day-header">월</div>
+            <div class="calendar-day-header">화</div>
+            <div class="calendar-day-header">수</div>
+            <div class="calendar-day-header">목</div>
+            <div class="calendar-day-header">금</div>
+            <div class="calendar-day-header">토</div>
+        `;
+
+        const prevMonth = new Date(year, month, 0);
+        for (let i = startDay - 1; i >= 0; i--) {
+          const day = prevMonth.getDate() - i;
+          html += `<div class="calendar-day other-month">${day}</div>`;
+        }
+
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+          const dateStr = `${year}${String(month + 1).padStart(2, "0")}${String(day).padStart(2, "0")}`;
+          const isToday =
+            today.getFullYear() === year &&
+            today.getMonth() === month &&
+            today.getDate() === day;
+          const isSelected = selectedDate === dateStr;
+
+          let classes = "calendar-day";
+          if (isToday) classes += " today";
+          if (isSelected) classes += " selected";
+
+          html += `<div class="${classes}" onclick="selectCalendarDate('${dateStr}')">${day}</div>`;
+        }
+
+        const remaining = 42 - (startDay + lastDay.getDate());
+        for (let day = 1; day <= remaining; day++) {
+          html += `<div class="calendar-day other-month">${day}</div>`;
+        }
+
+        html += "</div>";
+        calendar.innerHTML = html;
+      }
+
+      function changeCalendarMonth(delta) {
+        calendarDate.setMonth(calendarDate.getMonth() + delta);
+        renderMiniCalendar();
+      }
+
+      function selectCalendarDate(dateStr) {
+        const input = document.getElementById("arrivalDate");
+        if (input) input.value = dateStr;
+        renderMiniCalendar();
+      }
+
+      async function loadArrivalProducts() {
+        try {
+          const response = await fetch("/api/arrival-products");
+          const result = await response.json();
+          if (result.success) {
+            arrivalProducts = result.data;
+            renderArrivalProductSelect();
+            renderArrivalProductsTable();
+          }
+        } catch (error) {
+          console.error("상품 목록 로드 실패:", error);
+        }
+      }
+
+      function renderArrivalProductSelect() {
+        const select = document.getElementById("arrivalProductSelect");
+        if (!select) return;
+
+        select.innerHTML = '<option value="">-- 상품을 선택하세요 --</option>';
+
+        arrivalProducts.forEach((product) => {
+          const option = document.createElement("option");
+          option.value = product.id;
+          option.textContent = product.product_name;
+          option.dataset.barcode = product.barcode;
+          select.appendChild(option);
+        });
+      }
+
+      function renderArrivalProductsTable() {
+        const tbody = document.getElementById("arrivalProductsTableBody");
+        if (!tbody) return;
+
+        if (arrivalProducts.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="3" style="text-align: center; color: #666;">상품을 등록하세요</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = arrivalProducts
+          .map(
+            (product) => `
+          <tr>
+            <td style="font-size: 13px;">${product.product_name}</td>
+            <td style="color: #888; font-size: 12px;">${product.barcode}</td>
+            <td style="text-align: right;">
+              <button class="product-action-btn delete" onclick="deleteArrivalProduct(${product.id})">삭제</button>
+            </td>
+          </tr>
+        `,
+          )
+          .join("");
+      }
+
+      function onProductSelect() {
+        const select = document.getElementById("arrivalProductSelect");
+        const selectedOption = select.options[select.selectedIndex];
+        const barcodeInput = document.getElementById("arrivalBarcode");
+
+        if (selectedOption && selectedOption.value) {
+          barcodeInput.value = selectedOption.dataset.barcode || "";
+        } else {
+          barcodeInput.value = "";
+        }
+      }
+
+      async function loadCustomerId() {
+        try {
+          const response = await fetch("/api/arrival-customer-id");
+          const result = await response.json();
+          if (result.success) {
+            currentCustomerId = result.customer_id || "";
+            const input = document.getElementById("customerIdInput");
+            if (input) input.value = currentCustomerId;
+          }
+        } catch (error) {
+          console.error("고객ID 로드 실패:", error);
+        }
+      }
+
+      async function saveCustomerId() {
+        const input = document.getElementById("customerIdInput");
+        const customerId = input ? input.value.trim() : "";
+
+        try {
+          const response = await fetch("/api/arrival-customer-id", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ customer_id: customerId }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            currentCustomerId = customerId;
+            showToast("success", "고객ID가 저장되었습니다");
+          } else {
+            showToast("error", result.error || "저장 실패");
+          }
+        } catch (error) {
+          showToast("error", "저장 중 오류 발생");
+        }
+      }
+
+      function toggleAddProductForm() {
+        const form = document.getElementById("addProductForm");
+        if (!form) return;
+
+        form.style.display = form.style.display === "none" ? "block" : "none";
+        if (form.style.display === "block") {
+          const nameInput = document.getElementById("newProductName");
+          const barcodeInput = document.getElementById("newProductBarcode");
+          if (nameInput) nameInput.value = "";
+          if (barcodeInput) barcodeInput.value = "";
+          if (nameInput) nameInput.focus();
+        }
+      }
+
+      async function saveNewProduct() {
+        const nameInput = document.getElementById("newProductName");
+        const barcodeInput = document.getElementById("newProductBarcode");
+
+        const name = nameInput ? nameInput.value.trim() : "";
+        const barcode = barcodeInput ? barcodeInput.value.trim() : "";
+
+        if (!name || !barcode) {
+          showToast("error", "상품명과 바코드를 입력하세요");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/arrival-products", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ product_name: name, barcode: barcode }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            showToast("success", "상품이 등록되었습니다");
+            toggleAddProductForm();
+            loadArrivalProducts();
+          } else {
+            showToast("error", result.error || "등록 실패");
+          }
+        } catch (error) {
+          showToast("error", "등록 중 오류 발생");
+        }
+      }
+
+      async function deleteArrivalProduct(productId) {
+        if (!confirm("이 상품을 삭제하시겠습니까?")) return;
+
+        try {
+          const response = await fetch(`/api/arrival-products/${productId}`, {
+            method: "DELETE",
+          });
+          const result = await response.json();
+          if (result.success) {
+            showToast("success", "상품이 삭제되었습니다");
+            loadArrivalProducts();
+          } else {
+            showToast("error", result.error || "삭제 실패");
+          }
+        } catch (error) {
+          showToast("error", "삭제 중 오류 발생");
+        }
+      }
+
+      function clearArrivalForm() {
+        const dateInput = document.getElementById("arrivalDate");
+        const productSelect = document.getElementById("arrivalProductSelect");
+        const barcodeInput = document.getElementById("arrivalBarcode");
+        const quantityInput = document.getElementById("arrivalQuantity");
+
+        if (dateInput) dateInput.value = "";
+        if (productSelect) productSelect.value = "";
+        if (barcodeInput) barcodeInput.value = "";
+        if (quantityInput) quantityInput.value = "";
+
+        addedItems = [];
+        renderAddedItems();
+        renderMiniCalendar();
+      }
+
+      function addArrivalItem() {
+        const arrivalDate =
+          document.getElementById("arrivalDate")?.value.trim() || "";
+        const productSelect = document.getElementById("arrivalProductSelect");
+        const selectedOption =
+          productSelect?.options[productSelect.selectedIndex];
+        const barcode =
+          document.getElementById("arrivalBarcode")?.value.trim() || "";
+        const quantity =
+          document.getElementById("arrivalQuantity")?.value.trim() || "";
+
+        if (!arrivalDate) {
+          showToast("error", "입고예정일을 입력하세요");
+          return;
+        }
+        if (!productSelect?.value) {
+          showToast("error", "상품을 선택하세요");
+          return;
+        }
+        if (!quantity || parseInt(quantity) < 1) {
+          showToast("error", "수량을 입력하세요");
+          return;
+        }
+
+        addedItems.push({
+          customer_id: currentCustomerId,
+          arrival_date: arrivalDate,
+          product_name: selectedOption.textContent,
+          barcode: barcode,
+          quantity: parseInt(quantity),
+          note: "",
+        });
+
+        renderAddedItems();
+
+        if (productSelect) productSelect.value = "";
+        const barcodeInput = document.getElementById("arrivalBarcode");
+        const quantityInput = document.getElementById("arrivalQuantity");
+        if (barcodeInput) barcodeInput.value = "";
+        if (quantityInput) quantityInput.value = "";
+
+        showToast("success", "상품이 추가되었습니다");
+      }
+
+      function renderAddedItems() {
+        const container = document.getElementById("addedProductsContainer");
+        const listSection = document.getElementById("addedProductsList");
+        const countEl = document.getElementById("addedCount");
+
+        if (!container || !listSection) return;
+
+        if (addedItems.length === 0) {
+          listSection.style.display = "none";
+          return;
+        }
+
+        listSection.style.display = "block";
+        if (countEl) countEl.textContent = `${addedItems.length}개`;
+
+        container.innerHTML = addedItems
+          .map(
+            (item, index) => `
+          <div class="added-product-item">
+            <div class="added-product-info">
+              <div class="added-product-name">${item.product_name}</div>
+              <div class="added-product-detail">${item.arrival_date} · ${item.quantity}EA · ${item.barcode}</div>
+            </div>
+            <button class="added-product-remove" onclick="removeAddedItem(${index})">×</button>
+          </div>
+        `,
+          )
+          .join("");
+      }
+
+      function removeAddedItem(index) {
+        addedItems.splice(index, 1);
+        renderAddedItems();
+      }
+
+      async function generateArrivalInvoice() {
+        if (addedItems.length === 0) {
+          const arrivalDate =
+            document.getElementById("arrivalDate")?.value.trim() || "";
+          const productSelect = document.getElementById("arrivalProductSelect");
+          const selectedOption =
+            productSelect?.options[productSelect.selectedIndex];
+          const barcode =
+            document.getElementById("arrivalBarcode")?.value.trim() || "";
+          const quantity =
+            document.getElementById("arrivalQuantity")?.value.trim() || "";
+
+          if (!arrivalDate || !productSelect?.value || !quantity) {
+            showToast("error", "상품 정보를 입력하세요");
+            return;
+          }
+
+          addedItems.push({
+            customer_id: currentCustomerId,
+            arrival_date: arrivalDate,
+            product_name: selectedOption.textContent,
+            barcode: barcode,
+            quantity: parseInt(quantity),
+            note: "",
+          });
+        }
+
+        const generateSeparateEl = document.getElementById("generateSeparate");
+        const generateSeparate = generateSeparateEl
+          ? generateSeparateEl.checked
+          : false;
+
+        try {
+          showToast("success", "PDF 생성 중...");
+
+          const response = await fetch("/api/arrival-invoice/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: addedItems,
+              delivery_type: selectedDeliveryType,
+              generate_separate: generateSeparate,
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            showToast("error", error.error || "생성 실패");
+            return;
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+
+          const contentDisposition = response.headers.get(
+            "Content-Disposition",
+          );
+          let filename = generateSeparate
+            ? "arrival_invoices.zip"
+            : "arrival_invoice.pdf";
+          if (contentDisposition) {
+            const match = contentDisposition.match(
+              /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+            );
+            if (match)
+              filename = decodeURIComponent(match[1].replace(/['"]/g, ""));
+          }
+
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+
+          showToast("success", "입고내역서가 생성되었습니다");
+          clearArrivalForm();
+        } catch (error) {
+          console.error("생성 오류:", error);
+          showToast("error", "생성 중 오류 발생");
+        }
       }
     </script>
   </body>

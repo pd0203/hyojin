@@ -46,6 +46,16 @@ except Exception as e:
     sys.exit(1)
 
 
+def safe_float(value, default=0):
+    """문자열이나 None을 안전하게 float로 변환"""
+    try:
+        if value in ('', 'x', 'X', None):
+            return default
+        return float(value)
+    except (ValueError, TypeError):
+        return default
+
+
 def migrate_settings():
     print("\n📦 설정 마이그레이션...")
     if not os.path.exists('playauto_settings_v4.json'):
@@ -97,7 +107,7 @@ def migrate_margin_data():
     
     for i in range(0, len(sorted_data), 50):
         batch = sorted_data[i:i+50]
-        items = [{'상품명': it.get('상품명', ''), '인상전_상품가': float(it.get('인상전 상품가', 0) or 0), '인상후_상품가': float(it.get('인상후 상품가', 0) or 0), '물량지원': float(it.get('물량지원', 1) or 1), '프로모션할인률': float(it.get('프로모션할인률', 0) or 0), '장려금률': float(it.get('장려금률', 0) or 0), '배송비': float(it.get('배송비', 0) or 0), '박스비': float(it.get('박스비', 0) or 0), '인상전_총_원가': float(it.get('인상전 총 원가', 0) or 0), '인상후_총_원가': float(it.get('인상후 총 원가', 0) or 0), '인상전_재고': str(it.get('인상전 재고', '')), '박스_최대_수량': str(it.get('1박스 최대 수량', '')), '기타사항': str(it.get('기타사항', ''))} for it in batch]
+        items = [{'상품명': it.get('상품명', ''), '인상전_상품가': safe_float(it.get('인상전 상품가')), '인상후_상품가': safe_float(it.get('인상후 상품가')), '물량지원': safe_float(it.get('물량지원'), 1), '프로모션할인률': safe_float(it.get('프로모션할인률')), '장려금률': safe_float(it.get('장려금률')), '배송비': safe_float(it.get('배송비')), '박스비': safe_float(it.get('박스비')), '인상전_총_원가': safe_float(it.get('인상전 총 원가')), '인상후_총_원가': safe_float(it.get('인상후 총 원가')), '인상전_재고': str(it.get('인상전 재고', '')), '박스_최대_수량': str(it.get('1박스 최대 수량', '')), '기타사항': str(it.get('기타사항', ''))} for it in batch]
         try:
             supabase.table('margin_products').upsert(items, on_conflict='상품명').execute()
             total += len(batch)

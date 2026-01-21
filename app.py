@@ -2259,6 +2259,272 @@ def mark_restocked(item_id):
         return jsonify({'error': str(e)}), 500
 
 
+# ==================== 도착보장 입고내역서 API ====================
+
+@app.route('/api/arrival-products', methods=['GET'])
+@admin_required
+def get_arrival_products():
+    """도착보장 상품 목록 조회"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    try:
+        response = supabase.table('arrival_guarantee_products').select('*').order('product_name').execute()
+        return jsonify({'success': True, 'data': response.data})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/arrival-products', methods=['POST'])
+@admin_required
+def create_arrival_product():
+    """도착보장 상품 등록"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    data = request.get_json()
+    try:
+        new_product = {
+            'product_name': data.get('product_name', '').strip(),
+            'barcode': data.get('barcode', '').strip()
+        }
+        if not new_product['product_name'] or not new_product['barcode']:
+            return jsonify({'error': '상품명과 바코드는 필수입니다'}), 400
+        response = supabase.table('arrival_guarantee_products').insert(new_product).execute()
+        return jsonify({'success': True, 'data': response.data[0]})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/arrival-products/<int:product_id>', methods=['PUT'])
+@admin_required
+def update_arrival_product(product_id):
+    """도착보장 상품 수정"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    data = request.get_json()
+    try:
+        update_data = {
+            'product_name': data.get('product_name', '').strip(),
+            'barcode': data.get('barcode', '').strip(),
+            'updated_at': datetime.utcnow().isoformat()
+        }
+        if not update_data['product_name'] or not update_data['barcode']:
+            return jsonify({'error': '상품명과 바코드는 필수입니다'}), 400
+        response = supabase.table('arrival_guarantee_products').update(update_data).eq('id', product_id).execute()
+        return jsonify({'success': True, 'data': response.data[0] if response.data else None})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/arrival-products/<int:product_id>', methods=['DELETE'])
+@admin_required
+def delete_arrival_product(product_id):
+    """도착보장 상품 삭제"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    try:
+        supabase.table('arrival_guarantee_products').delete().eq('id', product_id).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/arrival-customer-id', methods=['GET'])
+@admin_required
+def get_arrival_customer_id():
+    """고객ID 조회"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    try:
+        response = supabase.table('system_settings').select('value').eq('key', 'arrival_customer_id').execute()
+        customer_id = response.data[0]['value'] if response.data else ''
+        return jsonify({'success': True, 'customer_id': customer_id})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/arrival-customer-id', methods=['POST'])
+@admin_required
+def save_arrival_customer_id():
+    """고객ID 저장"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    data = request.get_json()
+    customer_id = data.get('customer_id', '').strip()
+    try:
+        existing = supabase.table('system_settings').select('key').eq('key', 'arrival_customer_id').execute()
+        if existing.data:
+            supabase.table('system_settings').update({
+                'value': customer_id,
+                'updated_at': datetime.utcnow().isoformat()
+            }).eq('key', 'arrival_customer_id').execute()
+        else:
+            supabase.table('system_settings').insert({
+                'key': 'arrival_customer_id',
+                'value': customer_id
+            }).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/arrival-invoice/generate', methods=['POST'])
+@admin_required
+def generate_arrival_invoice():
+    """입고내역서 PDF 생성"""
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import mm
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    import zipfile
+    import subprocess
+    
+    data = request.get_json()
+    items = data.get('items', [])
+    delivery_type = data.get('delivery_type', '화물')
+    generate_separate = data.get('generate_separate', False)
+    
+    if not items:
+        return jsonify({'error': '상품 정보가 없습니다'}), 400
+    
+    # 한글 폰트 설정
+    font_name = 'Helvetica'
+    font_paths = [
+        '/usr/share/fonts/truetype/nanum/NanumGothic.ttf',
+        '/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf',
+        '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
+        '/System/Library/Fonts/AppleSDGothicNeo.ttc',
+    ]
+    
+    for font_path in font_paths:
+        if os.path.exists(font_path):
+            try:
+                pdfmetrics.registerFont(TTFont('KoreanFont', font_path))
+                font_name = 'KoreanFont'
+                break
+            except:
+                continue
+    
+    # 폰트가 없으면 다운로드 시도
+    if font_name == 'Helvetica':
+        try:
+            subprocess.run(['apt-get', 'update'], capture_output=True, timeout=30)
+            subprocess.run(['apt-get', 'install', '-y', 'fonts-nanum'], capture_output=True, timeout=60)
+            for font_path in font_paths:
+                if os.path.exists(font_path):
+                    pdfmetrics.registerFont(TTFont('KoreanFont', font_path))
+                    font_name = 'KoreanFont'
+                    break
+        except:
+            pass
+    
+    def create_single_pdf(item_list, doc_type):
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=20*mm, bottomMargin=20*mm, 
+                                leftMargin=15*mm, rightMargin=15*mm)
+        elements = []
+        
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontName=font_name,
+            fontSize=18,
+            alignment=1,
+            spaceAfter=20
+        )
+        cell_style = ParagraphStyle(
+            'CellStyle',
+            fontName=font_name,
+            fontSize=9,
+            alignment=1,
+            leading=12
+        )
+        
+        title_text = f"입고 내역서({doc_type})"
+        if font_name == 'Helvetica':
+            title_text = f"Arrival Invoice ({doc_type})"
+        title = Paragraph(title_text, title_style)
+        elements.append(title)
+        elements.append(Spacer(1, 10*mm))
+        
+        if font_name == 'Helvetica':
+            headers = ['No.', 'Customer ID', 'Arrival Date', 'Product', 'Barcode', 'Qty(EA)', 'Note']
+        else:
+            headers = ['No.', '고객ID', '입고예정일', '상품명', '상품바코드', '수량(EA)', '특이사항']
+        
+        table_data = [headers]
+        
+        for idx, item in enumerate(item_list, 1):
+            row = [
+                str(idx),
+                item.get('customer_id', ''),
+                item.get('arrival_date', ''),
+                Paragraph(item.get('product_name', ''), cell_style),
+                item.get('barcode', ''),
+                str(item.get('quantity', '')),
+                item.get('note', '')
+            ]
+            table_data.append(row)
+        
+        while len(table_data) < 12:
+            table_data.append([str(len(table_data)), '', '', '', '', '', ''])
+        
+        col_widths = [25*mm, 35*mm, 35*mm, 55*mm, 45*mm, 25*mm, 30*mm]
+        table = Table(table_data, colWidths=col_widths)
+        
+        table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), font_name),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0.9, 0.9, 0.9)),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('ROWHEIGHTS', (0, 0), (-1, -1), 10*mm),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+        ]))
+        
+        elements.append(table)
+        doc.build(elements)
+        buffer.seek(0)
+        return buffer
+    
+    try:
+        if generate_separate and len(items) > 1:
+            zip_buffer = BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for idx, item in enumerate(items, 1):
+                    pdf_buffer = create_single_pdf([item], delivery_type)
+                    safe_name = ''.join(c for c in item.get('product_name', 'item') if c.isalnum() or c in (' ', '_', '-'))[:30]
+                    filename = f"invoice_{idx}_{safe_name}.pdf"
+                    zip_file.writestr(filename, pdf_buffer.getvalue())
+            
+            zip_buffer.seek(0)
+            return send_file(
+                zip_buffer,
+                mimetype='application/zip',
+                as_attachment=True,
+                download_name=f"arrival_invoices_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+            )
+        else:
+            pdf_buffer = create_single_pdf(items, delivery_type)
+            return send_file(
+                pdf_buffer,
+                mimetype='application/pdf',
+                as_attachment=True,
+                download_name=f"arrival_invoice_{delivery_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            )
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)

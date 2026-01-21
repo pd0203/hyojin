@@ -115,6 +115,31 @@ CREATE TABLE IF NOT EXISTS out_of_stock (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 도착보장 상품 마스터 테이블
+CREATE TABLE IF NOT EXISTS arrival_guarantee_products (
+    id SERIAL PRIMARY KEY,
+    product_name TEXT NOT NULL,
+    barcode TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 시스템 설정 테이블 (고객ID 등 저장용)
+CREATE TABLE IF NOT EXISTS system_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 인덱스
+CREATE INDEX IF NOT EXISTS idx_arrival_products_name ON arrival_guarantee_products(product_name);
+
+-- RLS 정책
+ALTER TABLE arrival_guarantee_products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all for arrival_guarantee_products" ON arrival_guarantee_products FOR ALL USING (true);
+
 -- 인덱스 생성
 CREATE INDEX IF NOT EXISTS idx_attendance_employee_date ON attendance_logs(employee_id, work_date);
 CREATE INDEX IF NOT EXISTS idx_attendance_work_date ON attendance_logs(work_date);
@@ -152,3 +177,4 @@ CREATE POLICY "Allow all for edit_approvals" ON edit_approvals FOR ALL USING (tr
 CREATE POLICY "Allow all for salary_confirmations" ON salary_confirmations FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all for wage_history" ON wage_history FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all for attendance_edit_requests" ON attendance_edit_requests FOR ALL USING (true) WITH CHECK (true);
+

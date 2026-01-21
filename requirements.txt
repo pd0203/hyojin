@@ -5,3 +5,4 @@ xlrd>=2.0.1
 gunicorn==21.2.0
 numpy>=1.21.0
 supabase>=2.0.0
+reportlab>=4.0.0
