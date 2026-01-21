@@ -2370,7 +2370,7 @@ def save_arrival_customer_id():
 @app.route('/api/arrival-invoice/generate', methods=['POST'])
 @admin_required
 def generate_arrival_invoice():
-    """입고내역서 PDF 생성 (시스템 폰트 사용)"""
+    """입고내역서 PDF 생성 (최종 수정: 한글 렌더링 강제 적용)"""
     from weasyprint import HTML
     from weasyprint.text.fonts import FontConfiguration
     from urllib.parse import quote
@@ -2383,9 +2383,6 @@ def generate_arrival_invoice():
     
     if not items:
         return jsonify({'error': '상품 정보가 없습니다'}), 400
-    
-    # [수정됨] 복잡한 폰트 다운로드/Base64 변환 코드를 모두 제거했습니다.
-    # render.yaml에서 설치한 시스템 폰트(NanumGothic)를 바로 사용합니다.
     
     def create_pdf(item_list, doc_type):
         """HTML 테이블로 PDF 생성"""
@@ -2417,10 +2414,10 @@ def generate_arrival_invoice():
             </tr>
             """
         
-        # [수정됨] CSS 간소화: 시스템에 설치된 나눔고딕을 직접 호출합니다.
+        # [핵심 수정사항] lang="ko" 추가 및 font-family 대폭 보강
         html_content = f"""
         <!DOCTYPE html>
-        <html>
+        <html lang="ko">
         <head>
             <meta charset="UTF-8">
             <style>
@@ -2429,15 +2426,18 @@ def generate_arrival_invoice():
                     margin: 15mm;
                 }}
                 body {{
-                    font-family: 'NanumGothic', 'Nanum Gothic', 'Noto Sans CJK KR', sans-serif;
+                    /* 서버에 깔린 폰트 중 하나라도 걸리도록 우선순위 나열 */
+                    font-family: 'NanumGothic', 'Nanum Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
                     margin: 0;
                     padding: 0;
+                    word-break: keep-all;
                 }}
                 h1 {{
                     text-align: center;
                     font-size: 24px;
                     margin-bottom: 20px;
                     font-weight: bold;
+                    font-family: 'NanumGothic', 'Nanum Gothic', 'Noto Sans CJK KR', sans-serif;
                 }}
                 table {{
                     width: 100%;
@@ -2489,17 +2489,14 @@ def generate_arrival_invoice():
         return pdf_buffer
     
     def get_filename(item_list):
-        """파일명 생성"""
         if item_list:
             arrival_date = item_list[0].get('arrival_date', '')
-            # 날짜 포맷 안전하게 처리
             if len(arrival_date) >= 8:
                 mmdd = arrival_date[4:8]
             else:
                 mmdd = datetime.now().strftime('%m%d')
             
             if len(item_list) == 1:
-                # 파일명에서 공백 제거 등 안전하게 처리
                 product_name = item_list[0].get('product_name', '상품').replace(' ', '')
             else:
                 product_name = f"{len(item_list)}개상품"
@@ -2508,7 +2505,6 @@ def generate_arrival_invoice():
         return "입고내역서.pdf"
     
     def send_pdf_response(buffer, filename):
-        """한글 파일명 지원하는 응답 반환"""
         buffer.seek(0)
         response = make_response(buffer.read())
         response.headers['Content-Type'] = 'application/pdf'
@@ -2517,7 +2513,6 @@ def generate_arrival_invoice():
         return response
     
     def send_zip_response(buffer, filename):
-        """한글 파일명 지원하는 ZIP 응답 반환"""
         buffer.seek(0)
         response = make_response(buffer.read())
         response.headers['Content-Type'] = 'application/zip'
@@ -2527,7 +2522,6 @@ def generate_arrival_invoice():
     
     try:
         if generate_separate and len(items) > 1:
-            # 개별 PDF 생성 후 ZIP
             zip_buffer = BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 for item in items:
@@ -2541,7 +2535,6 @@ def generate_arrival_invoice():
             
             return send_zip_response(zip_buffer, zip_filename)
         else:
-            # 단일 PDF 생성
             pdf_buffer = create_pdf(items, delivery_type)
             filename = get_filename(items)
             return send_pdf_response(pdf_buffer, filename)
@@ -2550,7 +2543,6 @@ def generate_arrival_invoice():
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
