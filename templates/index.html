@@ -315,53 +315,75 @@
       }
 
       /* 로딩 스피너 */
+      /* [수정] 새로운 로딩 오버레이 CSS 시작 */
       .loading-overlay {
-        display: none;
         position: fixed;
         top: 0;
         left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.85);
-        z-index: 1000;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9); /* 배경을 좀 더 밝게 처리 */
+        display: flex;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px); /* 블러 효과 추가로 고급스럽게 */
       }
 
       .loading-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* 프로그레스 바 컨테이너 */
+      .progress-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
         display: flex;
+        justify-content: center;
+        align-items: center;
       }
 
-      .spinner {
-        width: 80px;
-        height: 80px;
-        border: 4px solid #222;
-        border-top: 4px solid #00ff88;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 20px;
+      /* SVG 링 스타일 */
+      .progress-ring {
+        transform: rotate(-90deg); /* 12시 방향부터 시작하도록 회전 */
       }
 
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
+      /* 원의 둘레(안지름 52 * 2 * 파이) 약 326.72 */
+      .progress-ring__circle {
+        stroke-dasharray: 327;
+        stroke-dashoffset: 327; /* 초기엔 비어있음 */
+        transition: stroke-dashoffset 0.1s ease; /* 부드러운 진행 효과 */
+        stroke-linecap: round; /* 끝부분 둥글게 */
       }
 
-      .loading-text {
-        color: #00ff88;
-        font-size: 18px;
-        margin-bottom: 8px;
+      /* 중앙 텍스트 컨테이너 */
+      .progress-text-container {
+        position: absolute;
+        text-align: center;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
       }
 
-      .loading-subtext {
-        color: #666;
+      .loading-label {
         font-size: 14px;
+        color: #333;
+        font-weight: 500;
+        margin-bottom: 2px;
       }
+
+      .loading-percent {
+        font-size: 18px;
+        font-weight: bold;
+        color: #4a90e2; /* 시그니처 컬러 적용 */
+        font-family: "Roboto", sans-serif; /* 숫자가 예쁜 폰트 */
+      }
+      /* [수정] 새로운 로딩 오버레이 CSS 끝 */
 
       /* 결과 모달 */
       .modal-overlay {
@@ -4695,11 +4717,35 @@
       </section>
     </main>
 
-    <!-- 로딩 오버레이 -->
+    <!-- 로딩중 이펙트 -->
     <div class="loading-overlay" id="loadingOverlay">
-      <div class="spinner"></div>
-      <div class="loading-text">분류 중...</div>
-      <div class="loading-subtext">잠시만 기다려주세요</div>
+      <div class="progress-container">
+        <svg class="progress-ring" width="120" height="120">
+          <circle
+            class="progress-ring__circle-bg"
+            stroke="#e6e6e6"
+            stroke-width="8"
+            fill="transparent"
+            r="52"
+            cx="60"
+            cy="60"
+          />
+          <circle
+            class="progress-ring__circle"
+            id="progressCircle"
+            stroke="#4a90e2"
+            stroke-width="8"
+            fill="transparent"
+            r="52"
+            cx="60"
+            cy="60"
+          />
+        </svg>
+        <div class="progress-text-container">
+          <div class="loading-label">Loading</div>
+          <div class="loading-percent" id="loadingPercent">0%</div>
+        </div>
+      </div>
     </div>
 
     <!-- 결과 모달 -->
@@ -7705,15 +7751,74 @@
           if (e.target === this) closeStockModal();
         });
 
+      // ==================== [신규] 스마트 로딩 애니메이션 로직 ====================
+      let loadingInterval;
+      let currentProgress = 0;
+      const CIRCLE_CIRCUMFERENCE = 327; // SVG 원의 둘레 (r=52일 때)
+
+      function setProgress(percent) {
+        const circle = document.getElementById("progressCircle");
+        const text = document.getElementById("loadingPercent");
+        if (!circle || !text) return;
+
+        currentProgress = percent;
+        text.textContent = `${Math.round(percent)}%`;
+
+        // offset 계산: 100%일 때 offset이 0이 되어야 함
+        const offset =
+          CIRCLE_CIRCUMFERENCE - (percent / 100) * CIRCLE_CIRCUMFERENCE;
+        circle.style.strokeDashoffset = offset;
+      }
+
       function showLoading() {
         const overlay = document.getElementById("loadingOverlay");
-        if (overlay) overlay.classList.add("show");
+        if (!overlay) return;
+
+        // 기존 진행 중인 로딩이 있다면 초기화
+        clearInterval(loadingInterval);
+        setProgress(0);
+        overlay.classList.add("show");
+
+        // 자연스러운 로딩 시뮬레이션
+        // 0~30%: 빠르게, 30~70%: 보통, 70~95%: 느리게, 95%에서 멈춤
+        loadingInterval = setInterval(() => {
+          let increment = 0;
+          if (currentProgress < 30) {
+            increment = Math.random() * 5; // 아주 빠름
+          } else if (currentProgress < 70) {
+            increment = Math.random() * 2; // 보통
+          } else if (currentProgress < 95) {
+            increment = Math.random() * 0.5; // 아주 느림
+          } else {
+            // 95% 이상이면 멈춰서 실제 데이터 기다림
+            increment = 0;
+          }
+
+          let nextProgress = currentProgress + increment;
+          if (nextProgress >= 99) nextProgress = 99;
+          setProgress(nextProgress);
+        }, 100); // 0.1초마다 업데이트
       }
 
       function hideLoading() {
         const overlay = document.getElementById("loadingOverlay");
-        if (overlay) overlay.classList.remove("show");
+        if (!overlay) return;
+
+        clearInterval(loadingInterval);
+
+        // 완료 시 순간적으로 100% 보여줌
+        setProgress(100);
+
+        // 유저가 "100%"를 볼 수 있도록 0.3초 정도 기다렸다가 사라짐
+        setTimeout(() => {
+          overlay.classList.remove("show");
+          // 완전히 사라진 후 다음을 위해 0%로 초기화
+          setTimeout(() => {
+            setProgress(0);
+          }, 300);
+        }, 300);
       }
+      // ===================================================================
 
       // ==================== 도착보장 입고내역서 관련 ====================
 
