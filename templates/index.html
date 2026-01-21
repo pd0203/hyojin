@@ -2569,6 +2569,276 @@
         outline: none;
         border-color: #00ff88;
       }
+
+      /* ==================== 박스 재고 파악 스타일 ==================== */
+      .box-inventory-container {
+        background: #111;
+        border: 1px solid #222;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .box-inventory-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #222;
+        background: #0d0d0d;
+      }
+
+      .box-inventory-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .box-inventory-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .box-inventory-table-wrapper {
+        overflow-x: auto;
+        max-height: calc(100vh - 280px);
+        overflow-y: auto;
+      }
+
+      .box-inventory-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1600px;
+      }
+
+      .box-inventory-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .box-inventory-table th {
+        background: #1a1a1a;
+        color: #888;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 12px 6px;
+        text-align: left;
+        border-bottom: 2px solid #333;
+        white-space: nowrap;
+        user-select: none;
+      }
+
+      .box-inventory-table th.stock-col {
+        color: #00ff88;
+        background: linear-gradient(180deg, #1a2a1a 0%, #1a1a1a 100%);
+      }
+
+      .box-inventory-table td {
+        padding: 2px;
+        border-bottom: 1px solid #1a1a1a;
+        vertical-align: middle;
+      }
+
+      .box-inventory-table tr:hover td {
+        background: #1a1a1a;
+      }
+
+      .box-inventory-table tr.new-row td {
+        background: rgba(0, 255, 136, 0.05);
+      }
+
+      .box-input {
+        width: 100%;
+        padding: 8px 6px;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-size: 12px;
+        transition: all 0.2s;
+      }
+
+      .box-input:hover {
+        background: #1a1a1a;
+      }
+
+      .box-input:focus {
+        outline: none;
+        background: #0d0d0d;
+        border-color: #00ff88;
+        box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+      }
+
+      .box-input.number-input {
+        text-align: right;
+        font-family: "SF Mono", "Consolas", monospace;
+      }
+
+      .box-input.stock-input {
+        color: #00ff88;
+        font-weight: 600;
+      }
+
+      .box-select {
+        width: 100%;
+        padding: 8px 6px;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 6px center;
+        padding-right: 24px;
+      }
+
+      .box-select:hover {
+        background-color: #1a1a1a;
+      }
+
+      .box-select:focus {
+        outline: none;
+        background-color: #0d0d0d;
+        border-color: #00ff88;
+      }
+
+      .box-select option {
+        background: #1a1a1a;
+        color: #e0e0e0;
+        padding: 8px;
+      }
+
+      .box-delete-btn {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        color: #666;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        font-size: 14px;
+      }
+
+      .box-delete-btn:hover {
+        background: rgba(255, 107, 107, 0.1);
+        color: #ff6b6b;
+      }
+
+      .box-row-number {
+        color: #444;
+        font-size: 11px;
+        text-align: center;
+        font-family: "SF Mono", "Consolas", monospace;
+        min-width: 32px;
+      }
+
+      .box-empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .box-empty-state .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
+      .box-empty-state p {
+        margin-bottom: 20px;
+      }
+
+      .col-row-num {
+        width: 32px;
+      }
+      .col-name {
+        min-width: 100px;
+      }
+      .col-spec {
+        min-width: 100px;
+      }
+      .col-material {
+        width: 70px;
+      }
+      .col-strength {
+        width: 70px;
+      }
+      .col-print {
+        width: 90px;
+      }
+      .col-price {
+        width: 80px;
+      }
+      .col-vendor {
+        width: 90px;
+      }
+      .col-moq {
+        width: 70px;
+      }
+      .col-stock {
+        width: 80px;
+      }
+      .col-action {
+        width: 40px;
+      }
+
+      .btn-save-pulse {
+        animation: savePulse 2s infinite;
+      }
+
+      @keyframes savePulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 8px rgba(0, 255, 136, 0);
+        }
+      }
+
+      @keyframes rowSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .box-inventory-table tr.row-new {
+        animation: rowSlideIn 0.3s ease;
+      }
+
+      .inventory-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        border-radius: 20px;
+        font-size: 12px;
+        color: #00ff88;
+      }
+
+      .inventory-badge.warning {
+        background: rgba(255, 215, 0, 0.1);
+        border-color: rgba(255, 215, 0, 0.2);
+        color: #ffd700;
+      }
     </style>
   </head>
   <body>
@@ -2592,6 +2862,7 @@
       <div class="nav-item active" data-page="home">홈</div>
       <div class="nav-item" data-page="margin">원가 마진표</div>
       <div class="nav-item" data-page="calculator">종합 계산기</div>
+      <div class="nav-item" data-page="box-inventory">📦 박스 재고 파악</div>
       <div class="nav-item" data-page="classify">송장 분류</div>
       <div class="nav-item" data-page="starfilter">스타배송 필터링</div>
       <div class="nav-item" data-page="tax-free">면세 자료 정리</div>
@@ -3693,6 +3964,76 @@
                   <div class="price-note">수수료 15% 적용</div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 박스 재고 파악 페이지 -->
+      <section id="page-box-inventory" class="page" style="display: none">
+        <h1 class="page-title">📦 박스 재고 파악</h1>
+        <p class="page-description">박스 종류별 재고 현황을 관리합니다.</p>
+
+        <div class="box-inventory-container">
+          <div class="box-inventory-header">
+            <div class="box-inventory-title">
+              <span>재고 목록</span>
+              <span id="boxInventoryCount" class="inventory-badge">0개</span>
+              <span
+                id="boxInventoryModified"
+                class="inventory-badge warning"
+                style="display: none"
+                >변경사항 있음</span
+              >
+            </div>
+            <div class="box-inventory-actions">
+              <button class="btn btn-outline" onclick="addBoxRow()">
+                <span>➕</span> 행 추가
+              </button>
+              <button
+                id="btnSaveBoxInventory"
+                class="btn btn-primary"
+                onclick="saveBoxInventory()"
+              >
+                <span>💾</span> 저장
+              </button>
+            </div>
+          </div>
+
+          <div class="box-inventory-table-wrapper">
+            <table class="box-inventory-table">
+              <thead>
+                <tr>
+                  <th class="col-row-num">#</th>
+                  <th class="col-name">박스명(CJ)</th>
+                  <th class="col-name">박스명(박스포유)</th>
+                  <th class="col-name">박스명(오피셜)</th>
+                  <th class="col-spec">박스규격</th>
+                  <th class="col-material">재질</th>
+                  <th class="col-strength">강도</th>
+                  <th class="col-print">인쇄</th>
+                  <th class="col-price">단가</th>
+                  <th class="col-vendor">구매처</th>
+                  <th class="col-moq">MOQ(팔레트)</th>
+                  <th class="col-moq">MOQ(낱개)</th>
+                  <th class="col-stock stock-col">재고(CJ)</th>
+                  <th class="col-stock stock-col">재고(효진)</th>
+                  <th class="col-action"></th>
+                </tr>
+              </thead>
+              <tbody id="boxInventoryBody"></tbody>
+            </table>
+
+            <div
+              id="boxEmptyState"
+              class="box-empty-state"
+              style="display: none"
+            >
+              <div class="empty-icon">📦</div>
+              <p>등록된 박스 재고가 없습니다.</p>
+              <button class="btn btn-primary" onclick="addBoxRow()">
+                <span>➕</span> 첫 번째 박스 추가하기
+              </button>
             </div>
           </div>
         </div>
@@ -5770,6 +6111,8 @@
           loadAdminAttendance(currentYear, currentMonth);
         } else if (page === "arrival-invoice") {
           initArrivalInvoice();
+        } else if (page === "box-inventory") {
+          loadBoxInventory();
         }
       }
 
@@ -8316,6 +8659,314 @@
           showToast("error", "생성 중 오류 발생");
         }
       }
+
+      // ==================== 박스 재고 파악 ====================
+
+      let boxInventoryData = [];
+      let boxInventoryModified = false;
+
+      async function loadBoxInventory() {
+        showLoading();
+        try {
+          const response = await fetch("/api/box-inventory");
+          const result = await response.json();
+
+          if (result.success) {
+            boxInventoryData = result.data || [];
+            renderBoxInventory();
+          } else {
+            showToast("error", result.error || "데이터 로드 실패");
+          }
+        } catch (error) {
+          console.error("박스 재고 로드 오류:", error);
+          showToast("error", "서버 연결 오류");
+        }
+        hideLoading();
+      }
+
+      function renderBoxInventory() {
+        const tbody = document.getElementById("boxInventoryBody");
+        const emptyState = document.getElementById("boxEmptyState");
+        const countBadge = document.getElementById("boxInventoryCount");
+
+        if (!tbody) return;
+
+        if (boxInventoryData.length === 0) {
+          tbody.innerHTML = "";
+          if (emptyState) emptyState.style.display = "block";
+          if (countBadge) countBadge.textContent = "0개";
+          return;
+        }
+
+        if (emptyState) emptyState.style.display = "none";
+        if (countBadge) countBadge.textContent = `${boxInventoryData.length}개`;
+
+        tbody.innerHTML = boxInventoryData
+          .map((item, index) => createBoxRow(item, index))
+          .join("");
+
+        tbody.querySelectorAll(".number-input").forEach((input) => {
+          formatNumberInput(input);
+        });
+      }
+
+      function createBoxRow(item, index) {
+        const isNew = !item.id;
+        const rowClass = isNew ? "row-new new-row" : "";
+
+        return `
+          <tr class="${rowClass}" data-id="${item.id || ""}" data-index="${index}">
+            <td class="box-row-number">${index + 1}</td>
+            <td>
+              <input type="text" class="box-input" 
+                     value="${escapeHtmlBox(item.name_cj || "")}" 
+                     onchange="updateBoxField(${index}, 'name_cj', this.value)"
+                     placeholder="CJ 박스명">
+            </td>
+            <td>
+              <input type="text" class="box-input" 
+                     value="${escapeHtmlBox(item.name_box4u || "")}" 
+                     onchange="updateBoxField(${index}, 'name_box4u', this.value)"
+                     placeholder="박스포유 명">
+            </td>
+            <td>
+              <input type="text" class="box-input" 
+                     value="${escapeHtmlBox(item.name_official || "")}" 
+                     onchange="updateBoxField(${index}, 'name_official', this.value)"
+                     placeholder="오피셜 명">
+            </td>
+            <td>
+              <input type="text" class="box-input" 
+                     value="${escapeHtmlBox(item.spec || "")}" 
+                     onchange="updateBoxField(${index}, 'spec', this.value)"
+                     placeholder="예: 300x200x100">
+            </td>
+            <td>
+              <input type="text" class="box-input" 
+                     value="${escapeHtmlBox(item.material || "")}" 
+                     onchange="updateBoxField(${index}, 'material', this.value)"
+                     placeholder="예: A골">
+            </td>
+            <td>
+              <input type="text" class="box-input" 
+                     value="${escapeHtmlBox(item.strength || "")}" 
+                     onchange="updateBoxField(${index}, 'strength', this.value)"
+                     placeholder="예: 강함">
+            </td>
+            <td>
+              <select class="box-select" onchange="updateBoxField(${index}, 'print_type', this.value)">
+                <option value="무지" ${item.print_type === "무지" ? "selected" : ""}>무지</option>
+                <option value="취급주의" ${item.print_type === "취급주의" ? "selected" : ""}>취급주의</option>
+                <option value="로고" ${item.print_type === "로고" ? "selected" : ""}>로고</option>
+              </select>
+            </td>
+            <td>
+              <input type="text" class="box-input number-input" 
+                     value="${item.price || ""}" 
+                     onchange="updateBoxField(${index}, 'price', parseNumberInputBox(this.value))"
+                     oninput="formatNumberInput(this)"
+                     placeholder="0">
+            </td>
+            <td>
+              <select class="box-select" onchange="updateBoxField(${index}, 'vendor', this.value)">
+                <option value="CJ" ${item.vendor === "CJ" ? "selected" : ""}>CJ</option>
+                <option value="박스포유" ${item.vendor === "박스포유" ? "selected" : ""}>박스포유</option>
+                <option value="기타" ${item.vendor === "기타" ? "selected" : ""}>기타</option>
+              </select>
+            </td>
+            <td>
+              <input type="text" class="box-input number-input" 
+                     value="${item.moq_pallet || ""}" 
+                     onchange="updateBoxField(${index}, 'moq_pallet', parseNumberInputBox(this.value))"
+                     oninput="formatNumberInput(this)"
+                     placeholder="0">
+            </td>
+            <td>
+              <input type="text" class="box-input number-input" 
+                     value="${item.moq_piece || ""}" 
+                     onchange="updateBoxField(${index}, 'moq_piece', parseNumberInputBox(this.value))"
+                     oninput="formatNumberInput(this)"
+                     placeholder="0">
+            </td>
+            <td>
+              <input type="text" class="box-input number-input stock-input" 
+                     value="${item.stock_cj || ""}" 
+                     onchange="updateBoxField(${index}, 'stock_cj', parseNumberInputBox(this.value))"
+                     oninput="formatNumberInput(this)"
+                     placeholder="0">
+            </td>
+            <td>
+              <input type="text" class="box-input number-input stock-input" 
+                     value="${item.stock_hyojin || ""}" 
+                     onchange="updateBoxField(${index}, 'stock_hyojin', parseNumberInputBox(this.value))"
+                     oninput="formatNumberInput(this)"
+                     placeholder="0">
+            </td>
+            <td>
+              <button class="box-delete-btn" onclick="deleteBoxRow(${index})" title="삭제">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+
+      function escapeHtmlBox(text) {
+        if (!text) return "";
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function formatNumberInput(input) {
+        let value = input.value.replace(/[^\d]/g, "");
+        if (value) {
+          value = parseInt(value, 10).toLocaleString();
+        }
+        input.value = value;
+      }
+
+      function parseNumberInputBox(value) {
+        if (!value) return 0;
+        return parseInt(value.toString().replace(/,/g, ""), 10) || 0;
+      }
+
+      function updateBoxField(index, field, value) {
+        if (boxInventoryData[index]) {
+          boxInventoryData[index][field] = value;
+          setBoxModified(true);
+        }
+      }
+
+      function setBoxModified(modified) {
+        boxInventoryModified = modified;
+        const badge = document.getElementById("boxInventoryModified");
+        const saveBtn = document.getElementById("btnSaveBoxInventory");
+
+        if (badge) {
+          badge.style.display = modified ? "inline-flex" : "none";
+        }
+        if (saveBtn) {
+          if (modified) {
+            saveBtn.classList.add("btn-save-pulse");
+          } else {
+            saveBtn.classList.remove("btn-save-pulse");
+          }
+        }
+      }
+
+      function addBoxRow() {
+        const newItem = {
+          id: null,
+          name_cj: "",
+          name_box4u: "",
+          name_official: "",
+          spec: "",
+          material: "",
+          strength: "",
+          print_type: "무지",
+          price: 0,
+          vendor: "CJ",
+          moq_pallet: 0,
+          moq_piece: 0,
+          stock_cj: 0,
+          stock_hyojin: 0,
+        };
+
+        boxInventoryData.push(newItem);
+        renderBoxInventory();
+        setBoxModified(true);
+
+        const wrapper = document.querySelector(".box-inventory-table-wrapper");
+        if (wrapper) {
+          setTimeout(() => {
+            wrapper.scrollTop = wrapper.scrollHeight;
+          }, 100);
+        }
+
+        const tbody = document.getElementById("boxInventoryBody");
+        const lastRow = tbody?.lastElementChild;
+        if (lastRow) {
+          const firstInput = lastRow.querySelector(".box-input");
+          if (firstInput) firstInput.focus();
+        }
+
+        showToast("success", "새 행이 추가되었습니다");
+      }
+
+      function deleteBoxRow(index) {
+        const item = boxInventoryData[index];
+
+        if (item.id) {
+          if (!confirm("이 박스 정보를 삭제하시겠습니까?")) return;
+          deleteBoxFromDB(item.id, index);
+        } else {
+          boxInventoryData.splice(index, 1);
+          renderBoxInventory();
+          setBoxModified(boxInventoryData.some((item) => !item.id));
+          showToast("success", "행이 삭제되었습니다");
+        }
+      }
+
+      async function deleteBoxFromDB(id, index) {
+        showLoading();
+        try {
+          const response = await fetch(`/api/box-inventory/${id}`, {
+            method: "DELETE",
+          });
+          const result = await response.json();
+
+          if (result.success) {
+            boxInventoryData.splice(index, 1);
+            renderBoxInventory();
+            showToast("success", "삭제되었습니다");
+          } else {
+            showToast("error", result.error || "삭제 실패");
+          }
+        } catch (error) {
+          showToast("error", "서버 오류");
+        }
+        hideLoading();
+      }
+
+      async function saveBoxInventory() {
+        if (boxInventoryData.length === 0) {
+          showToast("error", "저장할 데이터가 없습니다");
+          return;
+        }
+
+        showLoading();
+        try {
+          const response = await fetch("/api/box-inventory", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items: boxInventoryData }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showToast("success", result.message || "저장 완료");
+            setBoxModified(false);
+            await loadBoxInventory();
+          } else {
+            showToast("error", result.error || "저장 실패");
+          }
+        } catch (error) {
+          console.error("저장 오류:", error);
+          showToast("error", "서버 연결 오류");
+        }
+        hideLoading();
+      }
+
+      window.addEventListener("beforeunload", function (e) {
+        if (boxInventoryModified) {
+          e.preventDefault();
+          e.returnValue =
+            "저장하지 않은 변경사항이 있습니다. 페이지를 떠나시겠습니까?";
+          return e.returnValue;
+        }
+      });
     </script>
   </body>
 </html>

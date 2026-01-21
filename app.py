@@ -2563,6 +2563,83 @@ def generate_arrival_invoice():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# ==================== 박스 재고 관리 API ====================
+
+@app.route('/api/box-inventory', methods=['GET'])
+@login_required
+def get_box_inventory():
+    """박스 재고 목록 조회"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    
+    try:
+        response = supabase.table('box_inventory').select('*').order('id').execute()
+        return jsonify({'success': True, 'data': response.data})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/box-inventory', methods=['POST'])
+@login_required
+def save_box_inventory():
+    """박스 재고 저장 (Upsert)"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    
+    data = request.get_json()
+    items = data.get('items', [])
+    
+    if not items:
+        return jsonify({'error': '저장할 데이터가 없습니다'}), 400
+    
+    try:
+        saved_count = 0
+        for item in items:
+            record = {
+                'name_cj': item.get('name_cj', ''),
+                'name_box4u': item.get('name_box4u', ''),
+                'name_official': item.get('name_official', ''),
+                'spec': item.get('spec', ''),
+                'material': item.get('material', ''),
+                'strength': item.get('strength', ''),
+                'print_type': item.get('print_type', '무지'),
+                'price': int(item.get('price', 0) or 0),
+                'vendor': item.get('vendor', 'CJ'),
+                'moq_pallet': int(item.get('moq_pallet', 0) or 0),
+                'moq_piece': int(item.get('moq_piece', 0) or 0),
+                'stock_cj': int(item.get('stock_cj', 0) or 0),
+                'stock_hyojin': int(item.get('stock_hyojin', 0) or 0),
+                'updated_at': datetime.utcnow().isoformat()
+            }
+            
+            item_id = item.get('id')
+            if item_id and str(item_id).isdigit():
+                supabase.table('box_inventory').update(record).eq('id', int(item_id)).execute()
+            else:
+                supabase.table('box_inventory').insert(record).execute()
+            saved_count += 1
+        
+        return jsonify({'success': True, 'message': f'{saved_count}개 항목 저장 완료'})
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/box-inventory/<int:item_id>', methods=['DELETE'])
+@login_required
+def delete_box_inventory(item_id):
+    """박스 재고 삭제"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+    
+    try:
+        supabase.table('box_inventory').delete().eq('id', item_id).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)

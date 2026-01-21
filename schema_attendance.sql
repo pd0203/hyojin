@@ -178,3 +178,34 @@ CREATE POLICY "Allow all for salary_confirmations" ON salary_confirmations FOR A
 CREATE POLICY "Allow all for wage_history" ON wage_history FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all for attendance_edit_requests" ON attendance_edit_requests FOR ALL USING (true) WITH CHECK (true);
 
+-- =============================================
+-- 박스 재고 관리 테이블
+-- =============================================
+
+CREATE TABLE IF NOT EXISTS box_inventory (
+    id SERIAL PRIMARY KEY,
+    name_cj TEXT,                    -- 박스명(CJ)
+    name_box4u TEXT,                 -- 박스명(박스포유)
+    name_official TEXT,              -- 박스명(오피셜)
+    spec TEXT,                       -- 박스규격 (예: 300x200x100)
+    material TEXT,                   -- 재질 (예: A골, B골)
+    strength TEXT,                   -- 강도 (예: 강함, 보통)
+    print_type TEXT DEFAULT '무지',   -- 인쇄 (무지/취급주의/로고)
+    price INTEGER DEFAULT 0,         -- 단가
+    vendor TEXT DEFAULT 'CJ',        -- 구매처 (CJ/박스포유/기타)
+    moq_pallet INTEGER DEFAULT 0,    -- MOQ(팔레트)
+    moq_piece INTEGER DEFAULT 0,     -- MOQ(낱개)
+    stock_cj INTEGER DEFAULT 0,      -- 재고(CJ창고)
+    stock_hyojin INTEGER DEFAULT 0,  -- 재고(효진유통)
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 박스 재고 인덱스
+CREATE INDEX IF NOT EXISTS idx_box_inventory_name_cj ON box_inventory(name_cj);
+CREATE INDEX IF NOT EXISTS idx_box_inventory_vendor ON box_inventory(vendor);
+
+-- 박스 재고 RLS 정책
+ALTER TABLE box_inventory ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all for box_inventory" ON box_inventory;
+CREATE POLICY "Allow all for box_inventory" ON box_inventory FOR ALL USING (true) WITH CHECK (true);
