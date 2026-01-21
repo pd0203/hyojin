@@ -2370,11 +2370,12 @@ def save_arrival_customer_id():
 @app.route('/api/arrival-invoice/generate', methods=['POST'])
 @admin_required
 def generate_arrival_invoice():
-    """입고내역서 PDF 생성 (최종 수정: 한글 렌더링 강제 적용)"""
+    """입고내역서 PDF 생성 (로컬 폰트 파일 직접 사용)"""
     from weasyprint import HTML
     from weasyprint.text.fonts import FontConfiguration
     from urllib.parse import quote
     import zipfile
+    import os
     
     data = request.get_json()
     items = data.get('items', [])
@@ -2384,8 +2385,21 @@ def generate_arrival_invoice():
     if not items:
         return jsonify({'error': '상품 정보가 없습니다'}), 400
     
+    # [수정됨] 프로젝트 내부의 fonts 폴더 경로를 찾습니다.
+    # 현재 app.py가 있는 위치를 기준으로 fonts/NanumGothic.ttf를 찾습니다.
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    font_path = os.path.join(base_dir, 'fonts', 'NanumGothic.ttf')
+    
+    # 혹시 모를 경로 오류 방지를 위해 절대 경로로 변환
+    if not os.path.exists(font_path):
+        print(f"⚠️ 경고: 폰트 파일을 찾을 수 없습니다: {font_path}")
+        # 파일이 없으면 시스템 폰트로 폴백되도록 경로를 비워둡니다 (에러 방지)
+        font_url = ""
+    else:
+        # WeasyPrint는 file:// 프로토콜을 좋아합니다.
+        font_url = f"file://{font_path}"
+
     def create_pdf(item_list, doc_type):
-        """HTML 테이블로 PDF 생성"""
         rows_html = ""
         for idx, item in enumerate(item_list, 1):
             rows_html += f"""
@@ -2400,7 +2414,6 @@ def generate_arrival_invoice():
             </tr>
             """
         
-        # 빈 행 채우기 (10줄까지)
         for idx in range(len(item_list) + 1, 11):
             rows_html += f"""
             <tr>
@@ -2414,20 +2427,26 @@ def generate_arrival_invoice():
             </tr>
             """
         
-        # [핵심 수정사항] lang="ko" 추가 및 font-family 대폭 보강
+        # [수정됨] CSS에서 로컬 파일 경로를 직접 src로 지정합니다.
         html_content = f"""
         <!DOCTYPE html>
         <html lang="ko">
         <head>
             <meta charset="UTF-8">
             <style>
+                /* 여기서 로컬 폰트를 정의합니다 */
+                @font-face {{
+                    font-family: 'MyNanum';
+                    src: url('{font_url}') format('truetype');
+                }}
+                
                 @page {{
                     size: A4 landscape;
                     margin: 15mm;
                 }}
                 body {{
-                    /* 서버에 깔린 폰트 중 하나라도 걸리도록 우선순위 나열 */
-                    font-family: 'NanumGothic', 'Nanum Gothic', 'Noto Sans KR', 'Noto Sans CJK KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+                    /* 정의한 'MyNanum' 폰트를 우선 적용 */
+                    font-family: 'MyNanum', 'NanumGothic', sans-serif;
                     margin: 0;
                     padding: 0;
                     word-break: keep-all;
@@ -2437,7 +2456,6 @@ def generate_arrival_invoice():
                     font-size: 24px;
                     margin-bottom: 20px;
                     font-weight: bold;
-                    font-family: 'NanumGothic', 'Nanum Gothic', 'Noto Sans CJK KR', sans-serif;
                 }}
                 table {{
                     width: 100%;
@@ -2488,6 +2506,7 @@ def generate_arrival_invoice():
         pdf_buffer.seek(0)
         return pdf_buffer
     
+    # ... (파일명 생성 및 다운로드 로직은 기존과 동일) ...
     def get_filename(item_list):
         if item_list:
             arrival_date = item_list[0].get('arrival_date', '')
