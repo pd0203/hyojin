@@ -2424,8 +2424,10 @@ def generate_arrival_invoice():
                     size: A4 landscape;
                     margin: 15mm;
                 }}
+                * {{
+                    font-family: 'Noto Sans CJK KR', 'Noto Sans KR', sans-serif;
+                }}
                 body {{
-                    font-family: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
                     margin: 0;
                     padding: 0;
                 }}
@@ -2433,7 +2435,7 @@ def generate_arrival_invoice():
                     text-align: center;
                     font-size: 24px;
                     margin-bottom: 20px;
-                    font-weight: bold;
+                    font-weight: 700;
                 }}
                 table {{
                     width: 100%;
@@ -2448,7 +2450,7 @@ def generate_arrival_invoice():
                 }}
                 th {{
                     background-color: #e0e0e0;
-                    font-weight: bold;
+                    font-weight: 700;
                     font-size: 12px;
                 }}
                 tr {{
