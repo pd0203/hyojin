@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, send_file, jsonify, session, redirect, url_for, make_response
 from werkzeug.utils import secure_filename
 import pandas as pd
 from io import BytesIO
@@ -2370,13 +2370,10 @@ def save_arrival_customer_id():
 @app.route('/api/arrival-invoice/generate', methods=['POST'])
 @admin_required
 def generate_arrival_invoice():
-    """입고내역서 Excel 생성 후 PDF 변환"""
-    from openpyxl import Workbook
-    from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
-    from openpyxl.utils import get_column_letter
+    """입고내역서 PDF 생성 (HTML → PDF 변환)"""
+    from weasyprint import HTML, CSS
+    from urllib.parse import quote
     import zipfile
-    import subprocess
-    import tempfile
     
     data = request.get_json()
     items = data.get('items', [])
@@ -2386,180 +2383,166 @@ def generate_arrival_invoice():
     if not items:
         return jsonify({'error': '상품 정보가 없습니다'}), 400
     
-    def create_single_excel(item_list, doc_type):
-        """단일 Excel 파일 생성"""
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "입고내역서"
-        
-        # 스타일 정의
-        thin_border = Border(
-            left=Side(style='thin'),
-            right=Side(style='thin'),
-            top=Side(style='thin'),
-            bottom=Side(style='thin')
-        )
-        
-        header_font = Font(bold=True, size=11)
-        title_font = Font(bold=True, size=18)
-        cell_font = Font(size=10)
-        
-        header_fill = PatternFill(start_color="E0E0E0", end_color="E0E0E0", fill_type="solid")
-        center_align = Alignment(horizontal='center', vertical='center')
-        
-        # 컬럼 너비 설정
-        col_widths = [8, 15, 15, 35, 20, 12, 15]
-        for i, width in enumerate(col_widths, 1):
-            ws.column_dimensions[get_column_letter(i)].width = width
-        
-        # 제목 행 (병합)
-        ws.merge_cells('A1:G1')
-        title_cell = ws['A1']
-        title_cell.value = f"입고 내역서({doc_type})"
-        title_cell.font = title_font
-        title_cell.alignment = center_align
-        ws.row_dimensions[1].height = 40
-        
-        # 헤더 행
-        headers = ['No.', '고객ID', '입고예정일', '상품명', '상품바코드', '수량(EA)', '특이사항']
-        for col, header in enumerate(headers, 1):
-            cell = ws.cell(row=2, column=col, value=header)
-            cell.font = header_font
-            cell.alignment = center_align
-            cell.border = thin_border
-            cell.fill = header_fill
-        ws.row_dimensions[2].height = 25
-        
-        # 데이터 행
+    def create_pdf(item_list, doc_type):
+        """HTML 테이블로 PDF 생성"""
+        # 데이터 행 생성
+        rows_html = ""
         for idx, item in enumerate(item_list, 1):
-            row_num = idx + 2
-            row_data = [
-                idx,
-                item.get('customer_id', ''),
-                item.get('arrival_date', ''),
-                item.get('product_name', ''),
-                item.get('barcode', ''),
-                item.get('quantity', ''),
-                item.get('note', '')
-            ]
-            
-            for col, value in enumerate(row_data, 1):
-                cell = ws.cell(row=row_num, column=col, value=value)
-                cell.font = cell_font
-                cell.alignment = center_align
-                cell.border = thin_border
-            
-            ws.row_dimensions[row_num].height = 22
+            rows_html += f"""
+            <tr>
+                <td>{idx}</td>
+                <td>{item.get('customer_id', '')}</td>
+                <td>{item.get('arrival_date', '')}</td>
+                <td>{item.get('product_name', '')}</td>
+                <td>{item.get('barcode', '')}</td>
+                <td>{item.get('quantity', '')}</td>
+                <td>{item.get('note', '')}</td>
+            </tr>
+            """
         
-        # 빈 행 추가 (총 10행까지)
-        current_row = len(item_list) + 3
-        while current_row <= 12:
-            row_num = current_row
-            for col in range(1, 8):
-                cell = ws.cell(row=row_num, column=col, value='' if col > 1 else row_num - 2)
-                cell.font = cell_font
-                cell.alignment = center_align
-                cell.border = thin_border
-            ws.row_dimensions[row_num].height = 22
-            current_row += 1
+        # 빈 행 추가 (총 10행)
+        for idx in range(len(item_list) + 1, 11):
+            rows_html += f"""
+            <tr>
+                <td>{idx}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            """
         
-        return wb
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                @page {{
+                    size: A4 landscape;
+                    margin: 15mm;
+                }}
+                body {{
+                    font-family: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+                    margin: 0;
+                    padding: 0;
+                }}
+                h1 {{
+                    text-align: center;
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                    font-weight: bold;
+                }}
+                table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 11px;
+                }}
+                th, td {{
+                    border: 1px solid #000;
+                    padding: 8px 5px;
+                    text-align: center;
+                    vertical-align: middle;
+                }}
+                th {{
+                    background-color: #e0e0e0;
+                    font-weight: bold;
+                    font-size: 12px;
+                }}
+                tr {{
+                    height: 28px;
+                }}
+            </style>
+        </head>
+        <body>
+            <h1>입고 내역서({doc_type})</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No.</th>
+                        <th style="width: 12%;">고객ID</th>
+                        <th style="width: 12%;">입고예정일</th>
+                        <th style="width: 30%;">상품명</th>
+                        <th style="width: 18%;">상품바코드</th>
+                        <th style="width: 10%;">수량(EA)</th>
+                        <th style="width: 13%;">특이사항</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows_html}
+                </tbody>
+            </table>
+        </body>
+        </html>
+        """
+        
+        # PDF 생성
+        pdf_buffer = BytesIO()
+        HTML(string=html_content).write_pdf(pdf_buffer)
+        pdf_buffer.seek(0)
+        return pdf_buffer
     
-    def excel_to_pdf(wb, pdf_filename):
-        """Excel을 PDF로 변환"""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            xlsx_path = os.path.join(temp_dir, 'temp.xlsx')
-            wb.save(xlsx_path)
-            
-            # LibreOffice로 PDF 변환
-            try:
-                result = subprocess.run([
-                    'libreoffice', '--headless', '--convert-to', 'pdf',
-                    '--outdir', temp_dir, xlsx_path
-                ], capture_output=True, timeout=30)
-                
-                pdf_path = os.path.join(temp_dir, 'temp.pdf')
-                if os.path.exists(pdf_path):
-                    with open(pdf_path, 'rb') as f:
-                        return BytesIO(f.read())
-            except Exception as e:
-                print(f"PDF 변환 오류: {e}")
-            
-            # LibreOffice 실패 시 Excel 반환 (fallback)
-            buffer = BytesIO()
-            wb.save(buffer)
-            buffer.seek(0)
-            return buffer
-    
-    def get_filename(item_list, is_pdf=True):
-        """파일명 생성: MMDD입고내역서_상품명"""
+    def get_filename(item_list):
+        """파일명 생성: MMDD입고내역서_상품명.pdf"""
         if item_list:
-            # 입고예정일에서 MMDD 추출
             arrival_date = item_list[0].get('arrival_date', '')
             if len(arrival_date) >= 8:
-                mmdd = arrival_date[4:8]  # YYYYMMDD에서 MMDD
+                mmdd = arrival_date[4:8]
             else:
                 mmdd = datetime.now().strftime('%m%d')
             
-            # 상품명 (띄어쓰기 제거)
             if len(item_list) == 1:
                 product_name = item_list[0].get('product_name', '상품').replace(' ', '')
             else:
                 product_name = f"{len(item_list)}개상품"
             
-            ext = 'pdf' if is_pdf else 'xlsx'
-            return f"{mmdd}입고내역서_{product_name}.{ext}"
-        return f"입고내역서.{'pdf' if is_pdf else 'xlsx'}"
+            return f"{mmdd}입고내역서_{product_name}.pdf"
+        return "입고내역서.pdf"
+    
+    def send_pdf_response(buffer, filename):
+        """한글 파일명 지원하는 응답 반환"""
+        buffer.seek(0)
+        response = make_response(buffer.read())
+        response.headers['Content-Type'] = 'application/pdf'
+        
+        # RFC 5987 형식으로 한글 파일명 인코딩
+        encoded_filename = quote(filename)
+        response.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_filename}"
+        return response
+    
+    def send_zip_response(buffer, filename):
+        """한글 파일명 지원하는 ZIP 응답 반환"""
+        buffer.seek(0)
+        response = make_response(buffer.read())
+        response.headers['Content-Type'] = 'application/zip'
+        
+        encoded_filename = quote(filename)
+        response.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_filename}"
+        return response
     
     try:
         if generate_separate and len(items) > 1:
             # 개별 PDF 생성 후 ZIP
             zip_buffer = BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                for idx, item in enumerate(items, 1):
-                    wb = create_single_excel([item], delivery_type)
-                    pdf_buffer = excel_to_pdf(wb, f"temp_{idx}.pdf")
-                    filename = get_filename([item], is_pdf=True)
+                for item in items:
+                    pdf_buffer = create_pdf([item], delivery_type)
+                    filename = get_filename([item])
                     zip_file.writestr(filename, pdf_buffer.getvalue())
             
-            # ZIP 파일명: MMDD입고내역서_N개상품.zip
             arrival_date = items[0].get('arrival_date', '')
             mmdd = arrival_date[4:8] if len(arrival_date) >= 8 else datetime.now().strftime('%m%d')
             zip_filename = f"{mmdd}입고내역서_{len(items)}개상품.zip"
             
-            zip_buffer.seek(0)
-            return send_file(
-                zip_buffer,
-                mimetype='application/zip',
-                as_attachment=True,
-                download_name=zip_filename
-            )
+            return send_zip_response(zip_buffer, zip_filename)
         else:
             # 단일 PDF 생성
-            wb = create_single_excel(items, delivery_type)
-            pdf_buffer = excel_to_pdf(wb, "output.pdf")
-            filename = get_filename(items, is_pdf=True)
+            pdf_buffer = create_pdf(items, delivery_type)
+            filename = get_filename(items)
+            return send_pdf_response(pdf_buffer, filename)
             
-            # PDF 변환 성공 여부 확인
-            pdf_buffer.seek(0)
-            header = pdf_buffer.read(4)
-            pdf_buffer.seek(0)
-            
-            if header == b'%PDF':
-                return send_file(
-                    pdf_buffer,
-                    mimetype='application/pdf',
-                    as_attachment=True,
-                    download_name=filename
-                )
-            else:
-                # Excel fallback
-                return send_file(
-                    pdf_buffer,
-                    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    as_attachment=True,
-                    download_name=get_filename(items, is_pdf=False)
-                )
     except Exception as e:
         import traceback
         traceback.print_exc()
