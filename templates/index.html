@@ -4337,6 +4337,13 @@
               />
             </div>
 
+            <div class="separate-checkbox">
+              <input type="checkbox" id="generateSeparate" />
+              <label for="generateSeparate"
+                >상품별 개별 입고내역서 생성 (ZIP 다운로드)</label
+              >
+            </div>
+
             <div class="arrival-btn-group">
               <button
                 type="button"
@@ -4383,13 +4390,6 @@
                 >
               </div>
               <div id="addedProductsContainer"></div>
-
-              <div class="separate-checkbox">
-                <input type="checkbox" id="generateSeparate" />
-                <label for="generateSeparate"
-                  >상품별 개별 입고내역서 생성 (ZIP 다운로드)</label
-                >
-              </div>
             </div>
           </div>
 
@@ -4398,6 +4398,27 @@
             <!-- 고객ID 설정 -->
             <div class="arrival-card">
               <div class="arrival-card-title">🆔 고객ID 설정</div>
+              <div
+                id="currentCustomerIdDisplay"
+                style="
+                  background: #1a1a1a;
+                  padding: 10px 14px;
+                  border-radius: 6px;
+                  margin-bottom: 12px;
+                  display: none;
+                "
+              >
+                <span style="color: #888; font-size: 12px">현재 고객ID:</span>
+                <span
+                  id="currentCustomerIdText"
+                  style="
+                    color: #00ff88;
+                    font-size: 14px;
+                    font-weight: 600;
+                    margin-left: 8px;
+                  "
+                ></span>
+              </div>
               <div class="customer-id-section">
                 <input
                   type="text"
@@ -4440,7 +4461,7 @@
                 <button
                   type="button"
                   class="product-action-btn"
-                  onclick="toggleAddProductForm()"
+                  onclick="toggleArrivalAddProductForm()"
                   style="color: #00ff88; font-size: 14px"
                 >
                   + 추가
@@ -4449,7 +4470,7 @@
 
               <!-- 상품 추가 폼 -->
               <div
-                id="addProductForm"
+                id="arrivalAddProductForm"
                 style="display: none; margin-bottom: 15px"
               >
                 <div class="add-product-row">
@@ -4465,7 +4486,7 @@
                     type="button"
                     class="arrival-btn arrival-btn-outline"
                     style="flex: 1; padding: 8px"
-                    onclick="toggleAddProductForm()"
+                    onclick="toggleArrivalAddProductForm()"
                   >
                     취소
                   </button>
@@ -7847,9 +7868,23 @@
             currentCustomerId = result.customer_id || "";
             const input = document.getElementById("customerIdInput");
             if (input) input.value = currentCustomerId;
+            updateCustomerIdDisplay();
           }
         } catch (error) {
           console.error("고객ID 로드 실패:", error);
+        }
+      }
+
+      function updateCustomerIdDisplay() {
+        const displayDiv = document.getElementById("currentCustomerIdDisplay");
+        const textSpan = document.getElementById("currentCustomerIdText");
+        if (displayDiv && textSpan) {
+          if (currentCustomerId) {
+            textSpan.textContent = currentCustomerId;
+            displayDiv.style.display = "block";
+          } else {
+            displayDiv.style.display = "none";
+          }
         }
       }
 
@@ -7867,6 +7902,7 @@
           const result = await response.json();
           if (result.success) {
             currentCustomerId = customerId;
+            updateCustomerIdDisplay();
             showToast("success", "고객ID가 저장되었습니다");
           } else {
             showToast("error", result.error || "저장 실패");
@@ -7876,8 +7912,8 @@
         }
       }
 
-      function toggleAddProductForm() {
-        const form = document.getElementById("addProductForm");
+      function toggleArrivalAddProductForm() {
+        const form = document.getElementById("arrivalAddProductForm");
         if (!form) return;
 
         form.style.display = form.style.display === "none" ? "block" : "none";
@@ -7912,7 +7948,7 @@
           const result = await response.json();
           if (result.success) {
             showToast("success", "상품이 등록되었습니다");
-            toggleAddProductForm();
+            toggleArrivalAddProductForm();
             loadArrivalProducts();
           } else {
             showToast("error", result.error || "등록 실패");
