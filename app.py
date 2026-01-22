@@ -2607,8 +2607,9 @@ def save_box_inventory():
                 'vendor': item.get('vendor', 'CJ'),
                 'moq_pallet': int(item.get('moq_pallet', 0) or 0),
                 'moq_piece': int(item.get('moq_piece', 0) or 0),
-                'stock_cj': int(item.get('stock_cj', 0) or 0),
-                'stock_hyojin': int(item.get('stock_hyojin', 0) or 0),
+                'stock_cj': float(item.get('stock_cj', 0) or 0),
+                'stock_hyojin': float(item.get('stock_hyojin', 0) or 0),
+                'purpose': item.get('purpose', ''),
                 'updated_at': datetime.utcnow().isoformat()
             }
             

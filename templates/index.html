@@ -2798,6 +2798,9 @@
       .col-stock {
         width: 70px;
       }
+      .col-purpose {
+        width: 120px;
+      }
       .col-action {
         width: 32px;
       }
@@ -4029,6 +4032,7 @@
                   <th class="col-moq">MOQ(낱개)</th>
                   <th class="col-stock stock-col">재고(CJ)</th>
                   <th class="col-stock stock-col">재고(효진)</th>
+                  <th class="col-purpose">용도</th>
                   <th class="col-action"></th>
                 </tr>
               </thead>
@@ -8778,6 +8782,7 @@
                      value="${item.price || ""}" 
                      onchange="updateBoxField(${index}, 'price', parseNumberInputBox(this.value))"
                      oninput="formatNumberInput(this)"
+                     maxlength="6"
                      placeholder="0">
             </td>
             <td>
@@ -8792,6 +8797,7 @@
                      value="${item.moq_pallet || ""}" 
                      onchange="updateBoxField(${index}, 'moq_pallet', parseNumberInputBox(this.value))"
                      oninput="formatNumberInput(this)"
+                     maxlength="4"
                      placeholder="0">
             </td>
             <td>
@@ -8804,16 +8810,24 @@
             <td>
               <input type="text" class="box-input number-input stock-input" 
                      value="${item.stock_cj || ""}" 
-                     onchange="updateBoxField(${index}, 'stock_cj', parseNumberInputBox(this.value))"
-                     oninput="formatNumberInput(this)"
+                     onchange="updateBoxField(${index}, 'stock_cj', parseStockInput(this.value))"
+                     oninput="formatStockInput(this)"
+                     maxlength="6"
                      placeholder="0">
             </td>
             <td>
               <input type="text" class="box-input number-input stock-input" 
                      value="${item.stock_hyojin || ""}" 
-                     onchange="updateBoxField(${index}, 'stock_hyojin', parseNumberInputBox(this.value))"
-                     oninput="formatNumberInput(this)"
+                     onchange="updateBoxField(${index}, 'stock_hyojin', parseStockInput(this.value))"
+                     oninput="formatStockInput(this)"
+                     maxlength="6"
                      placeholder="0">
+            </td>
+            <td>
+              <input type="text" class="box-input" 
+                     value="${escapeHtmlBox(item.purpose || "")}" 
+                     onchange="updateBoxField(${index}, 'purpose', this.value)"
+                     placeholder="용도 입력">
             </td>
             <td>
               <button class="box-delete-btn" onclick="deleteBoxRow(${index})" title="삭제">
@@ -8842,6 +8856,26 @@
       function parseNumberInputBox(value) {
         if (!value) return 0;
         return parseInt(value.toString().replace(/,/g, ""), 10) || 0;
+      }
+
+      function formatStockInput(input) {
+        let value = input.value.replace(/[^\d.]/g, "");
+        // 소수점 하나만 허용
+        const parts = value.split(".");
+        if (parts.length > 2) {
+          value = parts[0] + "." + parts.slice(1).join("");
+        }
+        // 소수점 첫째자리까지만
+        if (parts.length === 2 && parts[1].length > 1) {
+          value = parts[0] + "." + parts[1].substring(0, 1);
+        }
+        input.value = value;
+      }
+
+      function parseStockInput(value) {
+        if (!value) return 0;
+        const parsed = parseFloat(value.toString().replace(/,/g, ""));
+        return isNaN(parsed) ? 0 : Math.round(parsed * 10) / 10;
       }
 
       function updateBoxField(index, field, value) {
@@ -8884,6 +8918,7 @@
           moq_piece: 0,
           stock_cj: 0,
           stock_hyojin: 0,
+          purpose: "",
         };
 
         boxInventoryData.push(newItem);
