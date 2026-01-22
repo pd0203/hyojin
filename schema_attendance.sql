@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS box_inventory (
     id SERIAL PRIMARY KEY,
     name_cj TEXT,                    -- 박스명(CJ)
     name_box4u TEXT,                 -- 박스명(박스포유)
-    name_official TEXT,              -- 박스명(오피셜)
+    name_official TEXT,              -- 박스명(기타)
     spec TEXT,                       -- 박스규격 (예: 300x200x100)
     material TEXT,                   -- 재질 (예: A골, B골)
     strength TEXT,                   -- 강도 (예: 강함, 보통)
@@ -195,8 +195,9 @@ CREATE TABLE IF NOT EXISTS box_inventory (
     vendor TEXT DEFAULT 'CJ',        -- 구매처 (CJ/박스포유/기타)
     moq_pallet INTEGER DEFAULT 0,    -- MOQ(팔레트)
     moq_piece INTEGER DEFAULT 0,     -- MOQ(낱개)
-    stock_cj INTEGER DEFAULT 0,      -- 재고(CJ창고)
-    stock_hyojin INTEGER DEFAULT 0,  -- 재고(효진유통)
+    stock_cj NUMERIC(6,1) DEFAULT 0, -- 재고(CJ창고) - 소수점 1자리
+    stock_hyojin NUMERIC(6,1) DEFAULT 0, -- 재고(효진유통) - 소수점 1자리
+    purpose TEXT,                    -- 박스 용도
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
