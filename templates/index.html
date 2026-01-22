@@ -2851,6 +2851,94 @@
         border-color: rgba(255, 215, 0, 0.2);
         color: #ffd700;
       }
+
+      /* 박스 재고 모바일 반응형 */
+      @media (max-width: 768px) {
+        .box-inventory-container {
+          padding: 15px;
+          margin: 0 -10px;
+        }
+
+        .box-inventory-header {
+          flex-direction: column;
+          gap: 12px;
+          align-items: stretch;
+        }
+
+        .box-inventory-actions {
+          justify-content: space-between;
+        }
+
+        .box-inventory-actions button {
+          flex: 1;
+          padding: 12px 8px;
+          font-size: 13px;
+        }
+
+        .box-inventory-table-wrapper {
+          max-height: calc(100vh - 320px);
+        }
+
+        .box-inventory-table {
+          min-width: 900px;
+        }
+
+        .box-inventory-table th,
+        .box-inventory-table td {
+          padding: 8px 3px;
+          font-size: 11px;
+        }
+
+        .box-input,
+        .box-select {
+          padding: 10px 4px;
+          font-size: 12px;
+        }
+
+        .col-name {
+          width: 75px;
+          max-width: 75px;
+        }
+        .col-spec {
+          width: 80px;
+          max-width: 80px;
+        }
+        .col-material {
+          width: 45px;
+        }
+        .col-strength {
+          width: 45px;
+        }
+        .col-print {
+          width: 60px;
+        }
+        .col-price {
+          width: 55px;
+        }
+        .col-vendor {
+          width: 60px;
+        }
+        .col-moq {
+          width: 50px;
+        }
+        .col-stock {
+          width: 55px;
+        }
+        .col-purpose {
+          width: 80px;
+        }
+        .col-action {
+          width: 30px;
+        }
+
+        .box-empty-state {
+          padding: 40px 20px;
+        }
+
+        .box-empty-state .empty-icon {
+          font-size: 48px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -5184,13 +5272,9 @@
         <span class="mobile-nav-icon">🧮</span>
         <span>계산기</span>
       </a>
-      <a class="mobile-nav-item" data-page="classify">
-        <span class="mobile-nav-icon">🏷️</span>
-        <span>송장</span>
-      </a>
-      <a class="mobile-nav-item" data-page="starfilter">
-        <span class="mobile-nav-icon">⭐</span>
-        <span>필터</span>
+      <a class="mobile-nav-item" data-page="box-inventory">
+        <span class="mobile-nav-icon">📦</span>
+        <span>박스재고</span>
       </a>
       <a class="mobile-nav-item" data-page="employees">
         <span class="mobile-nav-icon">👥</span>
