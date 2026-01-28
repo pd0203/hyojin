@@ -210,3 +210,67 @@ CREATE INDEX IF NOT EXISTS idx_box_inventory_vendor ON box_inventory(vendor);
 ALTER TABLE box_inventory ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow all for box_inventory" ON box_inventory;
 CREATE POLICY "Allow all for box_inventory" ON box_inventory FOR ALL USING (true) WITH CHECK (true);
+
+-- =============================================
+-- 데이터 분석 테이블
+-- =============================================
+
+-- 10. 고객 테이블
+CREATE TABLE IF NOT EXISTS customers (
+    id SERIAL PRIMARY KEY,
+    휴대폰번호 TEXT UNIQUE NOT NULL,
+    구매자명 TEXT,
+    구매자ID TEXT,
+    첫구매일 TIMESTAMPTZ,
+    최근구매일 TIMESTAMPTZ,
+    총주문횟수 INTEGER DEFAULT 0,
+    총구매금액 DECIMAL(15,2) DEFAULT 0,
+    선물발송횟수 INTEGER DEFAULT 0,
+    주요배송지 TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_customers_휴대폰번호 ON customers(휴대폰번호);
+CREATE INDEX IF NOT EXISTS idx_customers_총주문횟수 ON customers(총주문횟수);
+
+ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all for customers" ON customers;
+CREATE POLICY "Allow all for customers" ON customers FOR ALL USING (true) WITH CHECK (true);
+
+-- 11. 판매 데이터 테이블
+CREATE TABLE IF NOT EXISTS sales_data (
+    id SERIAL PRIMARY KEY,
+    판매사이트명 TEXT,
+    수집일 DATE,
+    주문일 TIMESTAMPTZ,
+    결제일 TIMESTAMPTZ,
+    상품명 TEXT,
+    주문선택사항 TEXT,
+    판매가 DECIMAL(12,2) DEFAULT 0,
+    주문수량 INTEGER DEFAULT 1,
+    배송비금액 DECIMAL(10,2) DEFAULT 0,
+    구매자ID TEXT,
+    구매자명 TEXT,
+    구매자휴대폰번호 TEXT,
+    수령자명 TEXT,
+    수령자휴대폰번호 TEXT,
+    배송지주소 TEXT,
+    원가 DECIMAL(12,2) DEFAULT 0,
+    수수료 DECIMAL(12,2) DEFAULT 0,
+    순이익 DECIMAL(12,2) DEFAULT 0,
+    is_gift BOOLEAN DEFAULT FALSE,
+    is_repeat_customer BOOLEAN DEFAULT FALSE,
+    customer_id INTEGER REFERENCES customers(id),
+    upload_batch_id TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sales_data_주문일 ON sales_data(주문일);
+CREATE INDEX IF NOT EXISTS idx_sales_data_판매사이트명 ON sales_data(판매사이트명);
+CREATE INDEX IF NOT EXISTS idx_sales_data_상품명 ON sales_data(상품명);
+CREATE INDEX IF NOT EXISTS idx_sales_data_customer_id ON sales_data(customer_id);
+
+ALTER TABLE sales_data ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all for sales_data" ON sales_data;
+CREATE POLICY "Allow all for sales_data" ON sales_data FOR ALL USING (true) WITH CHECK (true);

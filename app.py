@@ -75,6 +75,19 @@ MARGIN_DATA_FILE = 'margin_data.json'
 # 임시 저장소 (세션별 분류 결과)
 TEMP_RESULTS = {}
 
+# ==================== 판매처별 수수료율 ====================
+PLATFORM_FEES = {
+    '쿠팡': 0.12,           # 12%
+    '스마트스토어': 0.067,   # 6.7%
+    '11번가': 0.18,         # 18%
+    'G마켓': 0.15,          # 15%
+    '옥션': 0.15,           # 15%
+    '위메프': 0.15,         # 15%
+    '티몬': 0.15,           # 15%
+    '토스쇼핑': 0.12,       # 12%
+    '기타': 0.10            # 10%
+}
+
 # ==================== 설정 관리 (기존 방식 유지) ====================
 
 def load_settings_from_file():
@@ -147,6 +160,52 @@ def save_margin_data():
 
 # 시작 시 로드
 load_margin_data()
+
+# ==================== 원가 매칭 및 수수료 계산 함수 ====================
+
+def find_matching_cost(product_name):
+    """상품명으로 원가 찾기 (Fuzzy Matching)"""
+    if not product_name or not MARGIN_DATA:
+        return 0
+
+    product_name = str(product_name).strip()
+
+    # 1. 정확히 일치
+    for item in MARGIN_DATA:
+        if item.get('상품명') == product_name:
+            return item.get('인상후_총_원가') or item.get('인상후 총 원가', 0)
+
+    # 2. 포함 검색 (긴 것 우선)
+    matches = []
+    for item in MARGIN_DATA:
+        margin_name = item.get('상품명', '')
+        if margin_name in product_name or product_name in margin_name:
+            matches.append((item, len(margin_name)))
+
+    if matches:
+        matches.sort(key=lambda x: x[1], reverse=True)
+        return matches[0][0].get('인상후_총_원가') or matches[0][0].get('인상후 총 원가', 0)
+
+    # 3. 핵심 단어 매칭 (공백 기준 첫 2-3단어)
+    keywords = product_name.split()[:3]
+    for item in MARGIN_DATA:
+        margin_name = item.get('상품명', '')
+        if len(keywords) >= 2 and all(kw in margin_name for kw in keywords[:2]):
+            return item.get('인상후_총_원가') or item.get('인상후 총 원가', 0)
+
+    return 0
+
+
+def get_platform_fee_rate(site_name):
+    """판매처별 수수료율 반환"""
+    if not site_name:
+        return PLATFORM_FEES['기타']
+
+    site_name = str(site_name)
+    for platform, rate in PLATFORM_FEES.items():
+        if platform in site_name:
+            return rate
+    return PLATFORM_FEES['기타']
 
 # ==================== 면세 자료 정리 함수 ====================
 
@@ -748,44 +807,50 @@ def upload_file():
 
 @app.route('/classify', methods=['POST'])
 def classify_orders():
-    """송장 분류 - 통계와 함께 결과 반환"""
+    """송장 분류 - 통계와 함께 결과 반환 + DB 저장"""
     if 'file' not in request.files:
         return jsonify({'error': '파일이 없습니다'}), 400
-    
+
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': '파일을 선택해주세요'}), 400
-    
+
     if not allowed_file(file.filename):
         return jsonify({'error': '.xls 또는 .xlsx 파일만 가능합니다'}), 400
-    
+
     if not CURRENT_SETTINGS:
         return jsonify({'error': '설정 파일을 먼저 로드해주세요'}), 400
-    
+
     filter_star = request.form.get('filter_star', 'false').lower() == 'true'
-    
+
     try:
         ext = file.filename.rsplit('.', 1)[1].lower()
         if ext == 'xls':
             df = pd.read_excel(file, engine='xlrd')
         else:
             df = pd.read_excel(file, engine='openpyxl')
-        
+
+        # 판매 데이터 DB 저장 (스타배송 필터링 전 원본 데이터)
+        saved_count = save_sales_data_to_db(df)
+
         star_deleted = 0
         if filter_star:
             df, star_deleted = filter_star_delivery(df)
-        
+
         classifier = OrderClassifierV41(CURRENT_SETTINGS)
         result_df = classifier.classify_orders_optimized(df)
         stats = classifier.get_classification_stats(result_df)
-        
+
         # 스타배송 필터링 체크한 경우 항상 정보 추가 (0건이어도)
         if filter_star:
             stats['summary']['star_filtered'] = True
             stats['summary']['star_deleted'] = star_deleted
         else:
             stats['summary']['star_filtered'] = False
-        
+
+        # DB 저장 건수 추가
+        stats['summary']['saved_to_db'] = saved_count
+
         session_id = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{id(result_df)}"
         TEMP_RESULTS[session_id] = {
             'df': result_df,
@@ -793,13 +858,13 @@ def classify_orders():
             'filename': file.filename,
             'created_at': datetime.now()
         }
-        
+
         return jsonify({
             'success': True,
             'session_id': session_id,
             'stats': stats
         })
-        
+
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -2637,6 +2702,384 @@ def delete_box_inventory(item_id):
     try:
         supabase.table('box_inventory').delete().eq('id', item_id).execute()
         return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ==================== 데이터 분석 기능 ====================
+
+def upsert_customer(record):
+    """고객 정보 업데이트 또는 생성"""
+    phone = record.get('구매자휴대폰번호')
+    if not phone or not DB_CONNECTED or not supabase:
+        return None
+
+    try:
+        response = supabase.table('customers').select('*').eq('휴대폰번호', phone).execute()
+
+        order_date = record.get('주문일') or datetime.now().isoformat()
+        sale_amount = float(record.get('판매가', 0) or 0) * int(record.get('주문수량', 1) or 1)
+        buyer = (record.get('구매자명') or '').strip()
+        recipient = (record.get('수령자명') or '').strip()
+        is_gift = buyer != recipient if (buyer and recipient) else False
+
+        if response.data:
+            customer = response.data[0]
+            update_data = {
+                '최근구매일': order_date,
+                '총주문횟수': customer['총주문횟수'] + 1,
+                '총구매금액': float(customer['총구매금액'] or 0) + sale_amount,
+                '선물발송횟수': (customer['선물발송횟수'] or 0) + (1 if is_gift else 0),
+                'updated_at': datetime.now().isoformat()
+            }
+            supabase.table('customers').update(update_data).eq('id', customer['id']).execute()
+            customer.update(update_data)
+            return customer
+        else:
+            new_customer = {
+                '휴대폰번호': phone,
+                '구매자명': record.get('구매자명'),
+                '구매자ID': record.get('구매자ID'),
+                '첫구매일': order_date,
+                '최근구매일': order_date,
+                '총주문횟수': 1,
+                '총구매금액': sale_amount,
+                '선물발송횟수': 1 if is_gift else 0,
+                '주요배송지': record.get('배송지주소')
+            }
+            result = supabase.table('customers').insert(new_customer).execute()
+            return result.data[0] if result.data else None
+    except Exception as e:
+        print(f"고객 정보 처리 오류: {e}")
+        return None
+
+
+def save_sales_data_to_db(df):
+    """엑셀 데이터를 DB에 저장 (고객 테이블 연동)"""
+    if not DB_CONNECTED or not supabase:
+        return 0
+
+    column_mapping = {
+        '판매사이트명': ['판매사이트명', '판매처', '채널'],
+        '수집일': ['수집일'],
+        '주문일': ['주문일', '주문일시'],
+        '결제일': ['결제일', '결제일시'],
+        '상품명': ['상품명', '상품명(옵션포함)'],
+        '주문선택사항': ['주문선택사항', '옵션', '옵션정보'],
+        '판매가': ['판매가', '상품금액', '결제금액'],
+        '주문수량': ['주문수량', '수량'],
+        '배송비금액': ['배송비금액', '배송비'],
+        '구매자ID': ['구매자ID', '구매자아이디'],
+        '구매자명': ['구매자명', '주문자명', '주문자'],
+        '구매자휴대폰번호': ['구매자휴대폰번호', '구매자연락처', '주문자연락처'],
+        '수령자명': ['수령자명', '받는분', '수취인'],
+        '수령자휴대폰번호': ['수령자휴대폰번호', '수령자연락처', '받는분연락처'],
+        '배송지주소': ['배송지주소', '배송지', '주소']
+    }
+
+    def find_column(df_cols, possible_names):
+        for name in possible_names:
+            if name in df_cols:
+                return name
+        return None
+
+    batch_id = datetime.now().strftime('%Y%m%d%H%M%S')
+    sales_records = []
+    df_cols = df.columns.tolist()
+
+    for _, row in df.iterrows():
+        record = {'upload_batch_id': batch_id}
+
+        for target_col, source_cols in column_mapping.items():
+            source_col = find_column(df_cols, source_cols)
+            if source_col:
+                value = row.get(source_col)
+                if pd.isna(value):
+                    value = None
+                elif target_col in ['판매가', '배송비금액']:
+                    value = float(value) if value else 0
+                elif target_col == '주문수량':
+                    value = int(value) if value else 1
+                elif target_col in ['주문일', '결제일', '수집일']:
+                    if value:
+                        value = str(value)
+                else:
+                    value = str(value) if value else None
+                record[target_col] = value
+
+        product_name = record.get('상품명', '')
+        selling_price = record.get('판매가', 0) or 0
+        quantity = record.get('주문수량', 1) or 1
+        site_name = record.get('판매사이트명', '')
+
+        cost = find_matching_cost(product_name)
+        fee_rate = get_platform_fee_rate(site_name)
+        fee = selling_price * fee_rate
+        profit = (selling_price - cost - fee) * quantity
+
+        record['원가'] = cost
+        record['수수료'] = round(fee, 2)
+        record['순이익'] = round(profit, 2)
+
+        phone = record.get('구매자휴대폰번호')
+        if phone:
+            customer = upsert_customer(record)
+            if customer:
+                record['customer_id'] = customer['id']
+                record['is_repeat_customer'] = customer['총주문횟수'] > 1
+
+        buyer = (record.get('구매자명') or '').strip()
+        recipient = (record.get('수령자명') or '').strip()
+        record['is_gift'] = buyer != recipient if (buyer and recipient) else False
+
+        sales_records.append(record)
+
+    try:
+        if sales_records:
+            supabase.table('sales_data').insert(sales_records).execute()
+        return len(sales_records)
+    except Exception as e:
+        print(f"판매 데이터 저장 오류: {e}")
+        return 0
+
+
+@app.route('/api/analytics/summary', methods=['GET'])
+@admin_required
+def get_analytics_summary():
+    """KPI 요약 데이터"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    period = request.args.get('period', 'month')
+
+    try:
+        today = get_kst_today()
+        if period == 'day':
+            start_date = today
+        elif period == 'week':
+            start_date = today - timedelta(days=7)
+        elif period == 'month':
+            start_date = today - timedelta(days=30)
+        else:
+            start_date = None
+
+        query = supabase.table('sales_data').select('판매가, 주문수량, 순이익, 주문일')
+        if start_date:
+            query = query.gte('주문일', start_date.isoformat())
+
+        response = query.execute()
+        data = response.data or []
+
+        total_revenue = sum(float(d.get('판매가', 0) or 0) * int(d.get('주문수량', 1) or 1) for d in data)
+        total_profit = sum(float(d.get('순이익', 0) or 0) for d in data)
+        total_orders = len(data)
+        aov = total_revenue / total_orders if total_orders > 0 else 0
+        margin_rate = (total_profit / total_revenue * 100) if total_revenue > 0 else 0
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'total_revenue': round(total_revenue, 0),
+                'total_profit': round(total_profit, 0),
+                'total_orders': total_orders,
+                'aov': round(aov, 0),
+                'margin_rate': round(margin_rate, 1)
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analytics/platform', methods=['GET'])
+@admin_required
+def get_analytics_platform():
+    """플랫폼별 매출/순이익 비교"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    try:
+        response = supabase.table('sales_data').select('판매사이트명, 판매가, 주문수량, 순이익').execute()
+        data = response.data or []
+
+        platform_stats = {}
+        for d in data:
+            site = d.get('판매사이트명') or '기타'
+            if site not in platform_stats:
+                platform_stats[site] = {'revenue': 0, 'profit': 0, 'orders': 0}
+
+            revenue = float(d.get('판매가', 0) or 0) * int(d.get('주문수량', 1) or 1)
+            profit = float(d.get('순이익', 0) or 0)
+
+            platform_stats[site]['revenue'] += revenue
+            platform_stats[site]['profit'] += profit
+            platform_stats[site]['orders'] += 1
+
+        result = [{'platform': k, **v} for k, v in platform_stats.items()]
+        result.sort(key=lambda x: x['revenue'], reverse=True)
+
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analytics/time-heatmap', methods=['GET'])
+@admin_required
+def get_analytics_time_heatmap():
+    """요일/시간대별 주문량"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    try:
+        response = supabase.table('sales_data').select('주문일').execute()
+        data = response.data or []
+
+        heatmap = {}
+        days = ['월', '화', '수', '목', '금', '토', '일']
+
+        for d in data:
+            order_date = d.get('주문일')
+            if order_date:
+                try:
+                    dt = datetime.fromisoformat(order_date.replace('Z', '+00:00'))
+                    day = days[dt.weekday()]
+                    hour = dt.hour
+
+                    if day not in heatmap:
+                        heatmap[day] = {}
+                    if hour not in heatmap[day]:
+                        heatmap[day][hour] = 0
+                    heatmap[day][hour] += 1
+                except:
+                    pass
+
+        return jsonify({'success': True, 'data': heatmap})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analytics/repurchase', methods=['GET'])
+@admin_required
+def get_analytics_repurchase():
+    """재구매율 분석"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    try:
+        response = supabase.table('customers').select('총주문횟수').execute()
+        data = response.data or []
+
+        new_customers = sum(1 for d in data if (d.get('총주문횟수') or 0) == 1)
+        repeat_customers = sum(1 for d in data if (d.get('총주문횟수') or 0) > 1)
+
+        total = new_customers + repeat_customers
+        return jsonify({
+            'success': True,
+            'data': {
+                'new_customers': new_customers,
+                'repeat_customers': repeat_customers,
+                'repeat_rate': round(repeat_customers / total * 100, 1) if total > 0 else 0
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analytics/gift', methods=['GET'])
+@admin_required
+def get_analytics_gift():
+    """선물하기 비율 분석"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    try:
+        response = supabase.table('sales_data').select('is_gift').execute()
+        data = response.data or []
+
+        self_purchase = sum(1 for d in data if not d.get('is_gift'))
+        gift_purchase = sum(1 for d in data if d.get('is_gift'))
+
+        total = self_purchase + gift_purchase
+        return jsonify({
+            'success': True,
+            'data': {
+                'self_purchase': self_purchase,
+                'gift_purchase': gift_purchase,
+                'gift_rate': round(gift_purchase / total * 100, 1) if total > 0 else 0
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analytics/top-products', methods=['GET'])
+@admin_required
+def get_analytics_top_products():
+    """상품+옵션 Top 10"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    try:
+        response = supabase.table('sales_data').select('상품명, 주문선택사항, 주문수량').execute()
+        data = response.data or []
+
+        product_counts = {}
+        for d in data:
+            product = d.get('상품명') or '알 수 없음'
+            option = d.get('주문선택사항') or ''
+            key = f"{product} | {option}" if option else product
+            qty = int(d.get('주문수량', 1) or 1)
+            product_counts[key] = product_counts.get(key, 0) + qty
+
+        sorted_products = sorted(product_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+        result = [{'product': k, 'quantity': v} for k, v in sorted_products]
+
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analytics/regions', methods=['GET'])
+@admin_required
+def get_analytics_regions():
+    """지역별 주문량 Top 5"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    try:
+        response = supabase.table('sales_data').select('배송지주소').execute()
+        data = response.data or []
+
+        region_counts = {}
+        for d in data:
+            address = d.get('배송지주소') or ''
+            parts = address.split()
+            if len(parts) >= 2:
+                region = f"{parts[0]} {parts[1]}"
+            elif len(parts) == 1:
+                region = parts[0]
+            else:
+                region = '기타'
+
+            region_counts[region] = region_counts.get(region, 0) + 1
+
+        sorted_regions = sorted(region_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+        result = [{'region': k, 'orders': v} for k, v in sorted_regions]
+
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analytics/customers', methods=['GET'])
+@admin_required
+def get_analytics_customers():
+    """고객 목록 조회"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    try:
+        response = supabase.table('customers').select('*').order('총주문횟수', desc=True).limit(100).execute()
+        return jsonify({'success': True, 'data': response.data or []})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

@@ -2570,6 +2570,226 @@
         border-color: #00ff88;
       }
 
+      /* ==================== 데이터 분석 스타일 ==================== */
+      .analytics-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .analytics-period-selector {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .analytics-period-btn {
+        padding: 8px 16px;
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .analytics-period-btn:hover,
+      .analytics-period-btn.active {
+        background: #00ff88;
+        border-color: #00ff88;
+        color: #000;
+      }
+
+      .analytics-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+      }
+
+      .analytics-kpi-card {
+        background: #111;
+        border: 1px solid #222;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .analytics-kpi-card h4 {
+        color: #888;
+        font-size: 12px;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .analytics-kpi-card .value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #00ff88;
+      }
+
+      .analytics-kpi-card .unit {
+        font-size: 14px;
+        color: #666;
+        margin-left: 4px;
+      }
+
+      .analytics-section {
+        background: #111;
+        border: 1px solid #222;
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .analytics-section h3 {
+        margin-bottom: 20px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #fff;
+      }
+
+      .analytics-chart-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+      }
+
+      .analytics-chart {
+        min-height: 200px;
+      }
+
+      .analytics-chart h4 {
+        margin-bottom: 16px;
+        font-size: 14px;
+        color: #aaa;
+      }
+
+      .analytics-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .analytics-bar-label {
+        width: 100px;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #ccc;
+      }
+
+      .analytics-bar-track {
+        flex: 1;
+        height: 20px;
+        background: #1a1a1a;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .analytics-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+      }
+
+      .analytics-bar-fill.revenue {
+        background: linear-gradient(90deg, #00ff88, #00cc6a);
+      }
+
+      .analytics-bar-fill.profit {
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+      }
+
+      .analytics-bar-value {
+        width: 90px;
+        text-align: right;
+        font-size: 12px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .analytics-pie-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .analytics-pie {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        position: relative;
+      }
+
+      .analytics-pie-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .analytics-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #ccc;
+      }
+
+      .analytics-legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .analytics-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .analytics-table th,
+      .analytics-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #222;
+      }
+
+      .analytics-table th {
+        font-weight: 600;
+        color: #888;
+        font-size: 12px;
+      }
+
+      .analytics-table td {
+        color: #ccc;
+        font-size: 13px;
+      }
+
+      .analytics-rank {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #00ff88;
+        color: #000;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 12px;
+      }
+
+      .analytics-empty {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
       /* ==================== 박스 재고 파악 스타일 ==================== */
       .box-inventory-container {
         background: #111;
@@ -2962,6 +3182,7 @@
       <div class="nav-item active" data-page="home">🏠 홈</div>
       <div class="nav-item" data-page="margin">💰 원가 마진표</div>
       <div class="nav-item" data-page="calculator">🧮 종합 계산기</div>
+      <div class="nav-item" data-page="analytics">📊 데이터 분석</div>
       <div class="nav-item" data-page="box-inventory">📦 박스 재고 파악</div>
       <div class="nav-item" data-page="classify">🏷️ 송장 분류</div>
       <div class="nav-item" data-page="starfilter">⭐ 스타배송 필터링</div>
@@ -4067,6 +4288,103 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 데이터 분석 페이지 -->
+      <section id="page-analytics" class="page" style="display: none">
+        <h1 class="page-title">📊 데이터 분석</h1>
+        <p class="page-description">판매 데이터 및 고객 분석 대시보드</p>
+
+        <div class="analytics-container">
+          <!-- 기간 선택 -->
+          <div class="analytics-period-selector">
+            <button class="analytics-period-btn" data-period="day">오늘</button>
+            <button class="analytics-period-btn" data-period="week">최근 7일</button>
+            <button class="analytics-period-btn active" data-period="month">최근 30일</button>
+            <button class="analytics-period-btn" data-period="all">전체</button>
+          </div>
+
+          <!-- KPI 요약 카드 -->
+          <div class="analytics-kpi-grid">
+            <div class="analytics-kpi-card">
+              <h4>총 매출액</h4>
+              <div><span class="value" id="kpi-revenue">-</span><span class="unit">원</span></div>
+            </div>
+            <div class="analytics-kpi-card">
+              <h4>총 순이익</h4>
+              <div><span class="value" id="kpi-profit">-</span><span class="unit">원</span></div>
+            </div>
+            <div class="analytics-kpi-card">
+              <h4>총 주문 건수</h4>
+              <div><span class="value" id="kpi-orders">-</span><span class="unit">건</span></div>
+            </div>
+            <div class="analytics-kpi-card">
+              <h4>객단가 (AOV)</h4>
+              <div><span class="value" id="kpi-aov">-</span><span class="unit">원</span></div>
+            </div>
+            <div class="analytics-kpi-card">
+              <h4>마진율</h4>
+              <div><span class="value" id="kpi-margin">-</span><span class="unit">%</span></div>
+            </div>
+          </div>
+
+          <!-- 섹션 1: 매출 및 채널 분석 -->
+          <div class="analytics-section">
+            <h3>💰 매출 및 채널 분석</h3>
+            <div class="analytics-chart-row">
+              <div class="analytics-chart">
+                <h4>플랫폼별 수익성 비교</h4>
+                <div id="platform-chart"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 섹션 2: 고객 분석 -->
+          <div class="analytics-section">
+            <h3>👥 고객 분석</h3>
+            <div class="analytics-chart-row">
+              <div class="analytics-chart">
+                <h4>재구매율</h4>
+                <div class="analytics-pie-container" id="repurchase-chart"></div>
+              </div>
+              <div class="analytics-chart">
+                <h4>선물하기 수요</h4>
+                <div class="analytics-pie-container" id="gift-chart"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 섹션 3: 상품 분석 -->
+          <div class="analytics-section">
+            <h3>📦 상품 분석</h3>
+            <h4 style="margin-bottom: 16px; font-size: 14px; color: #aaa;">베스트셀러 Top 10</h4>
+            <table class="analytics-table" id="top-products-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">순위</th>
+                  <th>상품명 (옵션)</th>
+                  <th style="width: 100px; text-align: right;">판매량</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <!-- 섹션 4: 지역 분석 -->
+          <div class="analytics-section">
+            <h3>📍 지역별 수요</h3>
+            <table class="analytics-table" id="regions-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">순위</th>
+                  <th>지역</th>
+                  <th style="width: 100px; text-align: right;">주문 수</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -6214,6 +6532,8 @@
           initArrivalInvoice();
         } else if (page === "box-inventory") {
           loadBoxInventory();
+        } else if (page === "analytics") {
+          loadAnalyticsData();
         }
       }
 
@@ -8758,6 +9078,210 @@
         } catch (error) {
           console.error("생성 오류:", error);
           showToast("error", "생성 중 오류 발생");
+        }
+      }
+
+      // ==================== 데이터 분석 ====================
+
+      let currentAnalyticsPeriod = "month";
+
+      // 기간 선택 버튼 이벤트
+      document.querySelectorAll(".analytics-period-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".analytics-period-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentAnalyticsPeriod = btn.dataset.period;
+          loadAnalyticsData();
+        });
+      });
+
+      async function loadAnalyticsData() {
+        await Promise.all([
+          loadKPISummary(),
+          loadPlatformChart(),
+          loadRepurchaseChart(),
+          loadGiftChart(),
+          loadTopProducts(),
+          loadRegions(),
+        ]);
+      }
+
+      async function loadKPISummary() {
+        try {
+          const res = await fetch(`/api/analytics/summary?period=${currentAnalyticsPeriod}`);
+          const json = await res.json();
+          if (json.success) {
+            const d = json.data;
+            document.getElementById("kpi-revenue").textContent = Number(d.total_revenue).toLocaleString();
+            document.getElementById("kpi-profit").textContent = Number(d.total_profit).toLocaleString();
+            document.getElementById("kpi-orders").textContent = Number(d.total_orders).toLocaleString();
+            document.getElementById("kpi-aov").textContent = Number(d.aov).toLocaleString();
+            document.getElementById("kpi-margin").textContent = d.margin_rate;
+          }
+        } catch (e) {
+          console.error("KPI 로드 실패:", e);
+        }
+      }
+
+      async function loadPlatformChart() {
+        try {
+          const res = await fetch("/api/analytics/platform");
+          const json = await res.json();
+          const container = document.getElementById("platform-chart");
+
+          if (json.success && json.data.length > 0) {
+            const data = json.data;
+            const maxRevenue = Math.max(...data.map((d) => d.revenue));
+
+            container.innerHTML = data
+              .map(
+                (d) => `
+              <div class="analytics-bar">
+                <div class="analytics-bar-label" title="${d.platform}">${d.platform}</div>
+                <div class="analytics-bar-track">
+                  <div class="analytics-bar-fill revenue" style="width: ${(d.revenue / maxRevenue) * 100}%"></div>
+                </div>
+                <div class="analytics-bar-value">${Number(d.revenue).toLocaleString()}원</div>
+              </div>
+              <div class="analytics-bar" style="margin-bottom: 16px;">
+                <div class="analytics-bar-label" style="color: #666;">└ 순이익</div>
+                <div class="analytics-bar-track">
+                  <div class="analytics-bar-fill profit" style="width: ${(d.profit / maxRevenue) * 100}%"></div>
+                </div>
+                <div class="analytics-bar-value" style="color: #22c55e;">${Number(d.profit).toLocaleString()}원</div>
+              </div>
+            `
+              )
+              .join("");
+          } else {
+            container.innerHTML = '<div class="analytics-empty">데이터가 없습니다</div>';
+          }
+        } catch (e) {
+          console.error("플랫폼 차트 로드 실패:", e);
+        }
+      }
+
+      async function loadRepurchaseChart() {
+        try {
+          const res = await fetch("/api/analytics/repurchase");
+          const json = await res.json();
+          const container = document.getElementById("repurchase-chart");
+
+          if (json.success) {
+            const d = json.data;
+            const total = d.new_customers + d.repeat_customers;
+
+            if (total > 0) {
+              const newPct = (d.new_customers / total) * 100;
+              const repeatPct = (d.repeat_customers / total) * 100;
+
+              container.innerHTML = `
+                <div class="analytics-pie" style="background: conic-gradient(#00ff88 0% ${newPct}%, #22c55e ${newPct}% 100%);"></div>
+                <div class="analytics-pie-legend">
+                  <div class="analytics-legend-item">
+                    <div class="analytics-legend-dot" style="background: #00ff88;"></div>
+                    신규 고객: ${d.new_customers}명 (${newPct.toFixed(1)}%)
+                  </div>
+                  <div class="analytics-legend-item">
+                    <div class="analytics-legend-dot" style="background: #22c55e;"></div>
+                    재구매 고객: ${d.repeat_customers}명 (${repeatPct.toFixed(1)}%)
+                  </div>
+                </div>
+              `;
+            } else {
+              container.innerHTML = '<div class="analytics-empty">데이터가 없습니다</div>';
+            }
+          }
+        } catch (e) {
+          console.error("재구매율 차트 로드 실패:", e);
+        }
+      }
+
+      async function loadGiftChart() {
+        try {
+          const res = await fetch("/api/analytics/gift");
+          const json = await res.json();
+          const container = document.getElementById("gift-chart");
+
+          if (json.success) {
+            const d = json.data;
+            const total = d.self_purchase + d.gift_purchase;
+
+            if (total > 0) {
+              const selfPct = (d.self_purchase / total) * 100;
+              const giftPct = (d.gift_purchase / total) * 100;
+
+              container.innerHTML = `
+                <div class="analytics-pie" style="background: conic-gradient(#6366f1 0% ${selfPct}%, #f59e0b ${selfPct}% 100%);"></div>
+                <div class="analytics-pie-legend">
+                  <div class="analytics-legend-item">
+                    <div class="analytics-legend-dot" style="background: #6366f1;"></div>
+                    본인 구매: ${d.self_purchase}건 (${selfPct.toFixed(1)}%)
+                  </div>
+                  <div class="analytics-legend-item">
+                    <div class="analytics-legend-dot" style="background: #f59e0b;"></div>
+                    선물 구매: ${d.gift_purchase}건 (${giftPct.toFixed(1)}%)
+                  </div>
+                </div>
+              `;
+            } else {
+              container.innerHTML = '<div class="analytics-empty">데이터가 없습니다</div>';
+            }
+          }
+        } catch (e) {
+          console.error("선물 차트 로드 실패:", e);
+        }
+      }
+
+      async function loadTopProducts() {
+        try {
+          const res = await fetch("/api/analytics/top-products");
+          const json = await res.json();
+          const tbody = document.querySelector("#top-products-table tbody");
+
+          if (json.success && json.data.length > 0) {
+            tbody.innerHTML = json.data
+              .map(
+                (d, i) => `
+              <tr>
+                <td><div class="analytics-rank">${i + 1}</div></td>
+                <td>${d.product}</td>
+                <td style="text-align: right; font-weight: 600;">${d.quantity}개</td>
+              </tr>
+            `
+              )
+              .join("");
+          } else {
+            tbody.innerHTML = '<tr><td colspan="3" class="analytics-empty">데이터가 없습니다</td></tr>';
+          }
+        } catch (e) {
+          console.error("Top 상품 로드 실패:", e);
+        }
+      }
+
+      async function loadRegions() {
+        try {
+          const res = await fetch("/api/analytics/regions");
+          const json = await res.json();
+          const tbody = document.querySelector("#regions-table tbody");
+
+          if (json.success && json.data.length > 0) {
+            tbody.innerHTML = json.data
+              .map(
+                (d, i) => `
+              <tr>
+                <td><div class="analytics-rank">${i + 1}</div></td>
+                <td>${d.region}</td>
+                <td style="text-align: right; font-weight: 600;">${d.orders}건</td>
+              </tr>
+            `
+              )
+              .join("");
+          } else {
+            tbody.innerHTML = '<tr><td colspan="3" class="analytics-empty">데이터가 없습니다</td></tr>';
+          }
+        } catch (e) {
+          console.error("지역 데이터 로드 실패:", e);
         }
       }
 
