@@ -830,8 +830,10 @@ def classify_orders():
         else:
             df = pd.read_excel(file, engine='openpyxl')
 
-        # 판매 데이터 DB 저장 (스타배송 필터링 전 원본 데이터)
-        saved_count = save_sales_data_to_db(df)
+        # 판매 데이터 DB 저장 (백그라운드에서 비동기 처리)
+        import threading
+        df_copy = df.copy()
+        threading.Thread(target=save_sales_data_to_db, args=(df_copy,), daemon=True).start()
 
         star_deleted = 0
         if filter_star:
@@ -847,9 +849,6 @@ def classify_orders():
             stats['summary']['star_deleted'] = star_deleted
         else:
             stats['summary']['star_filtered'] = False
-
-        # DB 저장 건수 추가
-        stats['summary']['saved_to_db'] = saved_count
 
         session_id = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{id(result_df)}"
         TEMP_RESULTS[session_id] = {
@@ -2821,13 +2820,7 @@ def save_sales_data_to_db(df):
         record['수수료'] = round(fee, 2)
         record['순이익'] = round(profit, 2)
 
-        phone = record.get('구매자휴대폰번호')
-        if phone:
-            customer = upsert_customer(record)
-            if customer:
-                record['customer_id'] = customer['id']
-                record['is_repeat_customer'] = customer['총주문횟수'] > 1
-
+        # 선물 여부만 판단 (고객 테이블 연동은 별도 배치로 처리)
         buyer = (record.get('구매자명') or '').strip()
         recipient = (record.get('수령자명') or '').strip()
         record['is_gift'] = buyer != recipient if (buyer and recipient) else False
