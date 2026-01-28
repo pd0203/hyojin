@@ -2953,16 +2953,23 @@ def get_analytics_time_heatmap():
 @app.route('/api/analytics/repurchase', methods=['GET'])
 @admin_required
 def get_analytics_repurchase():
-    """재구매율 분석"""
+    """재구매율 분석 (sales_data 기반)"""
     if not DB_CONNECTED:
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     try:
-        response = supabase.table('customers').select('총주문횟수').execute()
+        response = supabase.table('sales_data').select('구매자휴대폰번호').execute()
         data = response.data or []
 
-        new_customers = sum(1 for d in data if (d.get('총주문횟수') or 0) == 1)
-        repeat_customers = sum(1 for d in data if (d.get('총주문횟수') or 0) > 1)
+        # 휴대폰번호별 주문 횟수 집계
+        phone_counts = {}
+        for d in data:
+            phone = d.get('구매자휴대폰번호')
+            if phone:
+                phone_counts[phone] = phone_counts.get(phone, 0) + 1
+
+        new_customers = sum(1 for count in phone_counts.values() if count == 1)
+        repeat_customers = sum(1 for count in phone_counts.values() if count > 1)
 
         total = new_customers + repeat_customers
         return jsonify({
