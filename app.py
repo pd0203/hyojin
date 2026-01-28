@@ -822,6 +822,7 @@ def classify_orders():
         return jsonify({'error': '설정 파일을 먼저 로드해주세요'}), 400
 
     filter_star = request.form.get('filter_star', 'false').lower() == 'true'
+    save_analytics = request.form.get('save_analytics', 'false').lower() == 'true'
 
     try:
         ext = file.filename.rsplit('.', 1)[1].lower()
@@ -830,8 +831,9 @@ def classify_orders():
         else:
             df = pd.read_excel(file, engine='openpyxl')
 
-        # 판매 데이터 DB 저장 (동기 처리)
-        if DB_CONNECTED:
+        # 판매 데이터 DB 저장 (데이터 분석 활용 체크 시에만)
+        saved_count = 0
+        if save_analytics and DB_CONNECTED:
             try:
                 saved_count = save_sales_data_to_db(df.copy())
                 print(f"✅ 판매 데이터 {saved_count}건 DB 저장")

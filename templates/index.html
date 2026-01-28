@@ -4301,8 +4301,12 @@
           <!-- 기간 선택 -->
           <div class="analytics-period-selector">
             <button class="analytics-period-btn" data-period="day">오늘</button>
-            <button class="analytics-period-btn" data-period="week">최근 7일</button>
-            <button class="analytics-period-btn active" data-period="month">최근 30일</button>
+            <button class="analytics-period-btn" data-period="week">
+              최근 7일
+            </button>
+            <button class="analytics-period-btn active" data-period="month">
+              최근 30일
+            </button>
             <button class="analytics-period-btn" data-period="all">전체</button>
           </div>
 
@@ -4310,23 +4314,38 @@
           <div class="analytics-kpi-grid">
             <div class="analytics-kpi-card">
               <h4>총 매출액</h4>
-              <div><span class="value" id="kpi-revenue">-</span><span class="unit">원</span></div>
+              <div>
+                <span class="value" id="kpi-revenue">-</span
+                ><span class="unit">원</span>
+              </div>
             </div>
             <div class="analytics-kpi-card">
               <h4>총 순이익</h4>
-              <div><span class="value" id="kpi-profit">-</span><span class="unit">원</span></div>
+              <div>
+                <span class="value" id="kpi-profit">-</span
+                ><span class="unit">원</span>
+              </div>
             </div>
             <div class="analytics-kpi-card">
               <h4>총 주문 건수</h4>
-              <div><span class="value" id="kpi-orders">-</span><span class="unit">건</span></div>
+              <div>
+                <span class="value" id="kpi-orders">-</span
+                ><span class="unit">건</span>
+              </div>
             </div>
             <div class="analytics-kpi-card">
               <h4>객단가 (AOV)</h4>
-              <div><span class="value" id="kpi-aov">-</span><span class="unit">원</span></div>
+              <div>
+                <span class="value" id="kpi-aov">-</span
+                ><span class="unit">원</span>
+              </div>
             </div>
             <div class="analytics-kpi-card">
               <h4>마진율</h4>
-              <div><span class="value" id="kpi-margin">-</span><span class="unit">%</span></div>
+              <div>
+                <span class="value" id="kpi-margin">-</span
+                ><span class="unit">%</span>
+              </div>
             </div>
           </div>
 
@@ -4347,7 +4366,10 @@
             <div class="analytics-chart-row">
               <div class="analytics-chart">
                 <h4>재구매율</h4>
-                <div class="analytics-pie-container" id="repurchase-chart"></div>
+                <div
+                  class="analytics-pie-container"
+                  id="repurchase-chart"
+                ></div>
               </div>
               <div class="analytics-chart">
                 <h4>선물하기 수요</h4>
@@ -4359,13 +4381,15 @@
           <!-- 섹션 3: 상품 분석 -->
           <div class="analytics-section">
             <h3>📦 상품 분석</h3>
-            <h4 style="margin-bottom: 16px; font-size: 14px; color: #aaa;">베스트셀러 Top 10</h4>
+            <h4 style="margin-bottom: 16px; font-size: 14px; color: #aaa">
+              베스트셀러 Top 10
+            </h4>
             <table class="analytics-table" id="top-products-table">
               <thead>
                 <tr>
-                  <th style="width: 50px;">순위</th>
+                  <th style="width: 50px">순위</th>
                   <th>상품명 (옵션)</th>
-                  <th style="width: 100px; text-align: right;">판매량</th>
+                  <th style="width: 100px; text-align: right">판매량</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -4378,9 +4402,9 @@
             <table class="analytics-table" id="regions-table">
               <thead>
                 <tr>
-                  <th style="width: 50px;">순위</th>
+                  <th style="width: 50px">순위</th>
                   <th>지역</th>
-                  <th style="width: 100px; text-align: right;">주문 수</th>
+                  <th style="width: 100px; text-align: right">주문 수</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -4548,6 +4572,11 @@
               <input type="checkbox" id="starFilterCheck" />
               <span class="checkmark"></span>
               <span class="checkbox-label">⭐ 스타배송 필터링</span>
+            </label>
+            <label class="star-filter-checkbox">
+              <input type="checkbox" id="saveAnalyticsCheck" />
+              <span class="checkmark"></span>
+              <span class="checkbox-label">📊 데이터 분석 활용</span>
             </label>
           </div>
         </div>
@@ -6870,6 +6899,11 @@
           const filterStar = document.getElementById("starFilterCheck").checked;
           formData.append("filter_star", filterStar);
 
+          // 데이터 분석 활용 체크박스 상태 추가
+          const saveAnalytics =
+            document.getElementById("saveAnalyticsCheck").checked;
+          formData.append("save_analytics", saveAnalytics);
+
           const response = await fetch("/classify", {
             method: "POST",
             body: formData,
@@ -9088,7 +9122,9 @@
       // 기간 선택 버튼 이벤트
       document.querySelectorAll(".analytics-period-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
-          document.querySelectorAll(".analytics-period-btn").forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll(".analytics-period-btn")
+            .forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
           currentAnalyticsPeriod = btn.dataset.period;
           loadAnalyticsData();
@@ -9108,14 +9144,24 @@
 
       async function loadKPISummary() {
         try {
-          const res = await fetch(`/api/analytics/summary?period=${currentAnalyticsPeriod}`);
+          const res = await fetch(
+            `/api/analytics/summary?period=${currentAnalyticsPeriod}`,
+          );
           const json = await res.json();
           if (json.success) {
             const d = json.data;
-            document.getElementById("kpi-revenue").textContent = Number(d.total_revenue).toLocaleString();
-            document.getElementById("kpi-profit").textContent = Number(d.total_profit).toLocaleString();
-            document.getElementById("kpi-orders").textContent = Number(d.total_orders).toLocaleString();
-            document.getElementById("kpi-aov").textContent = Number(d.aov).toLocaleString();
+            document.getElementById("kpi-revenue").textContent = Number(
+              d.total_revenue,
+            ).toLocaleString();
+            document.getElementById("kpi-profit").textContent = Number(
+              d.total_profit,
+            ).toLocaleString();
+            document.getElementById("kpi-orders").textContent = Number(
+              d.total_orders,
+            ).toLocaleString();
+            document.getElementById("kpi-aov").textContent = Number(
+              d.aov,
+            ).toLocaleString();
             document.getElementById("kpi-margin").textContent = d.margin_rate;
           }
         } catch (e) {
@@ -9150,11 +9196,12 @@
                 </div>
                 <div class="analytics-bar-value" style="color: #22c55e;">${Number(d.profit).toLocaleString()}원</div>
               </div>
-            `
+            `,
               )
               .join("");
           } else {
-            container.innerHTML = '<div class="analytics-empty">데이터가 없습니다</div>';
+            container.innerHTML =
+              '<div class="analytics-empty">데이터가 없습니다</div>';
           }
         } catch (e) {
           console.error("플랫폼 차트 로드 실패:", e);
@@ -9189,7 +9236,8 @@
                 </div>
               `;
             } else {
-              container.innerHTML = '<div class="analytics-empty">데이터가 없습니다</div>';
+              container.innerHTML =
+                '<div class="analytics-empty">데이터가 없습니다</div>';
             }
           }
         } catch (e) {
@@ -9225,7 +9273,8 @@
                 </div>
               `;
             } else {
-              container.innerHTML = '<div class="analytics-empty">데이터가 없습니다</div>';
+              container.innerHTML =
+                '<div class="analytics-empty">데이터가 없습니다</div>';
             }
           }
         } catch (e) {
@@ -9248,11 +9297,12 @@
                 <td>${d.product}</td>
                 <td style="text-align: right; font-weight: 600;">${d.quantity}개</td>
               </tr>
-            `
+            `,
               )
               .join("");
           } else {
-            tbody.innerHTML = '<tr><td colspan="3" class="analytics-empty">데이터가 없습니다</td></tr>';
+            tbody.innerHTML =
+              '<tr><td colspan="3" class="analytics-empty">데이터가 없습니다</td></tr>';
           }
         } catch (e) {
           console.error("Top 상품 로드 실패:", e);
@@ -9274,11 +9324,12 @@
                 <td>${d.region}</td>
                 <td style="text-align: right; font-weight: 600;">${d.orders}건</td>
               </tr>
-            `
+            `,
               )
               .join("");
           } else {
-            tbody.innerHTML = '<tr><td colspan="3" class="analytics-empty">데이터가 없습니다</td></tr>';
+            tbody.innerHTML =
+              '<tr><td colspan="3" class="analytics-empty">데이터가 없습니다</td></tr>';
           }
         } catch (e) {
           console.error("지역 데이터 로드 실패:", e);
