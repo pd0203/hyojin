@@ -2707,54 +2707,8 @@ def delete_box_inventory(item_id):
 
 # ==================== 데이터 분석 기능 ====================
 
-def upsert_customer(record):
-    """고객 정보 업데이트 또는 생성"""
-    phone = record.get('구매자휴대폰번호')
-    if not phone or not DB_CONNECTED or not supabase:
-        return None
-
-    try:
-        response = supabase.table('customers').select('*').eq('휴대폰번호', phone).execute()
-
-        order_date = record.get('주문일') or datetime.now().isoformat()
-        sale_amount = float(record.get('판매가', 0) or 0) * int(record.get('주문수량', 1) or 1)
-        buyer = (record.get('구매자명') or '').strip()
-        recipient = (record.get('수령자명') or '').strip()
-        is_gift = buyer != recipient if (buyer and recipient) else False
-
-        if response.data:
-            customer = response.data[0]
-            update_data = {
-                '최근구매일': order_date,
-                '총주문횟수': customer['총주문횟수'] + 1,
-                '총구매금액': float(customer['총구매금액'] or 0) + sale_amount,
-                '선물발송횟수': (customer['선물발송횟수'] or 0) + (1 if is_gift else 0),
-                'updated_at': datetime.now().isoformat()
-            }
-            supabase.table('customers').update(update_data).eq('id', customer['id']).execute()
-            customer.update(update_data)
-            return customer
-        else:
-            new_customer = {
-                '휴대폰번호': phone,
-                '구매자명': record.get('구매자명'),
-                '구매자ID': record.get('구매자ID'),
-                '첫구매일': order_date,
-                '최근구매일': order_date,
-                '총주문횟수': 1,
-                '총구매금액': sale_amount,
-                '선물발송횟수': 1 if is_gift else 0,
-                '주요배송지': record.get('배송지주소')
-            }
-            result = supabase.table('customers').insert(new_customer).execute()
-            return result.data[0] if result.data else None
-    except Exception as e:
-        print(f"고객 정보 처리 오류: {e}")
-        return None
-
-
 def save_sales_data_to_db(df):
-    """엑셀 데이터를 DB에 저장 (고객 테이블 연동)"""
+    """엑셀 데이터를 DB에 저장 (배치 처리로 최적화)"""
     if not DB_CONNECTED or not supabase:
         return 0
 
@@ -2784,8 +2738,10 @@ def save_sales_data_to_db(df):
 
     batch_id = datetime.now().strftime('%Y%m%d%H%M%S')
     sales_records = []
+    customer_data = {}  # phone -> {구매자명, 구매자ID, 주문수, 총금액, 선물수, 주소}
     df_cols = df.columns.tolist()
 
+    # 1단계: 판매 데이터 준비 + 고객 데이터 집계 (DB 호출 없음)
     for _, row in df.iterrows():
         record = {'upload_batch_id': batch_id}
 
@@ -2820,13 +2776,64 @@ def save_sales_data_to_db(df):
         record['수수료'] = round(fee, 2)
         record['순이익'] = round(profit, 2)
 
-        # 선물 여부만 판단 (고객 테이블 연동은 별도 배치로 처리)
         buyer = (record.get('구매자명') or '').strip()
         recipient = (record.get('수령자명') or '').strip()
         record['is_gift'] = buyer != recipient if (buyer and recipient) else False
 
+        # 고객 데이터 집계
+        phone = record.get('구매자휴대폰번호')
+        if phone:
+            if phone not in customer_data:
+                customer_data[phone] = {
+                    '구매자명': record.get('구매자명'),
+                    '구매자ID': record.get('구매자ID'),
+                    '주문수': 0,
+                    '총금액': 0,
+                    '선물수': 0,
+                    '주소': record.get('배송지주소'),
+                    '주문일': record.get('주문일')
+                }
+            customer_data[phone]['주문수'] += 1
+            customer_data[phone]['총금액'] += selling_price * quantity
+            if record['is_gift']:
+                customer_data[phone]['선물수'] += 1
+
         sales_records.append(record)
 
+    # 2단계: 기존 고객 한번에 조회 (1번 쿼리)
+    existing_customers = {}
+    if customer_data:
+        try:
+            phones = list(customer_data.keys())
+            response = supabase.table('customers').select('*').in_('휴대폰번호', phones).execute()
+            for c in (response.data or []):
+                existing_customers[c['휴대폰번호']] = c
+        except Exception as e:
+            print(f"고객 조회 오류: {e}")
+
+    # 3단계: 신규 고객 배치 삽입 (1번 쿼리)
+    new_customers = []
+    for phone, data in customer_data.items():
+        if phone not in existing_customers:
+            new_customers.append({
+                '휴대폰번호': phone,
+                '구매자명': data['구매자명'],
+                '구매자ID': data['구매자ID'],
+                '첫구매일': data['주문일'],
+                '최근구매일': data['주문일'],
+                '총주문횟수': data['주문수'],
+                '총구매금액': data['총금액'],
+                '선물발송횟수': data['선물수'],
+                '주요배송지': data['주소']
+            })
+
+    if new_customers:
+        try:
+            supabase.table('customers').insert(new_customers).execute()
+        except Exception as e:
+            print(f"신규 고객 삽입 오류: {e}")
+
+    # 4단계: 판매 데이터 배치 삽입 (1번 쿼리)
     try:
         if sales_records:
             supabase.table('sales_data').insert(sales_records).execute()
