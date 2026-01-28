@@ -7908,7 +7908,7 @@
             <tr style="${rowStyle}">
               <td style="padding: 10px; border-bottom: 1px solid #222;">${
                 r.work_date
-              }</td>
+              } (${["일", "월", "화", "수", "목", "금", "토"][new Date(r.work_date).getDay()]})</td>
               <td style="padding: 10px; text-align: center; border-bottom: 1px solid #222;">${
                 r.clock_in ? r.clock_in.substring(0, 5) : "-"
               }</td>
