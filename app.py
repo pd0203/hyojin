@@ -830,10 +830,13 @@ def classify_orders():
         else:
             df = pd.read_excel(file, engine='openpyxl')
 
-        # 판매 데이터 DB 저장 (백그라운드에서 비동기 처리)
-        import threading
-        df_copy = df.copy()
-        threading.Thread(target=save_sales_data_to_db, args=(df_copy,), daemon=True).start()
+        # 판매 데이터 DB 저장 (동기 처리)
+        if DB_CONNECTED:
+            try:
+                saved_count = save_sales_data_to_db(df.copy())
+                print(f"✅ 판매 데이터 {saved_count}건 DB 저장")
+            except Exception as e:
+                print(f"❌ DB 저장 실패: {e}")
 
         star_deleted = 0
         if filter_star:
