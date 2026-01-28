@@ -2790,6 +2790,85 @@
         color: #666;
       }
 
+      /* ==================== 미니 캘린더 스타일 ==================== */
+      .analytics-date-selector {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+
+      .analytics-date-input {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .analytics-date-input label {
+        color: #888;
+        font-size: 13px;
+      }
+
+      .analytics-date-input input[type="date"] {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #e0e0e0;
+        padding: 8px 12px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .analytics-date-input input[type="date"]:focus {
+        outline: none;
+        border-color: #00ff88;
+      }
+
+      .analytics-date-input
+        input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+      }
+
+      .analytics-date-apply-btn {
+        background: #00ff88;
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .analytics-date-apply-btn:hover {
+        background: #00cc6a;
+      }
+
+      .analytics-date-reset-btn {
+        background: transparent;
+        color: #888;
+        border: 1px solid #333;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .analytics-date-reset-btn:hover {
+        border-color: #666;
+        color: #fff;
+      }
+
+      .analytics-current-range {
+        color: #00ff88;
+        font-size: 13px;
+        margin-left: auto;
+      }
+
       /* ==================== 박스 재고 파악 스타일 ==================== */
       .box-inventory-container {
         background: #111;
@@ -4308,6 +4387,28 @@
               최근 30일
             </button>
             <button class="analytics-period-btn" data-period="all">전체</button>
+          </div>
+
+          <!-- 날짜 범위 선택 -->
+          <div class="analytics-date-selector">
+            <div class="analytics-date-input">
+              <label>시작일</label>
+              <input type="date" id="analytics-start-date" />
+            </div>
+            <div class="analytics-date-input">
+              <label>종료일</label>
+              <input type="date" id="analytics-end-date" />
+            </div>
+            <button class="analytics-date-apply-btn" id="analytics-date-apply">
+              📅 적용
+            </button>
+            <button class="analytics-date-reset-btn" id="analytics-date-reset">
+              초기화
+            </button>
+            <span
+              class="analytics-current-range"
+              id="analytics-current-range"
+            ></span>
           </div>
 
           <!-- KPI 요약 카드 -->
@@ -9118,6 +9219,8 @@
       // ==================== 데이터 분석 ====================
 
       let currentAnalyticsPeriod = "month";
+      let analyticsStartDate = null;
+      let analyticsEndDate = null;
 
       // 기간 선택 버튼 이벤트
       document.querySelectorAll(".analytics-period-btn").forEach((btn) => {
@@ -9127,9 +9230,87 @@
             .forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
           currentAnalyticsPeriod = btn.dataset.period;
+          // 버튼 클릭 시 날짜 범위 초기화
+          analyticsStartDate = null;
+          analyticsEndDate = null;
+          document.getElementById("analytics-start-date").value = "";
+          document.getElementById("analytics-end-date").value = "";
+          updateAnalyticsRangeDisplay();
           loadAnalyticsData();
         });
       });
+
+      // 날짜 범위 적용 버튼
+      document
+        .getElementById("analytics-date-apply")
+        .addEventListener("click", () => {
+          const startInput = document.getElementById(
+            "analytics-start-date",
+          ).value;
+          const endInput = document.getElementById("analytics-end-date").value;
+
+          if (!startInput && !endInput) {
+            showToast("error", "날짜를 선택해주세요");
+            return;
+          }
+
+          analyticsStartDate = startInput || null;
+          analyticsEndDate = endInput || null;
+
+          // 버튼 활성화 해제
+          document
+            .querySelectorAll(".analytics-period-btn")
+            .forEach((b) => b.classList.remove("active"));
+          currentAnalyticsPeriod = "custom";
+
+          updateAnalyticsRangeDisplay();
+          loadAnalyticsData();
+        });
+
+      // 날짜 초기화 버튼
+      document
+        .getElementById("analytics-date-reset")
+        .addEventListener("click", () => {
+          analyticsStartDate = null;
+          analyticsEndDate = null;
+          document.getElementById("analytics-start-date").value = "";
+          document.getElementById("analytics-end-date").value = "";
+
+          // 기본값(최근 30일)으로 복원
+          document
+            .querySelectorAll(".analytics-period-btn")
+            .forEach((b) => b.classList.remove("active"));
+          document
+            .querySelector(".analytics-period-btn[data-period='month']")
+            .classList.add("active");
+          currentAnalyticsPeriod = "month";
+
+          updateAnalyticsRangeDisplay();
+          loadAnalyticsData();
+        });
+
+      function updateAnalyticsRangeDisplay() {
+        const rangeEl = document.getElementById("analytics-current-range");
+        if (analyticsStartDate || analyticsEndDate) {
+          const start = analyticsStartDate || "처음";
+          const end = analyticsEndDate || "현재";
+          rangeEl.textContent = `📆 ${start} ~ ${end}`;
+        } else {
+          rangeEl.textContent = "";
+        }
+      }
+
+      function getAnalyticsQueryParams() {
+        const params = new URLSearchParams();
+        if (analyticsStartDate || analyticsEndDate) {
+          if (analyticsStartDate)
+            params.append("start_date", analyticsStartDate);
+          if (analyticsEndDate) params.append("end_date", analyticsEndDate);
+        } else {
+          params.append("period", currentAnalyticsPeriod);
+        }
+        return params.toString();
+      }
 
       async function loadAnalyticsData() {
         await Promise.all([
@@ -9145,7 +9326,7 @@
       async function loadKPISummary() {
         try {
           const res = await fetch(
-            `/api/analytics/summary?period=${currentAnalyticsPeriod}`,
+            `/api/analytics/summary?${getAnalyticsQueryParams()}`,
           );
           const json = await res.json();
           if (json.success) {
@@ -9171,7 +9352,9 @@
 
       async function loadPlatformChart() {
         try {
-          const res = await fetch("/api/analytics/platform");
+          const res = await fetch(
+            `/api/analytics/platform?${getAnalyticsQueryParams()}`,
+          );
           const json = await res.json();
           const container = document.getElementById("platform-chart");
 
@@ -9210,7 +9393,9 @@
 
       async function loadRepurchaseChart() {
         try {
-          const res = await fetch("/api/analytics/repurchase");
+          const res = await fetch(
+            `/api/analytics/repurchase?${getAnalyticsQueryParams()}`,
+          );
           const json = await res.json();
           const container = document.getElementById("repurchase-chart");
 
@@ -9247,7 +9432,9 @@
 
       async function loadGiftChart() {
         try {
-          const res = await fetch("/api/analytics/gift");
+          const res = await fetch(
+            `/api/analytics/gift?${getAnalyticsQueryParams()}`,
+          );
           const json = await res.json();
           const container = document.getElementById("gift-chart");
 
@@ -9284,7 +9471,9 @@
 
       async function loadTopProducts() {
         try {
-          const res = await fetch("/api/analytics/top-products");
+          const res = await fetch(
+            `/api/analytics/top-products?${getAnalyticsQueryParams()}`,
+          );
           const json = await res.json();
           const tbody = document.querySelector("#top-products-table tbody");
 
@@ -9311,7 +9500,9 @@
 
       async function loadRegions() {
         try {
-          const res = await fetch("/api/analytics/regions");
+          const res = await fetch(
+            `/api/analytics/regions?${getAnalyticsQueryParams()}`,
+          );
           const json = await res.json();
           const tbody = document.querySelector("#regions-table tbody");
 

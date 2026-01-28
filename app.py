@@ -2856,21 +2856,36 @@ def get_analytics_summary():
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     period = request.args.get('period', 'month')
+    start_date_param = request.args.get('start_date')
+    end_date_param = request.args.get('end_date')
 
     try:
         today = get_kst_today()
-        if period == 'day':
-            start_date = today
-        elif period == 'week':
-            start_date = today - timedelta(days=7)
-        elif period == 'month':
-            start_date = today - timedelta(days=30)
+        
+        # 직접 날짜 범위가 지정된 경우
+        if start_date_param or end_date_param:
+            start_date = start_date_param
+            end_date = end_date_param
         else:
-            start_date = None
+            # 기간 버튼으로 선택된 경우
+            if period == 'day':
+                start_date = today.isoformat()
+                end_date = None
+            elif period == 'week':
+                start_date = (today - timedelta(days=7)).isoformat()
+                end_date = None
+            elif period == 'month':
+                start_date = (today - timedelta(days=30)).isoformat()
+                end_date = None
+            else:
+                start_date = None
+                end_date = None
 
         query = supabase.table('sales_data').select('판매가, 주문수량, 순이익, 주문일')
         if start_date:
-            query = query.gte('주문일', start_date.isoformat())
+            query = query.gte('주문일', start_date)
+        if end_date:
+            query = query.lte('주문일', end_date + 'T23:59:59')
 
         response = query.execute()
         data = response.data or []
@@ -2895,6 +2910,36 @@ def get_analytics_summary():
         return jsonify({'error': str(e)}), 500
 
 
+def get_analytics_date_filter():
+    """analytics API용 날짜 필터 파라미터 반환"""
+    period = request.args.get('period', 'month')
+    start_date_param = request.args.get('start_date')
+    end_date_param = request.args.get('end_date')
+    
+    today = get_kst_today()
+    
+    if start_date_param or end_date_param:
+        return start_date_param, end_date_param
+    
+    if period == 'day':
+        return today.isoformat(), None
+    elif period == 'week':
+        return (today - timedelta(days=7)).isoformat(), None
+    elif period == 'month':
+        return (today - timedelta(days=30)).isoformat(), None
+    else:
+        return None, None
+
+
+def apply_date_filter(query, start_date, end_date):
+    """쿼리에 날짜 필터 적용"""
+    if start_date:
+        query = query.gte('주문일', start_date)
+    if end_date:
+        query = query.lte('주문일', end_date + 'T23:59:59')
+    return query
+
+
 @app.route('/api/analytics/platform', methods=['GET'])
 @admin_required
 def get_analytics_platform():
@@ -2903,7 +2948,10 @@ def get_analytics_platform():
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     try:
-        response = supabase.table('sales_data').select('판매사이트명, 판매가, 주문수량, 순이익').execute()
+        start_date, end_date = get_analytics_date_filter()
+        query = supabase.table('sales_data').select('판매사이트명, 판매가, 주문수량, 순이익, 주문일')
+        query = apply_date_filter(query, start_date, end_date)
+        response = query.execute()
         data = response.data or []
 
         platform_stats = {}
@@ -2970,7 +3018,10 @@ def get_analytics_repurchase():
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     try:
-        response = supabase.table('sales_data').select('구매자휴대폰번호').execute()
+        start_date, end_date = get_analytics_date_filter()
+        query = supabase.table('sales_data').select('구매자휴대폰번호, 주문일')
+        query = apply_date_filter(query, start_date, end_date)
+        response = query.execute()
         data = response.data or []
 
         # 휴대폰번호별 주문 횟수 집계
@@ -3004,7 +3055,10 @@ def get_analytics_gift():
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     try:
-        response = supabase.table('sales_data').select('is_gift').execute()
+        start_date, end_date = get_analytics_date_filter()
+        query = supabase.table('sales_data').select('is_gift, 주문일')
+        query = apply_date_filter(query, start_date, end_date)
+        response = query.execute()
         data = response.data or []
 
         self_purchase = sum(1 for d in data if not d.get('is_gift'))
@@ -3031,7 +3085,10 @@ def get_analytics_top_products():
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     try:
-        response = supabase.table('sales_data').select('상품명, 주문선택사항, 주문수량').execute()
+        start_date, end_date = get_analytics_date_filter()
+        query = supabase.table('sales_data').select('상품명, 주문선택사항, 주문수량, 주문일')
+        query = apply_date_filter(query, start_date, end_date)
+        response = query.execute()
         data = response.data or []
 
         product_counts = {}
@@ -3058,7 +3115,10 @@ def get_analytics_regions():
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     try:
-        response = supabase.table('sales_data').select('배송지주소').execute()
+        start_date, end_date = get_analytics_date_filter()
+        query = supabase.table('sales_data').select('배송지주소, 주문일')
+        query = apply_date_filter(query, start_date, end_date)
+        response = query.execute()
         data = response.data or []
 
         region_counts = {}
