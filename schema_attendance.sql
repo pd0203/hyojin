@@ -256,6 +256,7 @@ CREATE TABLE IF NOT EXISTS sales_data (
     수령자명 TEXT,
     수령자휴대폰번호 TEXT,
     배송지주소 TEXT,
+    주문번호 TEXT,
     원가 DECIMAL(12,2) DEFAULT 0,
     수수료 DECIMAL(12,2) DEFAULT 0,
     순이익 DECIMAL(12,2) DEFAULT 0,
@@ -268,6 +269,7 @@ CREATE TABLE IF NOT EXISTS sales_data (
 
 CREATE INDEX IF NOT EXISTS idx_sales_data_주문일 ON sales_data(주문일);
 CREATE INDEX IF NOT EXISTS idx_sales_data_판매사이트명 ON sales_data(판매사이트명);
+CREATE INDEX IF NOT EXISTS idx_sales_data_주문번호 ON sales_data(주문번호);
 CREATE INDEX IF NOT EXISTS idx_sales_data_상품명 ON sales_data(상품명);
 CREATE INDEX IF NOT EXISTS idx_sales_data_customer_id ON sales_data(customer_id);
 
