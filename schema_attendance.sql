@@ -274,3 +274,9 @@ CREATE INDEX IF NOT EXISTS idx_sales_data_customer_id ON sales_data(customer_id)
 ALTER TABLE sales_data ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow all for sales_data" ON sales_data;
 CREATE POLICY "Allow all for sales_data" ON sales_data FOR ALL USING (true) WITH CHECK (true);
+
+-- 주문번호 컬럼 추가
+ALTER TABLE sales_data ADD COLUMN IF NOT EXISTS 주문번호 TEXT;
+
+-- 인덱스 추가 (중복 체크 성능 향상)
+CREATE INDEX IF NOT EXISTS idx_sales_data_주문번호 ON sales_data(주문번호);
