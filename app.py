@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, send_file, jsonify, session, redirect, url_for, make_response
 from werkzeug.utils import secure_filename
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import pandas as pd
 from io import BytesIO
 from datetime import datetime, date, time as dt_time, timedelta, timezone
@@ -15,6 +17,14 @@ from functools import wraps
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 app.secret_key = os.environ.get('SECRET_KEY', 'playauto-secret-key-2024')
+
+# ==================== Rate Limiting 설정 ====================
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per minute"],
+    storage_uri="memory://"
+)
 
 # ==================== Supabase 설정 (선택적) ====================
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
@@ -363,6 +373,7 @@ def filter_star_delivery(df):
 # ==================== 기존 라우트 (100% 유지) ====================
 
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute", methods=["POST"])
 def login():
     """로그인 페이지"""
     if request.method == 'POST':
