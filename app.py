@@ -3349,7 +3349,56 @@ def get_analytics_customers():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# ==================== 데이터 관리 (초기화/롤백) API [신규 추가] ====================
 
+@app.route('/api/analytics/batches', methods=['GET'])
+@admin_required
+def get_analytics_batches():
+    """업로드된 데이터 배치 목록 조회 (최근 5000건 데이터 기준 집계)"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    try:
+        # Supabase에서 최근 데이터의 배치 ID만 가져와서 파이썬에서 그룹화 (GROUP BY 제약 회피)
+        response = supabase.table('sales_data').select('upload_batch_id, created_at').order('created_at', desc=True).limit(5000).execute()
+        data = response.data or []
+
+        batch_map = {}
+        for row in data:
+            batch_id = row.get('upload_batch_id')
+            if not batch_id: continue
+            
+            if batch_id not in batch_map:
+                batch_map[batch_id] = {
+                    'batch_id': batch_id,
+                    'created_at': row.get('created_at'),
+                    'count': 0
+                }
+            batch_map[batch_id]['count'] += 1
+
+        # 리스트로 변환 및 정렬 (최신순)
+        result = list(batch_map.values())
+        result.sort(key=lambda x: x['batch_id'], reverse=True)
+
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/batches/<batch_id>', methods=['DELETE'])
+@admin_required
+def delete_analytics_batch(batch_id):
+    """특정 업로드 배치 데이터 삭제"""
+    if not DB_CONNECTED:
+        return jsonify({'error': 'DB 연결 필요'}), 400
+
+    try:
+        # 1. 판매 데이터 삭제
+        supabase.table('sales_data').delete().eq('upload_batch_id', batch_id).execute()
+        
+        return jsonify({'success': True, 'message': '선택한 업로드 데이터가 삭제되었습니다.'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
