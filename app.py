@@ -86,6 +86,24 @@ MARGIN_DATA_FILE = 'margin_data.json'
 # 임시 저장소 (세션별 분류 결과)
 TEMP_RESULTS = {}
 
+def cleanup_old_sessions(max_age_hours=1):
+    """오래된 세션 자동 정리 (메모리 누수 방지)"""
+    now = datetime.now()
+    expired_sessions = []
+    for session_id, data in TEMP_RESULTS.items():
+        created_at = data.get('created_at')
+        if created_at:
+            if isinstance(created_at, datetime):
+                age_seconds = (now - created_at).total_seconds()
+            else:
+                age_seconds = time.time() - created_at
+            if age_seconds > max_age_hours * 3600:
+                expired_sessions.append(session_id)
+    for session_id in expired_sessions:
+        del TEMP_RESULTS[session_id]
+    if expired_sessions:
+        print(f"🧹 만료된 세션 {len(expired_sessions)}개 정리됨")
+
 # ==================== 판매처별 수수료율 ====================
 PLATFORM_FEES = {
     '쿠팡': 0.12,           # 12%
@@ -823,6 +841,7 @@ def upload_file():
 @login_required
 def classify_orders():
     """송장 분류 - 통계와 함께 결과 반환 + DB 저장"""
+    cleanup_old_sessions()  # 오래된 세션 정리
     if 'file' not in request.files:
         return jsonify({'error': '파일이 없습니다'}), 400
 
@@ -1181,6 +1200,7 @@ class OrderClassifierV41:
 @admin_required
 def process_tax_free():
     """면세 자료 처리"""
+    cleanup_old_sessions()  # 오래된 세션 정리
     if 'files' not in request.files:
         return jsonify({'error': '파일이 없습니다'}), 400
     
@@ -1205,7 +1225,7 @@ def process_tax_free():
             'data': output.getvalue(),
             'stats': monthly_stats,
             'row_count': len(combined_df),
-            'created_at': time.time()
+            'created_at': datetime.now()
         }
         
         yearly_free_count = sum(s['free_count'] for s in monthly_stats.values())
