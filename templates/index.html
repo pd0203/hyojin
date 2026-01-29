@@ -4764,7 +4764,7 @@
             <div class="analytics-date-picker">
               <div class="analytics-date-row">
                 <div class="analytics-period-buttons">
-                  <button class="analytics-period-btn active" data-period="day">
+                  <button class="analytics-period-btn" data-period="day">
                     오늘
                   </button>
                   <button class="analytics-period-btn" data-period="yesterday">
@@ -4773,7 +4773,7 @@
                   <button class="analytics-period-btn" data-period="week">
                     최근 7일
                   </button>
-                  <button class="analytics-period-btn" data-period="month">
+                  <button class="analytics-period-btn active" data-period="month">
                     최근 30일
                   </button>
                   <button class="analytics-period-btn" data-period="quarter">
@@ -9777,7 +9777,7 @@
 
       // ==================== 데이터 분석 ====================
 
-      let currentAnalyticsPeriod = "day";
+      let currentAnalyticsPeriod = "month";
       let analyticsStartDate = null;
       let analyticsEndDate = null;
       let calendarSelectMode = "start"; // 'start' or 'end'
