@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, send_file, jsonify, session, redirect, url_for, make_response
 from werkzeug.utils import secure_filename
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import pandas as pd
 from io import BytesIO
 from datetime import datetime, date, time as dt_time, timedelta, timezone
@@ -9,11 +11,20 @@ import json
 from collections import defaultdict, OrderedDict
 import numpy as np
 import time
+import secrets
 from functools import wraps
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 app.secret_key = os.environ.get('SECRET_KEY', 'playauto-secret-key-2024')
+
+# ==================== Rate Limiting 설정 ====================
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per minute"],
+    storage_uri="memory://"
+)
 
 # ==================== Supabase 설정 (선택적) ====================
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
@@ -362,6 +373,7 @@ def filter_star_delivery(df):
 # ==================== 기존 라우트 (100% 유지) ====================
 
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute", methods=["POST"])
 def login():
     """로그인 페이지"""
     if request.method == 'POST':
@@ -442,6 +454,7 @@ def health():
 # ==================== 기존 /settings 라우트 (유지) ====================
 
 @app.route('/settings', methods=['GET'])
+@login_required
 def get_settings_legacy():
     """현재 설정 조회 (기존 방식 - 하위 호환)"""
     if CURRENT_SETTINGS:
@@ -749,6 +762,7 @@ def get_db_status():
 # ==================== 기존 스타배송 필터 (100% 유지) ====================
 
 @app.route('/upload', methods=['POST'])
+@login_required
 def upload_file():
     """스타배송 필터"""
     if 'file' not in request.files:
@@ -806,6 +820,7 @@ def upload_file():
 # ==================== 기존 송장 분류 (100% 유지) ====================
 
 @app.route('/classify', methods=['POST'])
+@login_required
 def classify_orders():
     """송장 분류 - 통계와 함께 결과 반환 + DB 저장"""
     if 'file' not in request.files:
@@ -858,7 +873,7 @@ def classify_orders():
         else:
             stats['summary']['star_filtered'] = False
 
-        session_id = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{id(result_df)}"
+        session_id = secrets.token_urlsafe(16)
         TEMP_RESULTS[session_id] = {
             'df': result_df,
             'stats': stats,
@@ -878,6 +893,7 @@ def classify_orders():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/download/<session_id>')
+@login_required
 def download_result(session_id):
     """분류 결과 다운로드"""
     if session_id not in TEMP_RESULTS:
@@ -1178,7 +1194,7 @@ def process_tax_free():
         if combined_df.empty:
             return jsonify({'error': '면세(FREE) 데이터가 없습니다'}), 400
         
-        session_id = f"taxfree_{int(time.time() * 1000)}"
+        session_id = secrets.token_urlsafe(16)
         
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
