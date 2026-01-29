@@ -314,6 +314,20 @@
         color: #ffd700;
       }
 
+      /* 데이터 분석 체크박스 (녹색) */
+      #collectAnalyticsCheck:checked + .checkmark {
+        background-color: #00ff88 !important;
+        border-color: #00ff88 !important;
+      }
+
+      #collectAnalyticsCheck ~ .checkbox-label {
+        color: #888;
+      }
+
+      #collectAnalyticsCheck:checked ~ .checkbox-label {
+        color: #00ff88 !important;
+      }
+
       /* 로딩 스피너 */
       /* [수정] 트렌디한 글래스모피즘 로딩 스타일 */
       .loading-overlay {
@@ -2577,30 +2591,334 @@
         gap: 24px;
       }
 
-      .analytics-period-selector {
+      /* 분석 탭 버튼 */
+      .analytics-tab-buttons {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .analytics-tab-btn {
+        padding: 12px 28px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #888;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .analytics-tab-btn:hover {
+        background: #222;
+        color: #fff;
+      }
+
+      .analytics-tab-btn.active {
+        background: #00ff88;
+        border-color: #00ff88;
+        color: #000;
+      }
+
+      .analytics-tab-content {
+        display: none;
+      }
+
+      .analytics-tab-content.active {
+        display: block;
+      }
+
+      /* 날짜 선택 영역 */
+      .analytics-date-picker {
+        background: #111;
+        border: 1px solid #222;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .analytics-date-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .analytics-period-buttons {
         display: flex;
         gap: 8px;
-        margin-bottom: 16px;
         flex-wrap: wrap;
       }
 
       .analytics-period-btn {
         padding: 8px 16px;
-        background: #111;
+        background: #1a1a1a;
         border: 1px solid #333;
-        border-radius: 8px;
-        color: #fff;
+        border-radius: 20px;
+        color: #888;
+        font-size: 13px;
         cursor: pointer;
         transition: all 0.2s;
       }
 
-      .analytics-period-btn:hover,
+      .analytics-period-btn:hover {
+        background: #222;
+        color: #fff;
+      }
+
       .analytics-period-btn.active {
         background: #00ff88;
         border-color: #00ff88;
         color: #000;
       }
 
+      /* 쿠팡 스타일 캘린더 */
+      .calendar-picker-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      .calendar-trigger {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+        min-width: 200px;
+      }
+
+      .calendar-trigger:hover {
+        border-color: #00ff88;
+      }
+
+      .calendar-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .calendar-modal.show {
+        display: flex;
+      }
+
+      .calendar-container {
+        background: #1a1a1a;
+        border-radius: 16px;
+        padding: 24px;
+        width: 90%;
+        max-width: 700px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .calendar-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .calendar-close {
+        width: 32px;
+        height: 32px;
+        background: #333;
+        border: none;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      .calendar-quick-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #333;
+      }
+
+      .calendar-quick-btn {
+        padding: 8px 16px;
+        background: #222;
+        border: 1px solid #333;
+        border-radius: 20px;
+        color: #888;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .calendar-quick-btn:hover {
+        background: #333;
+        color: #fff;
+      }
+
+      .calendar-quick-btn.active {
+        background: #00ff88;
+        border-color: #00ff88;
+        color: #000;
+      }
+
+      .calendar-months {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+
+      @media (max-width: 600px) {
+        .calendar-months {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .calendar-month {
+        background: #222;
+        border-radius: 12px;
+        padding: 16px;
+      }
+
+      .calendar-month-title {
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 12px;
+      }
+
+      .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        margin-bottom: 8px;
+      }
+
+      .calendar-weekday {
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        padding: 4px;
+      }
+
+      .calendar-weekday:first-child {
+        color: #ff6b6b;
+      }
+
+      .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+      }
+
+      .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: #888;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.15s;
+      }
+
+      .calendar-day:hover:not(.disabled):not(.empty) {
+        background: #333;
+        color: #fff;
+      }
+
+      .calendar-day.today {
+        border: 1px solid #00ff88;
+        color: #00ff88;
+      }
+
+      .calendar-day.selected {
+        background: #00ff88;
+        color: #000;
+        font-weight: 600;
+      }
+
+      .calendar-day.in-range {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+      }
+
+      .calendar-day.disabled {
+        color: #444;
+        cursor: not-allowed;
+      }
+
+      .calendar-day.empty {
+        cursor: default;
+      }
+
+      .calendar-day.sunday {
+        color: #ff6b6b;
+      }
+
+      .calendar-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #333;
+      }
+
+      .calendar-selection-info {
+        color: #888;
+        font-size: 14px;
+      }
+
+      .calendar-apply-btn {
+        padding: 12px 32px;
+        background: #00ff88;
+        border: none;
+        border-radius: 8px;
+        color: #000;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .calendar-apply-btn:hover {
+        background: #00cc6a;
+      }
+
+      .calendar-reset-btn {
+        padding: 12px 20px;
+        background: #333;
+        border: none;
+        border-radius: 8px;
+        color: #888;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      /* KPI 그리드 */
       .analytics-kpi-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -2634,6 +2952,7 @@
         margin-left: 4px;
       }
 
+      /* 분석 섹션 */
       .analytics-section {
         background: #111;
         border: 1px solid #222;
@@ -2641,13 +2960,41 @@
         padding: 20px;
       }
 
-      .analytics-section h3 {
+      .analytics-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 20px;
+      }
+
+      .analytics-section h3 {
         font-size: 16px;
         display: flex;
         align-items: center;
         gap: 8px;
         color: #fff;
+        margin: 0;
+      }
+
+      .analytics-section-toggle {
+        display: flex;
+        gap: 8px;
+      }
+
+      .analytics-toggle-btn {
+        padding: 6px 14px;
+        background: #222;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #888;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .analytics-toggle-btn.active {
+        background: #00ff88;
+        border-color: #00ff88;
+        color: #000;
       }
 
       .analytics-chart-row {
@@ -2748,6 +3095,7 @@
         flex-shrink: 0;
       }
 
+      /* 분석 테이블 */
       .analytics-table {
         width: 100%;
         border-collapse: collapse;
@@ -2764,6 +3112,17 @@
         font-weight: 600;
         color: #888;
         font-size: 12px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .analytics-table th:hover {
+        color: #00ff88;
+      }
+
+      .analytics-table th .sort-icon {
+        margin-left: 4px;
+        opacity: 0.5;
       }
 
       .analytics-table td {
@@ -2784,89 +3143,94 @@
         font-size: 12px;
       }
 
+      .analytics-rank.top3 {
+        background: linear-gradient(135deg, #ffd700, #ffaa00);
+      }
+
       .analytics-empty {
         text-align: center;
         padding: 40px;
         color: #666;
       }
 
-      /* ==================== 미니 캘린더 스타일 ==================== */
-      .analytics-date-selector {
+      /* 페이지네이션 */
+      .analytics-pagination {
         display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-top: 12px;
-        flex-wrap: wrap;
-      }
-
-      .analytics-date-input {
-        display: flex;
+        justify-content: center;
         align-items: center;
         gap: 8px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #222;
       }
 
-      .analytics-date-input label {
-        color: #888;
-        font-size: 13px;
-      }
-
-      .analytics-date-input input[type="date"] {
-        background: #1a1a1a;
+      .analytics-page-btn {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #222;
         border: 1px solid #333;
-        border-radius: 6px;
-        color: #e0e0e0;
-        padding: 8px 12px;
+        border-radius: 8px;
+        color: #888;
         font-size: 13px;
         cursor: pointer;
       }
 
-      .analytics-date-input input[type="date"]:focus {
+      .analytics-page-btn:hover:not(:disabled) {
+        border-color: #00ff88;
+        color: #00ff88;
+      }
+
+      .analytics-page-btn.active {
+        background: #00ff88;
+        border-color: #00ff88;
+        color: #000;
+      }
+
+      .analytics-page-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .analytics-page-info {
+        color: #666;
+        font-size: 13px;
+        margin: 0 12px;
+      }
+
+      /* 고객 검색 */
+      .analytics-search-bar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .analytics-search-input {
+        flex: 1;
+        padding: 12px 16px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 14px;
+      }
+
+      .analytics-search-input:focus {
         outline: none;
         border-color: #00ff88;
       }
 
-      .analytics-date-input
-        input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(1);
-        cursor: pointer;
-      }
-
-      .analytics-date-apply-btn {
+      .analytics-search-btn {
+        padding: 12px 24px;
         background: #00ff88;
-        color: #000;
         border: none;
-        border-radius: 6px;
-        padding: 8px 16px;
-        font-size: 13px;
-        font-weight: 600;
+        border-radius: 8px;
+        color: #000;
+        font-size: 14px;
+        font-weight: 500;
         cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .analytics-date-apply-btn:hover {
-        background: #00cc6a;
-      }
-
-      .analytics-date-reset-btn {
-        background: transparent;
-        color: #888;
-        border: 1px solid #333;
-        border-radius: 6px;
-        padding: 8px 12px;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .analytics-date-reset-btn:hover {
-        border-color: #666;
-        color: #fff;
-      }
-
-      .analytics-current-range {
-        color: #00ff88;
-        font-size: 13px;
-        margin-left: auto;
       }
 
       /* ==================== 박스 재고 파악 스타일 ==================== */
@@ -4377,139 +4741,289 @@
         <p class="page-description">판매 데이터 및 고객 분석 대시보드</p>
 
         <div class="analytics-container">
-          <!-- 기간 선택 -->
-          <div class="analytics-period-selector">
-            <button class="analytics-period-btn" data-period="day">오늘</button>
-            <button class="analytics-period-btn" data-period="week">
-              최근 7일
+          <!-- 탭 버튼 -->
+          <div class="analytics-tab-buttons">
+            <button class="analytics-tab-btn active" data-analytics-tab="sales">
+              📈 판매 분석
             </button>
-            <button class="analytics-period-btn active" data-period="month">
-              최근 30일
+            <button class="analytics-tab-btn" data-analytics-tab="customers">
+              👥 고객 분석
             </button>
-            <button class="analytics-period-btn" data-period="all">전체</button>
           </div>
 
-          <!-- 날짜 범위 선택 -->
-          <div class="analytics-date-selector">
-            <div class="analytics-date-input">
-              <label>시작일</label>
-              <input type="date" id="analytics-start-date" />
+          <!-- ==================== 판매 분석 탭 ==================== -->
+          <div class="analytics-tab-content active" id="analytics-tab-sales">
+            <!-- 날짜 선택 (쿠팡 스타일) -->
+            <div class="analytics-date-picker">
+              <div class="analytics-date-row">
+                <div class="analytics-period-buttons">
+                  <button class="analytics-period-btn active" data-period="day">
+                    오늘
+                  </button>
+                  <button class="analytics-period-btn" data-period="yesterday">
+                    어제
+                  </button>
+                  <button class="analytics-period-btn" data-period="week">
+                    최근 7일
+                  </button>
+                  <button class="analytics-period-btn" data-period="month">
+                    최근 30일
+                  </button>
+                  <button class="analytics-period-btn" data-period="quarter">
+                    최근 90일
+                  </button>
+                  <button class="analytics-period-btn" data-period="half">
+                    최근 180일
+                  </button>
+                  <button class="analytics-period-btn" data-period="year">
+                    최근 365일
+                  </button>
+                </div>
+                <div class="calendar-picker-wrapper">
+                  <div class="calendar-trigger" id="calendarTrigger">
+                    📅 <span id="calendarDisplayText">날짜 선택</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="analytics-date-input">
-              <label>종료일</label>
-              <input type="date" id="analytics-end-date" />
+
+            <!-- KPI 요약 카드 -->
+            <div class="analytics-kpi-grid">
+              <div class="analytics-kpi-card">
+                <h4>총 매출액</h4>
+                <div>
+                  <span class="value" id="kpi-revenue">0</span
+                  ><span class="unit">원</span>
+                </div>
+              </div>
+              <div class="analytics-kpi-card">
+                <h4>총 순이익</h4>
+                <div>
+                  <span class="value" id="kpi-profit">0</span
+                  ><span class="unit">원</span>
+                </div>
+              </div>
+              <div class="analytics-kpi-card">
+                <h4>총 주문 건수</h4>
+                <div>
+                  <span class="value" id="kpi-orders">0</span
+                  ><span class="unit">건</span>
+                </div>
+              </div>
+              <div class="analytics-kpi-card">
+                <h4>객단가 (AOV)</h4>
+                <div>
+                  <span class="value" id="kpi-aov">0</span
+                  ><span class="unit">원</span>
+                </div>
+              </div>
+              <div class="analytics-kpi-card">
+                <h4>마진율</h4>
+                <div>
+                  <span class="value" id="kpi-margin">0</span
+                  ><span class="unit">%</span>
+                </div>
+              </div>
             </div>
-            <button class="analytics-date-apply-btn" id="analytics-date-apply">
-              📅 적용
-            </button>
-            <button class="analytics-date-reset-btn" id="analytics-date-reset">
-              초기화
-            </button>
-            <span
-              class="analytics-current-range"
-              id="analytics-current-range"
-            ></span>
+
+            <!-- 플랫폼별 분석 -->
+            <div class="analytics-section">
+              <h3>💰 플랫폼별 수익성 비교</h3>
+              <div id="platform-chart"></div>
+            </div>
+
+            <!-- 상품 분석 -->
+            <div class="analytics-section">
+              <div class="analytics-section-header">
+                <h3>📦 상품 분석</h3>
+                <div class="analytics-section-toggle">
+                  <button
+                    class="analytics-toggle-btn active"
+                    data-product-mode="all"
+                  >
+                    전체
+                  </button>
+                  <button
+                    class="analytics-toggle-btn"
+                    data-product-mode="detail"
+                  >
+                    상세
+                  </button>
+                </div>
+              </div>
+              <table class="analytics-table" id="top-products-table">
+                <thead id="products-table-head">
+                  <tr>
+                    <th style="width: 50px">순위</th>
+                    <th>상품명 (옵션)</th>
+                    <th style="width: 100px; text-align: right">판매량</th>
+                    <th style="width: 120px; text-align: right">매출</th>
+                  </tr>
+                </thead>
+                <tbody id="products-table-body"></tbody>
+              </table>
+              <div class="analytics-pagination" id="products-pagination"></div>
+            </div>
+
+            <!-- 지역별 현황 -->
+            <div class="analytics-section">
+              <h3>📍 지역별 현황</h3>
+              <table class="analytics-table" id="regions-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50px">순위</th>
+                    <th>지역</th>
+                    <th style="width: 100px; text-align: right">판매량</th>
+                    <th style="width: 120px; text-align: right">매출</th>
+                  </tr>
+                </thead>
+                <tbody id="regions-table-body"></tbody>
+              </table>
+            </div>
+
+            <!-- 시간대별 현황 -->
+            <div class="analytics-section">
+              <h3>⏰ 시간대별 현황</h3>
+              <table class="analytics-table" id="hourly-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50px">순위</th>
+                    <th>시간대</th>
+                    <th style="width: 100px; text-align: right">판매량</th>
+                    <th style="width: 120px; text-align: right">매출</th>
+                  </tr>
+                </thead>
+                <tbody id="hourly-table-body"></tbody>
+              </table>
+            </div>
+
+            <!-- 고객 유형 분석 -->
+            <div class="analytics-section">
+              <h3>👥 고객 유형 분석</h3>
+              <div class="analytics-chart-row">
+                <div class="analytics-chart">
+                  <h4>재구매율</h4>
+                  <div
+                    class="analytics-pie-container"
+                    id="repurchase-chart"
+                  ></div>
+                </div>
+                <div class="analytics-chart">
+                  <h4>선물하기 수요</h4>
+                  <div class="analytics-pie-container" id="gift-chart"></div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- KPI 요약 카드 -->
-          <div class="analytics-kpi-grid">
-            <div class="analytics-kpi-card">
-              <h4>총 매출액</h4>
-              <div>
-                <span class="value" id="kpi-revenue">-</span
-                ><span class="unit">원</span>
+          <!-- ==================== 고객 분석 탭 ==================== -->
+          <div class="analytics-tab-content" id="analytics-tab-customers">
+            <div class="analytics-section">
+              <h3>👥 고객 목록</h3>
+
+              <!-- 검색 바 -->
+              <div class="analytics-search-bar">
+                <input
+                  type="text"
+                  class="analytics-search-input"
+                  id="customerSearchInput"
+                  placeholder="휴대폰번호 또는 구매자명으로 검색..."
+                />
+                <button
+                  class="analytics-search-btn"
+                  onclick="searchCustomers()"
+                >
+                  🔍 검색
+                </button>
               </div>
-            </div>
-            <div class="analytics-kpi-card">
-              <h4>총 순이익</h4>
-              <div>
-                <span class="value" id="kpi-profit">-</span
-                ><span class="unit">원</span>
-              </div>
-            </div>
-            <div class="analytics-kpi-card">
-              <h4>총 주문 건수</h4>
-              <div>
-                <span class="value" id="kpi-orders">-</span
-                ><span class="unit">건</span>
-              </div>
-            </div>
-            <div class="analytics-kpi-card">
-              <h4>객단가 (AOV)</h4>
-              <div>
-                <span class="value" id="kpi-aov">-</span
-                ><span class="unit">원</span>
-              </div>
-            </div>
-            <div class="analytics-kpi-card">
-              <h4>마진율</h4>
-              <div>
-                <span class="value" id="kpi-margin">-</span
-                ><span class="unit">%</span>
-              </div>
+
+              <!-- 고객 테이블 -->
+              <table class="analytics-table" id="customers-table">
+                <thead>
+                  <tr>
+                    <th data-sort="휴대폰번호">
+                      휴대폰번호 <span class="sort-icon">↕</span>
+                    </th>
+                    <th data-sort="구매자명">
+                      구매자명 <span class="sort-icon">↕</span>
+                    </th>
+                    <th data-sort="총주문횟수" style="text-align: right">
+                      주문횟수 <span class="sort-icon">↕</span>
+                    </th>
+                    <th data-sort="총구매금액" style="text-align: right">
+                      총구매금액 <span class="sort-icon">↕</span>
+                    </th>
+                    <th data-sort="선물발송횟수" style="text-align: right">
+                      선물횟수 <span class="sort-icon">↕</span>
+                    </th>
+                    <th data-sort="최근구매일">
+                      최근구매일 <span class="sort-icon">↕</span>
+                    </th>
+                    <th>주요배송지</th>
+                  </tr>
+                </thead>
+                <tbody id="customers-table-body"></tbody>
+              </table>
+              <div class="analytics-pagination" id="customers-pagination"></div>
             </div>
           </div>
+        </div>
 
-          <!-- 섹션 1: 매출 및 채널 분석 -->
-          <div class="analytics-section">
-            <h3>💰 매출 및 채널 분석</h3>
-            <div class="analytics-chart-row">
-              <div class="analytics-chart">
-                <h4>플랫폼별 수익성 비교</h4>
-                <div id="platform-chart"></div>
-              </div>
+        <!-- 쿠팡 스타일 캘린더 모달 -->
+        <div class="calendar-modal" id="calendarModal">
+          <div class="calendar-container">
+            <div class="calendar-header">
+              <span class="calendar-title">날짜 선택</span>
+              <button class="calendar-close" onclick="closeCalendarModal()">
+                ×
+              </button>
             </div>
-          </div>
 
-          <!-- 섹션 2: 고객 분석 -->
-          <div class="analytics-section">
-            <h3>👥 고객 분석</h3>
-            <div class="analytics-chart-row">
-              <div class="analytics-chart">
-                <h4>재구매율</h4>
-                <div
-                  class="analytics-pie-container"
-                  id="repurchase-chart"
-                ></div>
-              </div>
-              <div class="analytics-chart">
-                <h4>선물하기 수요</h4>
-                <div class="analytics-pie-container" id="gift-chart"></div>
-              </div>
+            <div class="calendar-quick-buttons">
+              <button class="calendar-quick-btn" data-quick="today">
+                오늘
+              </button>
+              <button class="calendar-quick-btn" data-quick="yesterday">
+                어제
+              </button>
+              <button class="calendar-quick-btn" data-quick="week">
+                최근 7일
+              </button>
+              <button class="calendar-quick-btn" data-quick="month">
+                최근 30일
+              </button>
+              <button class="calendar-quick-btn" data-quick="quarter">
+                최근 90일
+              </button>
+              <button class="calendar-quick-btn" data-quick="half">
+                최근 180일
+              </button>
+              <button class="calendar-quick-btn" data-quick="year">
+                최근 365일
+              </button>
             </div>
-          </div>
 
-          <!-- 섹션 3: 상품 분석 -->
-          <div class="analytics-section">
-            <h3>📦 상품 분석</h3>
-            <h4 style="margin-bottom: 16px; font-size: 14px; color: #aaa">
-              베스트셀러 Top 10
-            </h4>
-            <table class="analytics-table" id="top-products-table">
-              <thead>
-                <tr>
-                  <th style="width: 50px">순위</th>
-                  <th>상품명 (옵션)</th>
-                  <th style="width: 100px; text-align: right">판매량</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
+            <div class="calendar-months" id="calendarMonths">
+              <!-- 캘린더가 여기에 렌더링됨 -->
+            </div>
 
-          <!-- 섹션 4: 지역 분석 -->
-          <div class="analytics-section">
-            <h3>📍 지역별 수요</h3>
-            <table class="analytics-table" id="regions-table">
-              <thead>
-                <tr>
-                  <th style="width: 50px">순위</th>
-                  <th>지역</th>
-                  <th style="width: 100px; text-align: right">주문 수</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+            <div class="calendar-footer">
+              <button
+                class="calendar-reset-btn"
+                onclick="resetCalendarSelection()"
+              >
+                초기화
+              </button>
+              <div class="calendar-selection-info" id="calendarSelectionInfo">
+                날짜를 선택하세요
+              </div>
+              <button
+                class="calendar-apply-btn"
+                onclick="applyCalendarSelection()"
+              >
+                선택 완료
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -4674,10 +5188,10 @@
               <span class="checkmark"></span>
               <span class="checkbox-label">⭐ 스타배송 필터링</span>
             </label>
-            <label class="star-filter-checkbox">
-              <input type="checkbox" id="saveAnalyticsCheck" />
-              <span class="checkmark"></span>
-              <span class="checkbox-label">📊 데이터 분석 활용</span>
+            <label class="star-filter-checkbox" style="border-color: #00ff88">
+              <input type="checkbox" id="collectAnalyticsCheck" />
+              <span class="checkmark" style="border-color: #00ff88"></span>
+              <span class="checkbox-label">📊 데이터 분석 수집</span>
             </label>
           </div>
         </div>
@@ -6663,7 +7177,7 @@
         } else if (page === "box-inventory") {
           loadBoxInventory();
         } else if (page === "analytics") {
-          loadAnalyticsData();
+          loadSalesAnalyticsData();
         }
       }
 
@@ -7000,10 +7514,11 @@
           const filterStar = document.getElementById("starFilterCheck").checked;
           formData.append("filter_star", filterStar);
 
-          // 데이터 분석 활용 체크박스 상태 추가
-          const saveAnalytics =
-            document.getElementById("saveAnalyticsCheck").checked;
-          formData.append("save_analytics", saveAnalytics);
+          // 데이터 분석 수집 체크박스 상태 추가
+          const collectAnalytics = document.getElementById(
+            "collectAnalyticsCheck",
+          ).checked;
+          formData.append("collect_analytics", collectAnalytics);
 
           const response = await fetch("/classify", {
             method: "POST",
@@ -9218,9 +9733,37 @@
 
       // ==================== 데이터 분석 ====================
 
-      let currentAnalyticsPeriod = "month";
+      let currentAnalyticsPeriod = "day";
       let analyticsStartDate = null;
       let analyticsEndDate = null;
+      let calendarSelectMode = "start"; // 'start' or 'end'
+      let calendarTempStart = null;
+      let calendarTempEnd = null;
+      let productsPage = 1;
+      let productsMode = "all";
+      let customersPage = 1;
+      let customersSortBy = "총주문횟수";
+      let customersSortOrder = "desc";
+      let customersSearch = "";
+
+      // 분석 탭 전환
+      document.querySelectorAll(".analytics-tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".analytics-tab-btn")
+            .forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll(".analytics-tab-content")
+            .forEach((c) => c.classList.remove("active"));
+          btn.classList.add("active");
+          const tabId = `analytics-tab-${btn.dataset.analyticsTab}`;
+          document.getElementById(tabId)?.classList.add("active");
+
+          if (btn.dataset.analyticsTab === "customers") {
+            loadCustomersData();
+          }
+        });
+      });
 
       // 기간 선택 버튼 이벤트
       document.querySelectorAll(".analytics-period-btn").forEach((btn) => {
@@ -9230,89 +9773,273 @@
             .forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
           currentAnalyticsPeriod = btn.dataset.period;
-          // 버튼 클릭 시 날짜 범위 초기화
           analyticsStartDate = null;
           analyticsEndDate = null;
-          document.getElementById("analytics-start-date").value = "";
-          document.getElementById("analytics-end-date").value = "";
-          updateAnalyticsRangeDisplay();
-          loadAnalyticsData();
+          updateCalendarDisplayText();
+          loadSalesAnalyticsData();
         });
       });
 
-      // 날짜 범위 적용 버튼
-      document
-        .getElementById("analytics-date-apply")
-        .addEventListener("click", () => {
-          const startInput = document.getElementById(
-            "analytics-start-date",
-          ).value;
-          const endInput = document.getElementById("analytics-end-date").value;
+      // 상품 모드 전환
+      document.querySelectorAll("[data-product-mode]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll("[data-product-mode]")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          productsMode = btn.dataset.productMode;
+          productsPage = 1;
+          loadTopProducts();
+        });
+      });
 
-          if (!startInput && !endInput) {
-            showToast("error", "날짜를 선택해주세요");
-            return;
+      // 캘린더 트리거
+      document
+        .getElementById("calendarTrigger")
+        ?.addEventListener("click", () => {
+          openCalendarModal();
+        });
+
+      function openCalendarModal() {
+        const modal = document.getElementById("calendarModal");
+        if (modal) {
+          modal.classList.add("show");
+          calendarTempStart = analyticsStartDate;
+          calendarTempEnd = analyticsEndDate;
+          calendarSelectMode = "start";
+          renderAnalyticsCalendar();
+          updateCalendarSelectionInfo();
+        }
+      }
+
+      function closeCalendarModal() {
+        document.getElementById("calendarModal")?.classList.remove("show");
+      }
+
+      function renderAnalyticsCalendar() {
+        const container = document.getElementById("calendarMonths");
+        if (!container) return;
+
+        const today = new Date();
+        const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const prevMonth = new Date(
+          today.getFullYear(),
+          today.getMonth() - 1,
+          1,
+        );
+
+        container.innerHTML = `
+          ${renderCalendarMonth(prevMonth)}
+          ${renderCalendarMonth(currentMonth)}
+        `;
+      }
+
+      function renderCalendarMonth(monthDate) {
+        const year = monthDate.getFullYear();
+        const month = monthDate.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDay = firstDay.getDay();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const monthNames = [
+          "1월",
+          "2월",
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월",
+          "9월",
+          "10월",
+          "11월",
+          "12월",
+        ];
+
+        let html = `
+          <div class="calendar-month">
+            <div class="calendar-month-title">${year}년 ${monthNames[month]}</div>
+            <div class="calendar-weekdays">
+              <div class="calendar-weekday">일</div>
+              <div class="calendar-weekday">월</div>
+              <div class="calendar-weekday">화</div>
+              <div class="calendar-weekday">수</div>
+              <div class="calendar-weekday">목</div>
+              <div class="calendar-weekday">금</div>
+              <div class="calendar-weekday">토</div>
+            </div>
+            <div class="calendar-days">
+        `;
+
+        // 빈 칸
+        for (let i = 0; i < startDay; i++) {
+          html += '<div class="calendar-day empty"></div>';
+        }
+
+        // 날짜
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+          const date = new Date(year, month, day);
+          date.setHours(0, 0, 0, 0);
+          const dateStr = formatDateStr(date);
+
+          let classes = ["calendar-day"];
+          if (date.getDay() === 0) classes.push("sunday");
+          if (date.getTime() === today.getTime()) classes.push("today");
+          if (date > today) classes.push("disabled");
+
+          // 선택 상태
+          if (calendarTempStart && dateStr === formatDateStr(calendarTempStart))
+            classes.push("selected");
+          if (calendarTempEnd && dateStr === formatDateStr(calendarTempEnd))
+            classes.push("selected");
+
+          // 범위 내
+          if (calendarTempStart && calendarTempEnd) {
+            if (date > calendarTempStart && date < calendarTempEnd)
+              classes.push("in-range");
           }
 
-          analyticsStartDate = startInput || null;
-          analyticsEndDate = endInput || null;
+          const disabled = date > today ? "disabled" : "";
+          html += `<div class="${classes.join(" ")}" onclick="selectAnalyticsDate('${dateStr}')" ${disabled}>${day}</div>`;
+        }
 
-          // 버튼 활성화 해제
-          document
-            .querySelectorAll(".analytics-period-btn")
-            .forEach((b) => b.classList.remove("active"));
-          currentAnalyticsPeriod = "custom";
+        html += "</div></div>";
+        return html;
+      }
 
-          updateAnalyticsRangeDisplay();
-          loadAnalyticsData();
-        });
+      function formatDateStr(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
 
-      // 날짜 초기화 버튼
-      document
-        .getElementById("analytics-date-reset")
-        .addEventListener("click", () => {
-          analyticsStartDate = null;
-          analyticsEndDate = null;
-          document.getElementById("analytics-start-date").value = "";
-          document.getElementById("analytics-end-date").value = "";
+      function selectAnalyticsDate(dateStr) {
+        const date = new Date(dateStr);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-          // 기본값(최근 30일)으로 복원
-          document
-            .querySelectorAll(".analytics-period-btn")
-            .forEach((b) => b.classList.remove("active"));
-          document
-            .querySelector(".analytics-period-btn[data-period='month']")
-            .classList.add("active");
-          currentAnalyticsPeriod = "month";
+        if (date > today) return;
 
-          updateAnalyticsRangeDisplay();
-          loadAnalyticsData();
-        });
-
-      function updateAnalyticsRangeDisplay() {
-        const rangeEl = document.getElementById("analytics-current-range");
-        if (analyticsStartDate || analyticsEndDate) {
-          const start = analyticsStartDate || "처음";
-          const end = analyticsEndDate || "현재";
-          rangeEl.textContent = `📆 ${start} ~ ${end}`;
+        if (!calendarTempStart || (calendarTempStart && calendarTempEnd)) {
+          // 새로 시작
+          calendarTempStart = date;
+          calendarTempEnd = null;
         } else {
-          rangeEl.textContent = "";
+          // 두 번째 선택
+          if (date < calendarTempStart) {
+            calendarTempEnd = calendarTempStart;
+            calendarTempStart = date;
+          } else {
+            calendarTempEnd = date;
+          }
+        }
+
+        renderAnalyticsCalendar();
+        updateCalendarSelectionInfo();
+      }
+
+      function updateCalendarSelectionInfo() {
+        const info = document.getElementById("calendarSelectionInfo");
+        if (!info) return;
+
+        if (calendarTempStart && calendarTempEnd) {
+          info.textContent = `${formatDateStr(calendarTempStart)} ~ ${formatDateStr(calendarTempEnd)}`;
+        } else if (calendarTempStart) {
+          info.textContent = `${formatDateStr(calendarTempStart)} ~ 종료일 선택`;
+        } else {
+          info.textContent = "날짜를 선택하세요";
         }
       }
 
-      function getAnalyticsQueryParams() {
-        const params = new URLSearchParams();
-        if (analyticsStartDate || analyticsEndDate) {
-          if (analyticsStartDate)
-            params.append("start_date", analyticsStartDate);
-          if (analyticsEndDate) params.append("end_date", analyticsEndDate);
-        } else {
-          params.append("period", currentAnalyticsPeriod);
-        }
-        return params.toString();
+      function resetCalendarSelection() {
+        calendarTempStart = null;
+        calendarTempEnd = null;
+        renderAnalyticsCalendar();
+        updateCalendarSelectionInfo();
       }
 
-      async function loadAnalyticsData() {
+      function applyCalendarSelection() {
+        if (!calendarTempStart) {
+          showToast("error", "시작일을 선택해주세요");
+          return;
+        }
+
+        // 종료일 없으면 시작일과 같게
+        if (!calendarTempEnd) {
+          calendarTempEnd = calendarTempStart;
+        }
+
+        analyticsStartDate = calendarTempStart;
+        analyticsEndDate = calendarTempEnd;
+        currentAnalyticsPeriod = "custom";
+
+        // 버튼 비활성화
+        document
+          .querySelectorAll(".analytics-period-btn")
+          .forEach((b) => b.classList.remove("active"));
+
+        updateCalendarDisplayText();
+        closeCalendarModal();
+        loadSalesAnalyticsData();
+      }
+
+      // 빠른 선택 버튼
+      document.querySelectorAll(".calendar-quick-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const quick = btn.dataset.quick;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          let start = new Date(today);
+          let end = new Date(today);
+
+          switch (quick) {
+            case "today":
+              break;
+            case "yesterday":
+              start.setDate(start.getDate() - 1);
+              end.setDate(end.getDate() - 1);
+              break;
+            case "week":
+              start.setDate(start.getDate() - 7);
+              break;
+            case "month":
+              start.setDate(start.getDate() - 30);
+              break;
+            case "quarter":
+              start.setDate(start.getDate() - 90);
+              break;
+            case "half":
+              start.setDate(start.getDate() - 180);
+              break;
+            case "year":
+              start.setDate(start.getDate() - 365);
+              break;
+          }
+
+          calendarTempStart = start;
+          calendarTempEnd = end;
+          renderAnalyticsCalendar();
+          updateCalendarSelectionInfo();
+        });
+      });
+
+      function updateCalendarDisplayText() {
+        const el = document.getElementById("calendarDisplayText");
+        if (!el) return;
+
+        if (analyticsStartDate && analyticsEndDate) {
+          el.textContent = `${formatDateStr(analyticsStartDate)} ~ ${formatDateStr(analyticsEndDate)}`;
+        } else {
+          el.textContent = "날짜 선택";
+        }
+      }
+
+      async function loadSalesAnalyticsData() {
+        showLoading();
         await Promise.all([
           loadKPISummary(),
           loadPlatformChart(),
@@ -9320,13 +10047,25 @@
           loadGiftChart(),
           loadTopProducts(),
           loadRegions(),
+          loadHourly(),
         ]);
+        hideLoading();
+      }
+
+      function buildQueryParams() {
+        let params = "";
+        if (analyticsStartDate && analyticsEndDate) {
+          params = `start_date=${formatDateStr(analyticsStartDate)}&end_date=${formatDateStr(analyticsEndDate)}`;
+        } else {
+          params = `period=${currentAnalyticsPeriod}`;
+        }
+        return params;
       }
 
       async function loadKPISummary() {
         try {
           const res = await fetch(
-            `/api/analytics/summary?${getAnalyticsQueryParams()}`,
+            `/api/analytics/summary?${buildQueryParams()}`,
           );
           const json = await res.json();
           if (json.success) {
@@ -9352,9 +10091,7 @@
 
       async function loadPlatformChart() {
         try {
-          const res = await fetch(
-            `/api/analytics/platform?${getAnalyticsQueryParams()}`,
-          );
+          const res = await fetch("/api/analytics/platform");
           const json = await res.json();
           const container = document.getElementById("platform-chart");
 
@@ -9393,9 +10130,7 @@
 
       async function loadRepurchaseChart() {
         try {
-          const res = await fetch(
-            `/api/analytics/repurchase?${getAnalyticsQueryParams()}`,
-          );
+          const res = await fetch("/api/analytics/repurchase");
           const json = await res.json();
           const container = document.getElementById("repurchase-chart");
 
@@ -9432,9 +10167,7 @@
 
       async function loadGiftChart() {
         try {
-          const res = await fetch(
-            `/api/analytics/gift?${getAnalyticsQueryParams()}`,
-          );
+          const res = await fetch("/api/analytics/gift");
           const json = await res.json();
           const container = document.getElementById("gift-chart");
 
@@ -9472,26 +10205,78 @@
       async function loadTopProducts() {
         try {
           const res = await fetch(
-            `/api/analytics/top-products?${getAnalyticsQueryParams()}`,
+            `/api/analytics/top-products?mode=${productsMode}&page=${productsPage}&per_page=10`,
           );
           const json = await res.json();
-          const tbody = document.querySelector("#top-products-table tbody");
+          const tbody = document.getElementById("products-table-body");
+          const thead = document.getElementById("products-table-head");
+          const pagination = document.getElementById("products-pagination");
+
+          if (productsMode === "detail") {
+            thead.innerHTML = `
+              <tr>
+                <th style="width: 50px;">순위</th>
+                <th>상품명 (옵션)</th>
+                <th style="width: 100px;">플랫폼</th>
+                <th style="width: 100px; text-align: right;">판매량</th>
+                <th style="width: 120px; text-align: right;">매출</th>
+              </tr>
+            `;
+          } else {
+            thead.innerHTML = `
+              <tr>
+                <th style="width: 50px;">순위</th>
+                <th>상품명 (옵션)</th>
+                <th style="width: 100px; text-align: right;">판매량</th>
+                <th style="width: 120px; text-align: right;">매출</th>
+              </tr>
+            `;
+          }
 
           if (json.success && json.data.length > 0) {
-            tbody.innerHTML = json.data
-              .map(
-                (d, i) => `
-              <tr>
-                <td><div class="analytics-rank">${i + 1}</div></td>
-                <td>${d.product}</td>
-                <td style="text-align: right; font-weight: 600;">${d.quantity}개</td>
-              </tr>
-            `,
-              )
-              .join("");
+            if (productsMode === "detail") {
+              tbody.innerHTML = json.data
+                .map(
+                  (d) => `
+                <tr>
+                  <td><div class="analytics-rank ${d.rank <= 3 ? "top3" : ""}">${d.rank}</div></td>
+                  <td>${d.product}</td>
+                  <td>${d.platform}</td>
+                  <td style="text-align: right; font-weight: 600;">${d.quantity}개</td>
+                  <td style="text-align: right;">${Number(d.revenue).toLocaleString()}원</td>
+                </tr>
+              `,
+                )
+                .join("");
+            } else {
+              tbody.innerHTML = json.data
+                .map(
+                  (d) => `
+                <tr>
+                  <td><div class="analytics-rank ${d.rank <= 3 ? "top3" : ""}">${d.rank}</div></td>
+                  <td>${d.product}</td>
+                  <td style="text-align: right; font-weight: 600;">${d.quantity}개</td>
+                  <td style="text-align: right;">${Number(d.revenue).toLocaleString()}원</td>
+                </tr>
+              `,
+                )
+                .join("");
+            }
+
+            // 페이지네이션
+            const p = json.pagination;
+            if (p.total_pages > 1) {
+              pagination.innerHTML = renderPagination(
+                p.page,
+                p.total_pages,
+                "products",
+              );
+            } else {
+              pagination.innerHTML = "";
+            }
           } else {
-            tbody.innerHTML =
-              '<tr><td colspan="3" class="analytics-empty">데이터가 없습니다</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="${productsMode === "detail" ? 5 : 4}" class="analytics-empty">데이터가 없습니다</td></tr>`;
+            pagination.innerHTML = "";
           }
         } catch (e) {
           console.error("Top 상품 로드 실패:", e);
@@ -9500,30 +10285,177 @@
 
       async function loadRegions() {
         try {
-          const res = await fetch(
-            `/api/analytics/regions?${getAnalyticsQueryParams()}`,
-          );
+          const res = await fetch("/api/analytics/regions");
           const json = await res.json();
-          const tbody = document.querySelector("#regions-table tbody");
+          const tbody = document.getElementById("regions-table-body");
 
           if (json.success && json.data.length > 0) {
             tbody.innerHTML = json.data
               .map(
-                (d, i) => `
+                (d) => `
               <tr>
-                <td><div class="analytics-rank">${i + 1}</div></td>
+                <td><div class="analytics-rank ${d.rank <= 3 ? "top3" : ""}">${d.rank}</div></td>
                 <td>${d.region}</td>
-                <td style="text-align: right; font-weight: 600;">${d.orders}건</td>
+                <td style="text-align: right; font-weight: 600;">${d.quantity}개</td>
+                <td style="text-align: right;">${Number(d.revenue).toLocaleString()}원</td>
               </tr>
             `,
               )
               .join("");
           } else {
             tbody.innerHTML =
-              '<tr><td colspan="3" class="analytics-empty">데이터가 없습니다</td></tr>';
+              '<tr><td colspan="4" class="analytics-empty">데이터가 없습니다</td></tr>';
           }
         } catch (e) {
           console.error("지역 데이터 로드 실패:", e);
+        }
+      }
+
+      async function loadHourly() {
+        try {
+          const res = await fetch("/api/analytics/hourly");
+          const json = await res.json();
+          const tbody = document.getElementById("hourly-table-body");
+
+          if (json.success && json.data.length > 0) {
+            tbody.innerHTML = json.data
+              .map(
+                (d) => `
+              <tr>
+                <td><div class="analytics-rank ${d.rank <= 3 ? "top3" : ""}">${d.rank}</div></td>
+                <td>${d.hour}</td>
+                <td style="text-align: right; font-weight: 600;">${d.quantity}개</td>
+                <td style="text-align: right;">${Number(d.revenue).toLocaleString()}원</td>
+              </tr>
+            `,
+              )
+              .join("");
+          } else {
+            tbody.innerHTML =
+              '<tr><td colspan="4" class="analytics-empty">데이터가 없습니다</td></tr>';
+          }
+        } catch (e) {
+          console.error("시간대 데이터 로드 실패:", e);
+        }
+      }
+
+      // ==================== 고객 분석 ====================
+
+      async function loadCustomersData() {
+        showLoading();
+        try {
+          const params = new URLSearchParams({
+            search: customersSearch,
+            sort_by: customersSortBy,
+            sort_order: customersSortOrder,
+            page: customersPage,
+            per_page: 50,
+          });
+
+          const res = await fetch(`/api/analytics/customers?${params}`);
+          const json = await res.json();
+          const tbody = document.getElementById("customers-table-body");
+          const pagination = document.getElementById("customers-pagination");
+
+          if (json.success && json.data.length > 0) {
+            tbody.innerHTML = json.data
+              .map(
+                (d) => `
+              <tr>
+                <td>${d.휴대폰번호 || "-"}</td>
+                <td>${d.구매자명 || "-"}</td>
+                <td style="text-align: right;">${d.총주문횟수 || 0}회</td>
+                <td style="text-align: right;">${Number(d.총구매금액 || 0).toLocaleString()}원</td>
+                <td style="text-align: right;">${d.선물발송횟수 || 0}회</td>
+                <td>${d.최근구매일 ? d.최근구매일.split("T")[0] : "-"}</td>
+                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${d.주요배송지 || ""}">${d.주요배송지 || "-"}</td>
+              </tr>
+            `,
+              )
+              .join("");
+
+            // 페이지네이션
+            const p = json.pagination;
+            if (p.total_pages > 1) {
+              pagination.innerHTML = renderPagination(
+                p.page,
+                p.total_pages,
+                "customers",
+              );
+            } else {
+              pagination.innerHTML = "";
+            }
+          } else {
+            tbody.innerHTML =
+              '<tr><td colspan="7" class="analytics-empty">고객 데이터가 없습니다</td></tr>';
+            pagination.innerHTML = "";
+          }
+        } catch (e) {
+          console.error("고객 데이터 로드 실패:", e);
+        }
+        hideLoading();
+      }
+
+      function searchCustomers() {
+        customersSearch =
+          document.getElementById("customerSearchInput")?.value || "";
+        customersPage = 1;
+        loadCustomersData();
+      }
+
+      document
+        .getElementById("customerSearchInput")
+        ?.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") searchCustomers();
+        });
+
+      // 고객 테이블 정렬
+      document
+        .querySelectorAll("#customers-table th[data-sort]")
+        .forEach((th) => {
+          th.addEventListener("click", () => {
+            const sortBy = th.dataset.sort;
+            if (customersSortBy === sortBy) {
+              customersSortOrder =
+                customersSortOrder === "desc" ? "asc" : "desc";
+            } else {
+              customersSortBy = sortBy;
+              customersSortOrder = "desc";
+            }
+            customersPage = 1;
+            loadCustomersData();
+          });
+        });
+
+      // 페이지네이션 렌더링
+      function renderPagination(currentPage, totalPages, type) {
+        let html = "";
+
+        html += `<button class="analytics-page-btn" onclick="goToPage('${type}', 1)" ${currentPage === 1 ? "disabled" : ""}>«</button>`;
+        html += `<button class="analytics-page-btn" onclick="goToPage('${type}', ${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>‹</button>`;
+
+        let start = Math.max(1, currentPage - 2);
+        let end = Math.min(totalPages, currentPage + 2);
+
+        for (let i = start; i <= end; i++) {
+          html += `<button class="analytics-page-btn ${i === currentPage ? "active" : ""}" onclick="goToPage('${type}', ${i})">${i}</button>`;
+        }
+
+        html += `<button class="analytics-page-btn" onclick="goToPage('${type}', ${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>›</button>`;
+        html += `<button class="analytics-page-btn" onclick="goToPage('${type}', ${totalPages})" ${currentPage === totalPages ? "disabled" : ""}>»</button>`;
+
+        html += `<span class="analytics-page-info">${currentPage} / ${totalPages} 페이지</span>`;
+
+        return html;
+      }
+
+      function goToPage(type, page) {
+        if (type === "products") {
+          productsPage = page;
+          loadTopProducts();
+        } else if (type === "customers") {
+          customersPage = page;
+          loadCustomersData();
         }
       }
 
