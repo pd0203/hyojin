@@ -4800,38 +4800,17 @@
                 </div>
               </div>
               <div class="analytics-kpi-card">
-                <h4>총 순이익</h4>
-                <div>
-                  <span class="value" id="kpi-profit">0</span
-                  ><span class="unit">원</span>
-                </div>
-              </div>
-              <div class="analytics-kpi-card">
                 <h4>총 주문 건수</h4>
                 <div>
                   <span class="value" id="kpi-orders">0</span
                   ><span class="unit">건</span>
                 </div>
               </div>
-              <div class="analytics-kpi-card">
-                <h4>객단가 (AOV)</h4>
-                <div>
-                  <span class="value" id="kpi-aov">0</span
-                  ><span class="unit">원</span>
-                </div>
-              </div>
-              <div class="analytics-kpi-card">
-                <h4>마진율</h4>
-                <div>
-                  <span class="value" id="kpi-margin">0</span
-                  ><span class="unit">%</span>
-                </div>
-              </div>
             </div>
 
             <!-- 플랫폼별 분석 -->
             <div class="analytics-section">
-              <h3>💰 플랫폼별 수익성 비교</h3>
+              <h3>💰 플랫폼별 매출 비교</h3>
               <div id="platform-chart"></div>
             </div>
 
@@ -10169,19 +10148,12 @@
             container.innerHTML = data
               .map(
                 (d) => `
-              <div class="analytics-bar">
+              <div class="analytics-bar" style="margin-bottom: 12px;">
                 <div class="analytics-bar-label" title="${d.platform}">${d.platform}</div>
                 <div class="analytics-bar-track">
                   <div class="analytics-bar-fill revenue" style="width: ${(d.revenue / maxRevenue) * 100}%"></div>
                 </div>
                 <div class="analytics-bar-value">${Number(d.revenue).toLocaleString()}원</div>
-              </div>
-              <div class="analytics-bar" style="margin-bottom: 16px;">
-                <div class="analytics-bar-label" style="color: #666;">└ 순이익</div>
-                <div class="analytics-bar-track">
-                  <div class="analytics-bar-fill profit" style="width: ${(d.profit / maxRevenue) * 100}%"></div>
-                </div>
-                <div class="analytics-bar-value" style="color: #22c55e;">${Number(d.profit).toLocaleString()}원</div>
               </div>
             `,
               )
