@@ -2825,14 +2825,37 @@ def save_sales_data_to_db(df):
                             elif hasattr(value, 'isoformat'):
                                 value = value.isoformat()
                             else:
-                                parsed = pd.to_datetime(value, errors='coerce')
-                                if pd.notna(parsed):
-                                    value = parsed.isoformat()
+                                # 한국어 오전/오후 형식 처리 (예: "2026-01-23 오전 1:58:36")
+                                str_value = str(value)
+                                if '오전' in str_value or '오후' in str_value:
+                                    import re
+                                    # "2026-01-23 오전 1:58:36" 또는 "2026-01-23 오후 1:58:36"
+                                    match = re.match(r'(\d{4}-\d{2}-\d{2})\s*(오전|오후)\s*(\d{1,2}):(\d{2}):?(\d{2})?', str_value)
+                                    if match:
+                                        date_part = match.group(1)
+                                        ampm = match.group(2)
+                                        hour = int(match.group(3))
+                                        minute = match.group(4)
+                                        second = match.group(5) or '00'
+
+                                        # 오후이고 12시가 아니면 +12, 오전 12시면 0시로
+                                        if ampm == '오후' and hour != 12:
+                                            hour += 12
+                                        elif ampm == '오전' and hour == 12:
+                                            hour = 0
+
+                                        value = f"{date_part}T{hour:02d}:{minute}:{second}"
+                                    else:
+                                        value = None
                                 else:
-                                    value = str(value)
+                                    parsed = pd.to_datetime(value, errors='coerce')
+                                    if pd.notna(parsed):
+                                        value = parsed.isoformat()
+                                    else:
+                                        value = None
                         except Exception as date_err:
                             print(f"날짜 파싱 오류: {date_err}, 원본값: {value}")
-                            value = str(value)
+                            value = None
                 else:
                     value = str(value) if value else None
                 record[target_col] = value
