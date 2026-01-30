@@ -4934,7 +4934,7 @@
                   type="text"
                   class="analytics-search-input"
                   id="customerSearchInput"
-                  placeholder="휴대폰번호 또는 구매자명으로 검색..."
+                  placeholder="휴대폰번호, 구매자명 또는 주소로 검색..."
                 />
                 <button
                   class="analytics-search-btn"
@@ -10447,10 +10447,28 @@
         loadCustomersData();
       }
 
+      // 실시간 검색을 위한 debounce 함수
+      let customerSearchTimeout = null;
+      function debounceCustomerSearch() {
+        if (customerSearchTimeout) clearTimeout(customerSearchTimeout);
+        customerSearchTimeout = setTimeout(() => {
+          searchCustomers();
+        }, 300); // 300ms 대기 후 검색
+      }
+
+      // 실시간 검색 (입력할 때마다)
+      document
+        .getElementById("customerSearchInput")
+        ?.addEventListener("input", debounceCustomerSearch);
+
+      // Enter키 검색 (즉시)
       document
         .getElementById("customerSearchInput")
         ?.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") searchCustomers();
+          if (e.key === "Enter") {
+            if (customerSearchTimeout) clearTimeout(customerSearchTimeout);
+            searchCustomers();
+          }
         });
 
       // 고객 테이블 정렬
