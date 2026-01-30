@@ -2880,6 +2880,7 @@ def save_sales_data_to_db(df):
 
         # 고객 데이터 집계
         phone = record.get('구매자휴대폰번호')
+        order_number = record.get('주문번호')
         if phone:
             if phone not in customer_data:
                 customer_data[phone] = {
@@ -2889,9 +2890,16 @@ def save_sales_data_to_db(df):
                     '총금액': 0,
                     '선물수': 0,
                     '주소': record.get('배송지주소'),
-                    '주문일': record.get('주문일')
+                    '주문일': record.get('주문일'),
+                    '처리된_주문번호': set()  # 주문번호 중복 체크용
                 }
-            customer_data[phone]['주문수'] += 1
+            # 주문번호 기준으로 주문수 카운트 (같은 주문번호는 1회로)
+            if order_number and order_number not in customer_data[phone]['처리된_주문번호']:
+                customer_data[phone]['주문수'] += 1
+                customer_data[phone]['처리된_주문번호'].add(order_number)
+            elif not order_number:
+                # 주문번호가 없는 경우 기존 방식으로 카운트
+                customer_data[phone]['주문수'] += 1
             customer_data[phone]['총금액'] += selling_price * quantity
             if record['is_gift']:
                 customer_data[phone]['선물수'] += 1
