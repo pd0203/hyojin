@@ -3398,10 +3398,10 @@ def get_analytics_customers():
         # 기본 쿼리
         query = supabase.table('customers').select('*')
         
-        # 검색 (휴대폰번호 또는 구매자명)
+        # 검색 (휴대폰번호, 구매자명, 주요배송지)
         if search:
-            # Supabase에서 or 필터링
-            query = query.or_(f"휴대폰번호.ilike.%{search}%,구매자명.ilike.%{search}%")
+            # Supabase에서 or 필터링 (주소 검색 추가)
+            query = query.or_(f"휴대폰번호.ilike.%{search}%,구매자명.ilike.%{search}%,주요배송지.ilike.%{search}%")
         
         # 정렬
         is_desc = sort_order == 'desc'
