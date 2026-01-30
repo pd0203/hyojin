@@ -4948,11 +4948,11 @@
               <table class="analytics-table" id="customers-table">
                 <thead>
                   <tr>
-                    <th data-sort="휴대폰번호">
-                      휴대폰번호 <span class="sort-icon">↕</span>
-                    </th>
                     <th data-sort="구매자명">
                       구매자명 <span class="sort-icon">↕</span>
+                    </th>
+                    <th data-sort="휴대폰번호">
+                      휴대폰번호 <span class="sort-icon">↕</span>
                     </th>
                     <th data-sort="총주문횟수" style="text-align: right">
                       주문횟수 <span class="sort-icon">↕</span>
@@ -10406,8 +10406,8 @@
               .map(
                 (d) => `
               <tr>
-                <td>${d.휴대폰번호 || "-"}</td>
                 <td>${d.구매자명 || "-"}</td>
+                <td>${d.휴대폰번호 || "-"}</td>
                 <td style="text-align: right;">${d.총주문횟수 || 0}회</td>
                 <td style="text-align: right;">${Number(d.총구매금액 || 0).toLocaleString()}원</td>
                 <td style="text-align: right;">${d.선물발송횟수 || 0}회</td>
