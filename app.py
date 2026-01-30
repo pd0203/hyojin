@@ -3477,7 +3477,14 @@ def delete_analytics_batch(batch_id):
     try:
         # 1. 판매 데이터 삭제
         supabase.table('sales_data').delete().eq('upload_batch_id', batch_id).execute()
-        
+
+        # 2. 남은 판매 데이터 확인
+        remaining = supabase.table('sales_data').select('id').limit(1).execute()
+
+        # 3. 판매 데이터가 모두 삭제되었으면 고객 데이터도 초기화
+        if not remaining.data:
+            supabase.table('customers').delete().neq('id', 0).execute()
+
         return jsonify({'success': True, 'message': '선택한 업로드 데이터가 삭제되었습니다.'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
