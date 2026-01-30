@@ -2900,7 +2900,8 @@ def save_sales_data_to_db(df):
             elif not order_number:
                 # 주문번호가 없는 경우 기존 방식으로 카운트
                 customer_data[phone]['주문수'] += 1
-            customer_data[phone]['총금액'] += selling_price * quantity
+            # 총금액: 판매가는 이미 해당 row의 총액 (주문수량 곱하지 않음)
+            customer_data[phone]['총금액'] += selling_price
             if record['is_gift']:
                 customer_data[phone]['선물수'] += 1
 
@@ -3047,7 +3048,7 @@ def get_analytics_summary():
         if custom_end:
             end_date = datetime.strptime(custom_end, '%Y-%m-%d').date()
 
-        query = supabase.table('sales_data').select('판매가, 주문수량, 순이익, 주문일')
+        query = supabase.table('sales_data').select('판매가, 주문수량, 순이익, 주문일, 주문번호')
         if start_date:
             query = query.gte('주문일', start_date.isoformat())
         if end_date:
@@ -3058,9 +3059,12 @@ def get_analytics_summary():
         response = query.execute()
         data = response.data or []
 
-        total_revenue = sum(float(d.get('판매가', 0) or 0) * int(d.get('주문수량', 1) or 1) for d in data)
+        # 매출: 각 row의 판매가 합산 (같은 주문의 여러 상품은 각각 별도 판매가를 가짐)
+        total_revenue = sum(float(d.get('판매가', 0) or 0) for d in data)
         total_profit = sum(float(d.get('순이익', 0) or 0) for d in data)
-        total_orders = len(data)
+        # 주문 수: 주문번호 기준 고유 개수 (같은 주문의 여러 상품 중복 제거)
+        unique_order_numbers = set(d.get('주문번호') for d in data if d.get('주문번호'))
+        total_orders = len(unique_order_numbers) if unique_order_numbers else len(data)
         aov = total_revenue / total_orders if total_orders > 0 else 0
         margin_rate = (total_profit / total_revenue * 100) if total_revenue > 0 else 0
 
@@ -3086,21 +3090,31 @@ def get_analytics_platform():
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     try:
-        response = supabase.table('sales_data').select('판매사이트명, 판매가, 주문수량, 순이익').execute()
+        response = supabase.table('sales_data').select('판매사이트명, 판매가, 주문수량, 순이익, 주문번호').execute()
         data = response.data or []
 
         platform_stats = {}
+        platform_orders = {}  # 플랫폼별 고유 주문번호 추적
         for d in data:
             site = d.get('판매사이트명') or '기타'
             if site not in platform_stats:
                 platform_stats[site] = {'revenue': 0, 'profit': 0, 'orders': 0}
+                platform_orders[site] = set()
 
-            revenue = float(d.get('판매가', 0) or 0) * int(d.get('주문수량', 1) or 1)
+            # 매출: 각 row의 판매가 합산 (주문수량 곱하지 않음 - 판매가가 이미 총액)
+            revenue = float(d.get('판매가', 0) or 0)
             profit = float(d.get('순이익', 0) or 0)
 
             platform_stats[site]['revenue'] += revenue
             platform_stats[site]['profit'] += profit
-            platform_stats[site]['orders'] += 1
+
+            # 주문 수: 주문번호 기준 고유 개수
+            order_number = d.get('주문번호')
+            if order_number and order_number not in platform_orders[site]:
+                platform_orders[site].add(order_number)
+                platform_stats[site]['orders'] += 1
+            elif not order_number:
+                platform_stats[site]['orders'] += 1
 
         result = [{'platform': k, **v} for k, v in platform_stats.items()]
         result.sort(key=lambda x: x['revenue'], reverse=True)
@@ -3153,15 +3167,25 @@ def get_analytics_repurchase():
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     try:
-        response = supabase.table('sales_data').select('구매자휴대폰번호').execute()
+        response = supabase.table('sales_data').select('구매자휴대폰번호, 주문번호').execute()
         data = response.data or []
 
-        # 휴대폰번호별 주문 횟수 집계
-        phone_counts = {}
+        # 휴대폰번호별 고유 주문 횟수 집계 (주문번호 기준 중복 제거)
+        phone_orders = {}  # {phone: set(order_numbers)}
         for d in data:
             phone = d.get('구매자휴대폰번호')
+            order_number = d.get('주문번호')
             if phone:
-                phone_counts[phone] = phone_counts.get(phone, 0) + 1
+                if phone not in phone_orders:
+                    phone_orders[phone] = set()
+                if order_number:
+                    phone_orders[phone].add(order_number)
+                else:
+                    # 주문번호가 없으면 row 단위로 카운트
+                    phone_orders[phone].add(f"__no_order_{len(phone_orders[phone])}")
+
+        # 고유 주문 수 기준으로 계산
+        phone_counts = {phone: len(orders) for phone, orders in phone_orders.items()}
 
         new_customers = sum(1 for count in phone_counts.values() if count == 1)
         repeat_customers = sum(1 for count in phone_counts.values() if count > 1)
@@ -3187,11 +3211,33 @@ def get_analytics_gift():
         return jsonify({'error': 'DB 연결 필요'}), 400
 
     try:
-        response = supabase.table('sales_data').select('is_gift').execute()
+        response = supabase.table('sales_data').select('is_gift, 주문번호').execute()
         data = response.data or []
 
-        self_purchase = sum(1 for d in data if not d.get('is_gift'))
-        gift_purchase = sum(1 for d in data if d.get('is_gift'))
+        # 주문번호 기준 중복 제거하여 집계
+        self_orders = set()
+        gift_orders = set()
+        self_count_no_order = 0
+        gift_count_no_order = 0
+
+        for d in data:
+            order_number = d.get('주문번호')
+            is_gift = d.get('is_gift')
+
+            if order_number:
+                if is_gift:
+                    gift_orders.add(order_number)
+                else:
+                    self_orders.add(order_number)
+            else:
+                # 주문번호가 없으면 row 단위로 카운트
+                if is_gift:
+                    gift_count_no_order += 1
+                else:
+                    self_count_no_order += 1
+
+        self_purchase = len(self_orders) + self_count_no_order
+        gift_purchase = len(gift_orders) + gift_count_no_order
 
         total = self_purchase + gift_purchase
         return jsonify({
@@ -3228,7 +3274,7 @@ def get_analytics_top_products():
                 product = d.get('상품명') or '알 수 없음'
                 option = d.get('주문선택사항') or ''
                 platform = d.get('판매사이트명') or '기타'
-                
+
                 # 플랫폼 간소화
                 if '쿠팡' in platform:
                     platform = '쿠팡'
@@ -3240,11 +3286,12 @@ def get_analytics_top_products():
                     platform = 'ESM'
                 else:
                     platform = '기타'
-                
+
                 key = f"{product}|{option}|{platform}"
                 qty = int(d.get('주문수량', 1) or 1)
+                # 매출: 판매가는 이미 해당 row의 총액 (주문수량 곱하지 않음)
                 price = float(d.get('판매가', 0) or 0)
-                revenue = price * qty
+                revenue = price
 
                 if key not in product_stats:
                     product_stats[key] = {
@@ -3265,8 +3312,9 @@ def get_analytics_top_products():
                 option = d.get('주문선택사항') or ''
                 key = f"{product} | {option}" if option else product
                 qty = int(d.get('주문수량', 1) or 1)
+                # 매출: 판매가는 이미 해당 row의 총액 (주문수량 곱하지 않음)
                 price = float(d.get('판매가', 0) or 0)
-                revenue = price * qty
+                revenue = price
 
                 if key not in product_stats:
                     product_stats[key] = {'product': key, 'quantity': 0, 'revenue': 0}
@@ -3326,8 +3374,9 @@ def get_analytics_regions():
                 region = '기타'
 
             qty = int(d.get('주문수량', 1) or 1)
+            # 매출: 판매가는 이미 해당 row의 총액 (주문수량 곱하지 않음)
             price = float(d.get('판매가', 0) or 0)
-            revenue = price * qty
+            revenue = price
 
             if region not in region_stats:
                 region_stats[region] = {'quantity': 0, 'revenue': 0}
@@ -3363,8 +3412,9 @@ def get_analytics_hourly():
                     hour_key = f"{hour:02d}:00~{hour:02d}:59"
 
                     qty = int(d.get('주문수량', 1) or 1)
+                    # 매출: 판매가는 이미 해당 row의 총액 (주문수량 곱하지 않음)
                     price = float(d.get('판매가', 0) or 0)
-                    revenue = price * qty
+                    revenue = price
 
                     if hour_key not in hourly_stats:
                         hourly_stats[hour_key] = {'hour': hour, 'quantity': 0, 'revenue': 0}
@@ -3536,10 +3586,9 @@ def recalculate_customer_stats():
             else:
                 customer_stats[phone]['총주문횟수'] += 1
 
-            # 금액 합산
+            # 금액 합산 (판매가는 이미 해당 row의 총액, 주문수량 곱하지 않음)
             price = float(sale.get('판매가') or 0)
-            qty = int(sale.get('주문수량') or 1)
-            customer_stats[phone]['총구매금액'] += price * qty
+            customer_stats[phone]['총구매금액'] += price
 
             # 선물 횟수
             if sale.get('is_gift'):
