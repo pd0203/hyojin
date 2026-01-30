@@ -857,6 +857,10 @@ def classify_orders():
 
     filter_star = request.form.get('filter_star', 'false').lower() == 'true'
 
+    # 데이터 분석용 DB 저장 (체크박스로 제어)
+    collect_analytics = request.form.get('collect_analytics', 'false').lower() == 'true'
+    analytics_saved_count = 0  # 분석 데이터 저장 건수
+
     try:
         ext = file.filename.rsplit('.', 1)[1].lower()
         if ext == 'xls':
@@ -864,14 +868,11 @@ def classify_orders():
         else:
             df = pd.read_excel(file, engine='openpyxl')
 
-        # 데이터 분석용 DB 저장 (체크박스로 제어)
-        collect_analytics = request.form.get('collect_analytics', 'false').lower() == 'true'
-        
         if DB_CONNECTED and collect_analytics:
             try:
                 df_copy = df.copy()
-                saved_count = save_sales_data_to_db(df_copy)
-                print(f"✅ 판매 데이터 {saved_count}건 저장 완료")
+                analytics_saved_count = save_sales_data_to_db(df_copy)
+                print(f"✅ 판매 데이터 {analytics_saved_count}건 저장 완료")
             except Exception as e:
                 import traceback
                 print(f"⚠️ 판매 데이터 저장 실패: {e}")
@@ -891,6 +892,10 @@ def classify_orders():
             stats['summary']['star_deleted'] = star_deleted
         else:
             stats['summary']['star_filtered'] = False
+
+        # 데이터 분석 수집 정보 추가
+        stats['summary']['analytics_collected'] = collect_analytics
+        stats['summary']['analytics_saved_count'] = analytics_saved_count
 
         session_id = secrets.token_urlsafe(16)
         TEMP_RESULTS[session_id] = {

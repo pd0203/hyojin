@@ -6181,6 +6181,11 @@
             id="starFilterMessage"
             style="color: #ffd700; margin-top: 5px; display: none"
           ></div>
+          <div
+            class="modal-subtitle"
+            id="analyticsMessage"
+            style="color: #7dd3fc; margin-top: 5px; display: none"
+          ></div>
         </div>
 
         <div class="stats-grid">
@@ -7686,6 +7691,21 @@
           starMsgEl.style.display = "block";
         } else {
           starMsgEl.style.display = "none";
+        }
+
+        // 데이터 분석 수집 메시지 표시
+        const analyticsMsgEl = document.getElementById("analyticsMessage");
+        if (summary.analytics_collected) {
+          if (summary.analytics_saved_count > 0) {
+            analyticsMsgEl.textContent = `📊 ${summary.analytics_saved_count}건의 데이터가 분석용으로 저장되었습니다`;
+            analyticsMsgEl.style.color = "#7dd3fc";
+          } else {
+            analyticsMsgEl.textContent = `📊 저장할 새로운 데이터가 없습니다 (중복 제외)`;
+            analyticsMsgEl.style.color = "#888";
+          }
+          analyticsMsgEl.style.display = "block";
+        } else {
+          analyticsMsgEl.style.display = "none";
         }
 
         resultModal.classList.add("show");
