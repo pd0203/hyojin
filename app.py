@@ -3477,10 +3477,110 @@ def delete_analytics_batch(batch_id):
     try:
         # 1. 판매 데이터 삭제
         supabase.table('sales_data').delete().eq('upload_batch_id', batch_id).execute()
-        
+
+        # 2. 남은 판매 데이터 확인
+        remaining = supabase.table('sales_data').select('id').limit(1).execute()
+
+        # 3. 판매 데이터가 모두 삭제되었으면 고객 데이터도 초기화
+        if not remaining.data:
+            supabase.table('customers').delete().neq('id', 0).execute()
+        else:
+            # 4. 판매 데이터가 남아있으면 고객 통계 재계산
+            recalculate_customer_stats()
+
         return jsonify({'success': True, 'message': '선택한 업로드 데이터가 삭제되었습니다.'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+def recalculate_customer_stats():
+    """남은 sales_data 기반으로 고객 통계 재계산"""
+    if not DB_CONNECTED or not supabase:
+        return
+
+    try:
+        # 1. 모든 판매 데이터 조회
+        sales_response = supabase.table('sales_data').select('*').execute()
+        sales_data = sales_response.data or []
+
+        if not sales_data:
+            return
+
+        # 2. 고객별 통계 집계 (주문번호 기준 중복 제거)
+        customer_stats = {}
+        for sale in sales_data:
+            phone = sale.get('구매자휴대폰번호')
+            if not phone:
+                continue
+
+            order_number = sale.get('주문번호')
+
+            if phone not in customer_stats:
+                customer_stats[phone] = {
+                    '구매자명': sale.get('구매자명'),
+                    '구매자ID': sale.get('구매자ID'),
+                    '총주문횟수': 0,
+                    '총구매금액': 0,
+                    '선물발송횟수': 0,
+                    '최근구매일': None,
+                    '주요배송지': sale.get('배송지주소'),
+                    '첫구매일': sale.get('주문일'),
+                    '처리된_주문번호': set()
+                }
+
+            # 주문번호 기준 중복 제거
+            if order_number:
+                if order_number not in customer_stats[phone]['처리된_주문번호']:
+                    customer_stats[phone]['총주문횟수'] += 1
+                    customer_stats[phone]['처리된_주문번호'].add(order_number)
+            else:
+                customer_stats[phone]['총주문횟수'] += 1
+
+            # 금액 합산
+            price = float(sale.get('판매가') or 0)
+            qty = int(sale.get('주문수량') or 1)
+            customer_stats[phone]['총구매금액'] += price * qty
+
+            # 선물 횟수
+            if sale.get('is_gift'):
+                customer_stats[phone]['선물발송횟수'] += 1
+
+            # 최근/첫 구매일 업데이트
+            order_date = sale.get('주문일')
+            if order_date:
+                if not customer_stats[phone]['최근구매일'] or order_date > customer_stats[phone]['최근구매일']:
+                    customer_stats[phone]['최근구매일'] = order_date
+                    customer_stats[phone]['주요배송지'] = sale.get('배송지주소')
+                if not customer_stats[phone]['첫구매일'] or order_date < customer_stats[phone]['첫구매일']:
+                    customer_stats[phone]['첫구매일'] = order_date
+
+        # 3. 기존 고객 중 sales_data에 없는 고객 삭제
+        existing_response = supabase.table('customers').select('휴대폰번호').execute()
+        existing_phones = {c['휴대폰번호'] for c in (existing_response.data or [])}
+        phones_to_delete = existing_phones - set(customer_stats.keys())
+
+        for phone in phones_to_delete:
+            supabase.table('customers').delete().eq('휴대폰번호', phone).execute()
+
+        # 4. 고객 통계 업데이트
+        for phone, stats in customer_stats.items():
+            update_data = {
+                '휴대폰번호': phone,
+                '구매자명': stats['구매자명'],
+                '구매자ID': stats['구매자ID'],
+                '총주문횟수': stats['총주문횟수'],
+                '총구매금액': stats['총구매금액'],
+                '선물발송횟수': stats['선물발송횟수'],
+                '최근구매일': stats['최근구매일'],
+                '첫구매일': stats['첫구매일'],
+                '주요배송지': stats['주요배송지']
+            }
+            supabase.table('customers').upsert(update_data, on_conflict='휴대폰번호').execute()
+
+        print(f"✅ 고객 통계 재계산 완료: {len(customer_stats)}명")
+
+    except Exception as e:
+        print(f"❌ 고객 통계 재계산 오류: {e}")
     
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
