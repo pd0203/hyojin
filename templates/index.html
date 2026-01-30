@@ -4749,12 +4749,8 @@
             <button class="analytics-tab-btn" data-analytics-tab="customers">
               👥 고객 분석
             </button>
-            <button
-              class="analytics-tab-btn"
-              onclick="openDataManageModal()"
-              style="margin-left: auto; border-color: #ff6b6b; color: #ff6b6b"
-            >
-              🗑️ 데이터 초기화/관리
+            <button class="analytics-tab-btn" data-analytics-tab="datamanage">
+              🗑️ 데이터 관리
             </button>
           </div>
 
@@ -4972,6 +4968,31 @@
                 <tbody id="customers-table-body"></tbody>
               </table>
               <div class="analytics-pagination" id="customers-pagination"></div>
+            </div>
+          </div>
+
+          <!-- ==================== 데이터 관리 탭 ==================== -->
+          <div class="analytics-tab-content" id="analytics-tab-datamanage">
+            <div class="analytics-section">
+              <h3>🗑️ 데이터 관리</h3>
+              <p style="color: #888; margin-bottom: 20px;">업로드한 엑셀 파일 기록을 확인하고 취소(삭제)할 수 있습니다.</p>
+
+              <table class="analytics-table">
+                <thead>
+                  <tr>
+                    <th>업로드 일시 (배치ID)</th>
+                    <th style="text-align: right;">데이터 건수</th>
+                    <th style="text-align: center;">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="dataManageTableBody">
+                  <tr>
+                    <td colspan="3" style="text-align: center; padding: 20px; color: #666;">
+                      로딩중...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -9805,6 +9826,8 @@
 
           if (btn.dataset.analyticsTab === "customers") {
             loadCustomersData();
+          } else if (btn.dataset.analyticsTab === "datamanage") {
+            loadDataManageTab();
           }
         });
       });
@@ -10881,9 +10904,86 @@
 
       // ==================== [신규] 데이터 관리 기능 ====================
 
-      // 데이터 관리 모달 열기
+      // 데이터 관리 탭 로드
+      async function loadDataManageTab() {
+        const tbody = document.getElementById("dataManageTableBody");
+        tbody.innerHTML =
+          '<tr><td colspan="3" style="text-align: center; padding: 20px; color: #666;">데이터를 불러오는 중...</td></tr>';
+
+        try {
+          const response = await fetch("/api/analytics/batches");
+          const result = await response.json();
+
+          if (result.success && result.data.length > 0) {
+            tbody.innerHTML = result.data
+              .map((batch) => {
+                const bid = String(batch.batch_id);
+                let timeStr = bid;
+                if (bid.length >= 14) {
+                  const year = bid.substring(0, 4);
+                  const month = bid.substring(4, 6);
+                  const day = bid.substring(6, 8);
+                  const hour = bid.substring(8, 10);
+                  const minute = bid.substring(10, 12);
+                  timeStr = `${year}-${month}-${day} ${hour}:${minute}`;
+                }
+
+                return `
+                  <tr>
+                    <td>
+                      <div style="color: #fff; font-weight: 500;">${timeStr}</div>
+                      <div style="color: #666; font-size: 11px;">ID: ${batch.batch_id}</div>
+                    </td>
+                    <td style="text-align: right; color: #00ff88;">${batch.count.toLocaleString()}건</td>
+                    <td style="text-align: center;">
+                      <button onclick="deleteDataBatchFromTab('${batch.batch_id}')"
+                              style="padding: 6px 12px; background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b; border-radius: 6px; color: #ff6b6b; cursor: pointer; font-size: 12px;">
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              })
+              .join("");
+          } else {
+            tbody.innerHTML =
+              '<tr><td colspan="3" style="text-align: center; padding: 20px; color: #666;">업로드 기록이 없습니다</td></tr>';
+          }
+        } catch (error) {
+          console.error("배치 목록 로드 오류:", error);
+          tbody.innerHTML =
+            '<tr><td colspan="3" style="text-align: center; padding: 20px; color: #ff6b6b;">데이터 로드 실패</td></tr>';
+        }
+      }
+
+      // 데이터 배치 삭제 (탭에서)
+      async function deleteDataBatchFromTab(batchId) {
+        if (!confirm(`해당 배치(${batchId})의 모든 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+          return;
+        }
+        showLoading();
+        try {
+          const response = await fetch(`/api/analytics/batches/${batchId}`, {
+            method: "DELETE",
+          });
+          const result = await response.json();
+
+          if (result.success) {
+            showToast("success", "데이터가 삭제되었습니다.");
+            await loadDataManageTab();
+            loadSalesAnalyticsData();
+          } else {
+            showToast("error", result.error || "삭제 실패");
+          }
+        } catch (error) {
+          showToast("error", "서버 통신 오류");
+        }
+        hideLoading();
+      }
+
+      // 데이터 관리 모달 열기 (레거시 - 사용 안함)
       async function openDataManageModal() {
-        document.getElementById("dataManageModal").classList.add("show");
+        document.getElementById("dataManageModal")?.classList.add("show");
         await loadDataBatches();
       }
 
