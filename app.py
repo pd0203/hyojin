@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, send_file, jsonify, session, 
 from werkzeug.utils import secure_filename
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from werkzeug.security import generate_password_hash, check_password_hash
 import pandas as pd
 from io import BytesIO
 from datetime import datetime, date, time as dt_time, timedelta, timezone
@@ -402,15 +403,30 @@ def login():
         # 1. DB에서 사용자 확인 (출퇴근 시스템용)
         if DB_CONNECTED and supabase:
             try:
-                response = supabase.table('users').select('*').eq('username', user_id).eq('password', user_pw).eq('enabled', True).execute()
+                response = supabase.table('users').select('*').eq('username', user_id).eq('enabled', True).execute()
                 if response.data:
                     user = response.data[0]
-                    session['logged_in'] = True
-                    session['user_id'] = user['id']
-                    session['user_role'] = user['role']
-                    session['user_name'] = user['name']
-                    session['username'] = user['username']
-                    return jsonify({'success': True, 'role': user['role']})
+                    stored_pw = user['password']
+                    pw_valid = False
+
+                    # 해시 여부 확인 후 검증
+                    if stored_pw.startswith('pbkdf2:') or stored_pw.startswith('scrypt:'):
+                        pw_valid = check_password_hash(stored_pw, user_pw)
+                    else:
+                        # 평문 저장된 기존 계정 - 검증 후 자동 해시 마이그레이션
+                        pw_valid = (stored_pw == user_pw)
+                        if pw_valid:
+                            supabase.table('users').update({
+                                'password': generate_password_hash(user_pw)
+                            }).eq('id', user['id']).execute()
+
+                    if pw_valid:
+                        session['logged_in'] = True
+                        session['user_id'] = user['id']
+                        session['user_role'] = user['role']
+                        session['user_name'] = user['name']
+                        session['username'] = user['username']
+                        return jsonify({'success': True, 'role': user['role']})
             except Exception as e:
                 print(f"DB 로그인 확인 오류: {e}")
         
@@ -1318,7 +1334,7 @@ def create_employee():
         
         new_emp = {
             'username': data.get('username'),
-            'password': data.get('password'),
+            'password': generate_password_hash(data.get('password')),
             'name': data.get('name'),
             'role': 'parttime',
             'hourly_wage': int(data.get('hourly_wage', 10700)),
@@ -1364,7 +1380,7 @@ def update_employee(emp_id):
         }
         
         if data.get('password'):
-            update_data['password'] = data.get('password')
+            update_data['password'] = generate_password_hash(data.get('password'))
         
         supabase.table('users').update(update_data).eq('id', emp_id).execute()
         
