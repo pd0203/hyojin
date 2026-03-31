@@ -8030,6 +8030,10 @@
                   </div>
                 </div>
                 <div>
+                  <label style="display: block; color: #888; font-size: 13px; margin-bottom: 5px;">첫출근일</label>
+                  <input type="date" id="empFirstWorkDate" style="width: 100%; padding: 12px; background: #222; border: 1px solid #333; border-radius: 8px; color: #fff; box-sizing: border-box;">
+                </div>
+                <div>
                   <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">소정근로일</label>
                   <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                     <div class="day-toggle selected" data-day="1" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #00ff88; color: #000; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">월</div>
@@ -8134,6 +8138,10 @@
                   </div>
                 </div>
                 <div>
+                  <label style="display: block; color: #888; font-size: 13px; margin-bottom: 5px;">첫출근일</label>
+                  <input type="date" id="empFirstWorkDate" value="${emp.first_work_date || ''}" style="width: 100%; padding: 12px; background: #222; border: 1px solid #333; border-radius: 8px; color: #fff; box-sizing: border-box;">
+                </div>
+                <div>
                   <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">소정근로일</label>
                   <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                     ${dayToggles}
@@ -8160,6 +8168,7 @@
           full_attendance_bonus:
             parseInt(document.getElementById("empBonus").value) || 100000,
           scheduled_days: getSelectedDays() || "1,2,3,4,5",
+          first_work_date: document.getElementById("empFirstWorkDate").value || null,
         };
 
         if (!data.name || !data.username || !data.password) {
@@ -8198,6 +8207,7 @@
           full_attendance_bonus:
             parseInt(document.getElementById("empBonus").value) || 100000,
           scheduled_days: getSelectedDays() || "1,2,3,4,5",
+          first_work_date: document.getElementById("empFirstWorkDate").value || null,
         };
 
         try {

@@ -1340,6 +1340,7 @@ def create_employee():
             'hourly_wage': int(data.get('hourly_wage', 10700)),
             'full_attendance_bonus': int(data.get('full_attendance_bonus', 100000)),
             'scheduled_days': data.get('scheduled_days', '1,2,3,4,5'),
+            'first_work_date': data.get('first_work_date') or None,
             'enabled': True
         }
         response = supabase.table('users').insert(new_emp).execute()
@@ -1375,6 +1376,7 @@ def update_employee(emp_id):
             'hourly_wage': new_wage,
             'full_attendance_bonus': int(data.get('full_attendance_bonus', old_data.get('full_attendance_bonus', 100000))),
             'scheduled_days': data.get('scheduled_days', old_data.get('scheduled_days', '1,2,3,4,5')),
+            'first_work_date': data.get('first_work_date', old_data.get('first_work_date')) or None,
             'enabled': data.get('enabled', old_data.get('enabled', True)),
             'updated_at': datetime.utcnow().isoformat()
         }
@@ -1649,6 +1651,7 @@ def _calculate_monthly_salary(emp_id, year, month):
     full_bonus = emp.get('full_attendance_bonus', 100000)
     scheduled_days = emp.get('scheduled_days', '1,2,3,4,5')  # 소정근로일 (0=일,1=월,...,6=토)
     scheduled_days_set = set(int(d) for d in scheduled_days.split(',') if d.strip())
+    first_work_date_str = emp.get('first_work_date')  # 첫출근일 (예: '2026-02-24'), 없으면 None
     
     wage_history = supabase.table('wage_history').select('*').eq('employee_id', emp_id).lte('effective_date', end_date).order('effective_date', desc=True).execute()
     
@@ -1751,10 +1754,13 @@ def _calculate_monthly_salary(emp_id, year, month):
                 worked_dates.add(rec['work_date'])
                 week_work_days += 1
         
-        # 소정근로일 계산
+        # 소정근로일 계산 (첫출근일이 있으면 그 이전 날은 개근 산정에서 제외)
         required_work_dates = set()
         for i in range(7):
             d = monday + timedelta(days=i)
+            # 첫출근일이 이 주 안에 있고, 해당 날짜가 첫출근일 이전이면 제외
+            if first_work_date_str and d.isoformat() < first_work_date_str:
+                continue
             # d.weekday(): 월=0, 화=1, ..., 일=6 → scheduled_days는 0=일, 1=월, ..., 6=토
             # 변환: (d.weekday() + 1) % 7 → 월=1, 화=2, ..., 일=0
             day_num = (d.weekday() + 1) % 7

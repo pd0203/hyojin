@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     hourly_wage INTEGER DEFAULT 10700,       -- 시급 (알바생용)
     full_attendance_bonus INTEGER DEFAULT 100000,  -- 만근수당
     scheduled_days TEXT DEFAULT '1,2,3,4,5', -- 소정근로일 (0=일,1=월,2=화,3=수,4=목,5=금,6=토)
+    first_work_date DATE DEFAULT NULL,       -- 첫출근일
     enabled BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -19,6 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 기존 테이블에 scheduled_days 컬럼 추가 (이미 테이블이 있는 경우)
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS scheduled_days TEXT DEFAULT '1,2,3,4,5';
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS first_work_date DATE DEFAULT NULL;
 
 -- 2. 출퇴근 기록 테이블
 CREATE TABLE IF NOT EXISTS attendance_logs (
