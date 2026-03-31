@@ -1313,6 +1313,7 @@ def get_employees():
                 'hourly_wage': emp['hourly_wage'],
                 'full_attendance_bonus': emp.get('full_attendance_bonus', 100000),
                 'scheduled_days': emp.get('scheduled_days', '1,2,3,4,5'),
+                'scheduled_hours': emp.get('scheduled_hours'),
                 'first_work_date': emp.get('first_work_date'),
                 'enabled': emp['enabled'],
                 'created_at': emp['created_at']
@@ -1342,6 +1343,7 @@ def create_employee():
             'full_attendance_bonus': int(data.get('full_attendance_bonus', 100000)),
             'scheduled_days': data.get('scheduled_days', '1,2,3,4,5'),
             'first_work_date': data.get('first_work_date') or None,
+            'scheduled_hours': data.get('scheduled_hours') or None,
             'enabled': True
         }
         response = supabase.table('users').insert(new_emp).execute()
@@ -1378,6 +1380,7 @@ def update_employee(emp_id):
             'full_attendance_bonus': int(data.get('full_attendance_bonus', old_data.get('full_attendance_bonus', 100000))),
             'scheduled_days': data.get('scheduled_days', old_data.get('scheduled_days', '1,2,3,4,5')),
             'first_work_date': data.get('first_work_date', old_data.get('first_work_date')) or None,
+            'scheduled_hours': data.get('scheduled_hours', old_data.get('scheduled_hours')) or None,
             'enabled': data.get('enabled', old_data.get('enabled', True)),
             'updated_at': datetime.utcnow().isoformat()
         }
@@ -1484,7 +1487,7 @@ def get_attendance():
         holidays_resp = supabase.table('holidays').select('holiday_date').gte('holiday_date', start_date).lte('holiday_date', end_date).execute()
         holidays = [h['holiday_date'] for h in holidays_resp.data]
         
-        emp_resp = supabase.table('users').select('name, hourly_wage, full_attendance_bonus, scheduled_days').eq('id', emp_id).execute()
+        emp_resp = supabase.table('users').select('name, hourly_wage, full_attendance_bonus, scheduled_days, scheduled_hours').eq('id', emp_id).execute()
         emp_info = emp_resp.data[0] if emp_resp.data else {}
         
         approvals_resp = supabase.table('edit_approvals').select('approved_date, used').eq('employee_id', emp_id).execute()
@@ -1518,6 +1521,7 @@ def get_attendance():
             'hourly_wage': emp_info.get('hourly_wage', 10700),
             'full_attendance_bonus': emp_info.get('full_attendance_bonus', 100000),
             'scheduled_days': emp_info.get('scheduled_days', '1,2,3,4,5'),
+            'scheduled_hours': emp_info.get('scheduled_hours'),
             'year_month': f"{year}-{month:02d}",
             'records': records,
             'holidays': holidays,
@@ -1653,6 +1657,19 @@ def _calculate_monthly_salary(emp_id, year, month):
     scheduled_days = emp.get('scheduled_days', '1,2,3,4,5')  # 소정근로일 (0=일,1=월,...,6=토)
     scheduled_days_set = set(int(d) for d in scheduled_days.split(',') if d.strip())
     first_work_date_str = emp.get('first_work_date')  # 첫출근일 (예: '2026-02-24'), 없으면 None
+    scheduled_hours = emp.get('scheduled_hours') or {}  # 요일별 소정근로시간 {"1": {"start":"09:00","end":"18:00"}, ...}
+
+    def get_work_time_for_date(work_date_str):
+        """날짜 문자열로부터 해당 요일의 소정근로 시작/종료(분)를 반환. 미설정 시 09:00~18:00"""
+        d = date.fromisoformat(work_date_str)
+        day_num = (d.weekday() + 1) % 7  # 월=1, 화=2, ..., 일=0
+        day_schedule = scheduled_hours.get(str(day_num), {})
+        start_str = day_schedule.get('start', '09:00')
+        end_str = day_schedule.get('end', '18:00')
+        def t2m(s):
+            parts = s.split(':')
+            return int(parts[0]) * 60 + int(parts[1])
+        return t2m(start_str), t2m(end_str)
     
     wage_history = supabase.table('wage_history').select('*').eq('employee_id', emp_id).lte('effective_date', end_date).order('effective_date', desc=True).execute()
     
@@ -1694,7 +1711,8 @@ def _calculate_monthly_salary(emp_id, year, month):
                 applicable_wage = wh['hourly_wage']
                 break
         
-        regular_hrs, overtime_hrs = _calculate_daily_hours(clock_in, clock_out)
+        ws_min, we_min = get_work_time_for_date(work_date)
+        regular_hrs, overtime_hrs = _calculate_daily_hours(clock_in, clock_out, ws_min, we_min)
         total_daily = regular_hrs + overtime_hrs
         total_hours += total_daily
         total_regular_hours += regular_hrs
@@ -1750,7 +1768,8 @@ def _calculate_monthly_salary(emp_id, year, month):
         week_work_days = 0
         for rec in week_attendance.data:
             if rec['clock_in'] and rec['clock_out']:
-                reg, ot = _calculate_daily_hours(rec['clock_in'], rec['clock_out'])
+                ws_min, we_min = get_work_time_for_date(rec['work_date'])
+                reg, ot = _calculate_daily_hours(rec['clock_in'], rec['clock_out'], ws_min, we_min)
                 week_total_hours += reg + ot
                 worked_dates.add(rec['work_date'])
                 week_work_days += 1
@@ -1829,44 +1848,41 @@ def _calculate_monthly_salary(emp_id, year, month):
         'worked_days': len(worked_days)
     }
 
-def _calculate_daily_hours(clock_in_str, clock_out_str):
-    """일일 근무시간 계산"""
+def _calculate_daily_hours(clock_in_str, clock_out_str, work_start_min=9*60, work_end_min=18*60):
+    """일일 근무시간 계산. work_start_min/work_end_min은 소정근로 시작/종료(분 단위, 기본 09:00~18:00)"""
     if not clock_in_str or not clock_out_str:
         return 0.0, 0.0
-    
+
     def time_to_minutes(t_str):
         parts = t_str.split(':')
         return int(parts[0]) * 60 + int(parts[1])
-    
+
     start_min = time_to_minutes(clock_in_str)
     end_min = time_to_minutes(clock_out_str)
-    
+
     if end_min <= start_min:
         return 0.0, 0.0
-    
+
     total_min = end_min - start_min
-    
+
     lunch_start = 12 * 60
     lunch_end = 13 * 60
     if start_min < lunch_end and end_min > lunch_start:
         overlap_start = max(start_min, lunch_start)
         overlap_end = min(end_min, lunch_end)
         total_min -= max(0, overlap_end - overlap_start)
-    
-    work_start = 9 * 60
-    work_end = 18 * 60
-    
-    regular_start = max(start_min, work_start)
-    regular_end = min(end_min, work_end)
+
+    regular_start = max(start_min, work_start_min)
+    regular_end = min(end_min, work_end_min)
     regular_min = max(0, regular_end - regular_start)
-    
+
     if regular_start < lunch_end and regular_end > lunch_start:
         overlap_start = max(regular_start, lunch_start)
         overlap_end = min(regular_end, lunch_end)
         regular_min -= max(0, overlap_end - overlap_start)
-    
+
     overtime_min = total_min - regular_min
-    
+
     return regular_min / 60, max(0, overtime_min) / 60
 
 @app.route('/api/salary/confirm', methods=['POST'])

@@ -788,8 +788,8 @@
           </div>
         </div>
         <div class="info-card">
-          <div class="info-card-label">⏰ 기본 근무시간</div>
-          <div class="info-card-value" style="font-size: 18px">
+          <div class="info-card-label">⏰ 소정근로시간</div>
+          <div class="info-card-value" style="font-size: 14px; line-height: 1.6;" id="scheduledHoursDisplay">
             09:00 ~ 18:00
           </div>
         </div>
@@ -1120,8 +1120,34 @@
             });
             document.getElementById("scheduledDays").innerHTML = `<span style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">${daysHtml}</span>`;
       
+            // 소정근로시간 표시 로직
+            const scheduledHoursData = attendanceData.scheduled_hours || {};
+            const timeGroups = {};
+            selectedDays.forEach(dayNum => {
+              const sch = scheduledHoursData[String(dayNum)] || {};
+              const start = sch.start || '09:00';
+              const end = sch.end || '18:00';
+              const key = start + '~' + end;
+              if (!timeGroups[key]) timeGroups[key] = [];
+              timeGroups[key].push(dayNum);
+            });
+            function formatDayGroup(days) {
+              const order = [1,2,3,4,5,6,0];
+              const sorted = [...days].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+              if (sorted.length === 1) return dayNames[sorted[0]];
+              const indices = sorted.map(d => order.indexOf(d));
+              const isConsecutive = indices.every((v, i) => i === 0 || v === indices[i-1] + 1);
+              if (isConsecutive && sorted.length > 2) return dayNames[sorted[0]] + '~' + dayNames[sorted[sorted.length-1]];
+              return sorted.map(d => dayNames[d]).join(',');
+            }
+            const hoursLines = Object.entries(timeGroups).map(([timeKey, days]) =>
+              formatDayGroup(days) + ' ' + timeKey.replace('~', ' ~ ')
+            );
+            const hoursEl = document.getElementById('scheduledHoursDisplay');
+            if (hoursEl) hoursEl.textContent = hoursLines.join(' / ');
+
             updateMonthDisplay();
-      
+
             await checkMyEditRequests();
             renderAttendanceTable();
       

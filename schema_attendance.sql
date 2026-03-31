@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- 기존 테이블에 scheduled_days 컬럼 추가 (이미 테이블이 있는 경우)
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS scheduled_days TEXT DEFAULT '1,2,3,4,5';
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS first_work_date DATE DEFAULT NULL;
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS scheduled_hours JSONB DEFAULT NULL;
 
 -- 2. 출퇴근 기록 테이블
 CREATE TABLE IF NOT EXISTS attendance_logs (

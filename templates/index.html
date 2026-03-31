@@ -8034,8 +8034,8 @@
                   <input type="date" id="empFirstWorkDate" style="width: 100%; padding: 12px; background: #222; border: 1px solid #333; border-radius: 8px; color: #fff; box-sizing: border-box;">
                 </div>
                 <div>
-                  <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">소정근로일</label>
-                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                  <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">소정근로일 & 소정근로시간</label>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
                     <div class="day-toggle selected" data-day="1" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #00ff88; color: #000; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">월</div>
                     <div class="day-toggle selected" data-day="2" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #00ff88; color: #000; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">화</div>
                     <div class="day-toggle selected" data-day="3" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #00ff88; color: #000; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">수</div>
@@ -8044,6 +8044,13 @@
                     <div class="day-toggle" data-day="6" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #222; color: #666; border: 1px solid #333; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">토</div>
                     <div class="day-toggle" data-day="0" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #222; color: #666; border: 1px solid #333; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">일</div>
                   </div>
+                  <div id="hours-1" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">월</span><input type="time" id="start-1" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-1" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
+                  <div id="hours-2" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">화</span><input type="time" id="start-2" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-2" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
+                  <div id="hours-3" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">수</span><input type="time" id="start-3" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-3" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
+                  <div id="hours-4" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">목</span><input type="time" id="start-4" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-4" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
+                  <div id="hours-5" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">금</span><input type="time" id="start-5" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-5" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
+                  <div id="hours-6" style="display: none; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">토</span><input type="time" id="start-6" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-6" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
+                  <div id="hours-0" style="display: none; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">일</span><input type="time" id="start-0" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-0" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
                 </div>
               </div>
               <div class="modal-actions">
@@ -8058,16 +8065,20 @@
 
       function toggleDay(el) {
         const isSelected = el.classList.contains("selected");
+        const dayNum = el.dataset.day;
+        const hoursRow = document.getElementById("hours-" + dayNum);
         if (isSelected) {
           el.classList.remove("selected");
           el.style.background = "#222";
           el.style.color = "#666";
           el.style.border = "1px solid #333";
+          if (hoursRow) hoursRow.style.display = "none";
         } else {
           el.classList.add("selected");
           el.style.background = "#00ff88";
           el.style.color = "#000";
           el.style.border = "none";
+          if (hoursRow) hoursRow.style.display = "flex";
         }
       }
 
@@ -8080,22 +8091,41 @@
         return days.join(",");
       }
 
+      function getScheduledHours() {
+        const result = {};
+        document.querySelectorAll("#employeeModal .day-toggle.selected").forEach(el => {
+          const dayNum = el.dataset.day;
+          const startEl = document.getElementById("start-" + dayNum);
+          const endEl = document.getElementById("end-" + dayNum);
+          if (startEl && endEl) {
+            result[dayNum] = { start: startEl.value || "09:00", end: endEl.value || "18:00" };
+          }
+        });
+        return Object.keys(result).length > 0 ? result : null;
+      }
+
       function showEditEmployeeModal(empId) {
         const emp = employeesData.find((e) => e.id === empId);
         if (!emp) return;
 
         const scheduledDays = (emp.scheduled_days || "1,2,3,4,5").split(",");
         const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+        const scheduledHours = emp.scheduled_hours || {};
 
         let dayToggles = "";
+        let hoursHtml = "";
         [1, 2, 3, 4, 5, 6, 0].forEach((dayNum) => {
           const isSelected = scheduledDays.includes(String(dayNum));
           const bgColor = isSelected ? "#00ff88" : "#222";
           const textColor = isSelected ? "#000" : "#666";
           const border = isSelected ? "none" : "1px solid #333";
           const selectedClass = isSelected ? "selected" : "";
-          // 역슬래시(\)를 모두 제거했습니다.
           dayToggles += `<div class="day-toggle ${selectedClass}" data-day="${dayNum}" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: ${bgColor}; color: ${textColor}; border: ${border}; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">${dayNames[dayNum]}</div>`;
+          const daySchedule = scheduledHours[String(dayNum)] || {};
+          const startVal = daySchedule.start || "09:00";
+          const endVal = daySchedule.end || "18:00";
+          const displayStyle = isSelected ? "flex" : "none";
+          hoursHtml += `<div id="hours-${dayNum}" style="display: ${displayStyle}; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">${dayNames[dayNum]}</span><input type="time" id="start-${dayNum}" value="${startVal}" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-${dayNum}" value="${endVal}" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>`;
         });
 
         const modal = `
@@ -8142,10 +8172,11 @@
                   <input type="date" id="empFirstWorkDate" value="${emp.first_work_date || ''}" style="width: 100%; padding: 12px; background: #222; border: 1px solid #333; border-radius: 8px; color: #fff; box-sizing: border-box;">
                 </div>
                 <div>
-                  <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">소정근로일</label>
-                  <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                  <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">소정근로일 & 소정근로시간</label>
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
                     ${dayToggles}
                   </div>
+                  ${hoursHtml}
                 </div>
               </div>
               <div class="modal-actions">
@@ -8168,6 +8199,7 @@
           full_attendance_bonus:
             parseInt(document.getElementById("empBonus").value) || 100000,
           scheduled_days: getSelectedDays() || "1,2,3,4,5",
+          scheduled_hours: getScheduledHours(),
           first_work_date: document.getElementById("empFirstWorkDate").value || null,
         };
 
@@ -8207,6 +8239,7 @@
           full_attendance_bonus:
             parseInt(document.getElementById("empBonus").value) || 100000,
           scheduled_days: getSelectedDays() || "1,2,3,4,5",
+          scheduled_hours: getScheduledHours(),
           first_work_date: document.getElementById("empFirstWorkDate").value || null,
         };
 
