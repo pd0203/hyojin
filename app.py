@@ -1313,6 +1313,7 @@ def get_employees():
                 'hourly_wage': emp['hourly_wage'],
                 'full_attendance_bonus': emp.get('full_attendance_bonus', 100000),
                 'scheduled_days': emp.get('scheduled_days', '1,2,3,4,5'),
+                'first_work_date': emp.get('first_work_date'),
                 'enabled': emp['enabled'],
                 'created_at': emp['created_at']
             })
