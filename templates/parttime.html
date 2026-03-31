@@ -1465,7 +1465,7 @@
               detail += `<div style="background: #222; border-radius: 8px; padding: 12px; margin-bottom: 10px;">`;
               detail += `<div style="color: #fff; font-weight: 500; margin-bottom: 8px;">💵 기본급</div>`;
               detail += `<div style="color: #888; font-size: 13px; line-height: 1.7;">`;
-              detail += `• 정규근무시간: <span style="color: #00ff88;">${totalRegular}시간</span> <span style="color: #555; font-size: 11px;">(09:00~18:00, 점심 1h 제외)</span><br>`;
+              detail += `• 정규근무시간: <span style="color: #00ff88;">${totalRegular}시간</span> <span style="color: #555; font-size: 11px;">(소정근로시간 내 근무, 점심 1h 제외)</span><br>`;
               detail += `• 계산: ${totalRegular}h × ${formatNumber(hourlyWage)}원 = <span style="color: #00ff88; font-weight: 600;">${formatNumber(breakdown.base_pay)}원</span>`;
               detail += `</div></div>`;
               
@@ -1473,7 +1473,7 @@
               detail += `<div style="background: #222; border-radius: 8px; padding: 12px; margin-bottom: 10px;">`;
               detail += `<div style="color: #fff; font-weight: 500; margin-bottom: 8px;">⏰ 초과수당</div>`;
               detail += `<div style="color: #888; font-size: 13px; line-height: 1.7;">`;
-              detail += `• 초과근무시간: <span style="color: #ffd700;">${totalOvertime}시간</span> <span style="color: #555; font-size: 11px;">(18:00 이후 또는 09:00 이전)</span><br>`;
+              detail += `• 초과근무시간: <span style="color: #ffd700;">${totalOvertime}시간</span> <span style="color: #555; font-size: 11px;">(소정근로시간 외 근무)</span><br>`;
               detail += `• 계산: ${totalOvertime}h × ${formatNumber(hourlyWage)}원 × 1.5 = <span style="color: #ffd700; font-weight: 600;">${formatNumber(breakdown.overtime_pay)}원</span>`;
               detail += `</div></div>`;
               
