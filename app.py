@@ -1314,6 +1314,7 @@ def get_employees():
                 'full_attendance_bonus': emp.get('full_attendance_bonus', 100000),
                 'scheduled_days': emp.get('scheduled_days', '1,2,3,4,5'),
                 'scheduled_hours': emp.get('scheduled_hours'),
+                'transport_allowance': emp.get('transport_allowance'),
                 'first_work_date': emp.get('first_work_date'),
                 'enabled': emp['enabled'],
                 'created_at': emp['created_at']
@@ -1344,6 +1345,7 @@ def create_employee():
             'scheduled_days': data.get('scheduled_days', '1,2,3,4,5'),
             'first_work_date': data.get('first_work_date') or None,
             'scheduled_hours': data.get('scheduled_hours') or None,
+            'transport_allowance': int(data['transport_allowance']) if data.get('transport_allowance') else None,
             'enabled': True
         }
         response = supabase.table('users').insert(new_emp).execute()
@@ -1381,6 +1383,7 @@ def update_employee(emp_id):
             'scheduled_days': data.get('scheduled_days', old_data.get('scheduled_days', '1,2,3,4,5')),
             'first_work_date': data.get('first_work_date', old_data.get('first_work_date')) or None,
             'scheduled_hours': data.get('scheduled_hours', old_data.get('scheduled_hours')) or None,
+            'transport_allowance': int(data['transport_allowance']) if data.get('transport_allowance') else (old_data.get('transport_allowance') or None),
             'enabled': data.get('enabled', old_data.get('enabled', True)),
             'updated_at': datetime.utcnow().isoformat()
         }
@@ -1487,7 +1490,7 @@ def get_attendance():
         holidays_resp = supabase.table('holidays').select('holiday_date').gte('holiday_date', start_date).lte('holiday_date', end_date).execute()
         holidays = [h['holiday_date'] for h in holidays_resp.data]
         
-        emp_resp = supabase.table('users').select('name, hourly_wage, full_attendance_bonus, scheduled_days, scheduled_hours').eq('id', emp_id).execute()
+        emp_resp = supabase.table('users').select('name, hourly_wage, full_attendance_bonus, scheduled_days, scheduled_hours, transport_allowance').eq('id', emp_id).execute()
         emp_info = emp_resp.data[0] if emp_resp.data else {}
         
         approvals_resp = supabase.table('edit_approvals').select('approved_date, used').eq('employee_id', emp_id).execute()
@@ -1522,6 +1525,7 @@ def get_attendance():
             'full_attendance_bonus': emp_info.get('full_attendance_bonus', 100000),
             'scheduled_days': emp_info.get('scheduled_days', '1,2,3,4,5'),
             'scheduled_hours': emp_info.get('scheduled_hours'),
+            'transport_allowance': emp_info.get('transport_allowance'),
             'year_month': f"{year}-{month:02d}",
             'records': records,
             'holidays': holidays,
@@ -1654,6 +1658,7 @@ def _calculate_monthly_salary(emp_id, year, month):
     emp = emp_resp.data[0]
     hourly_wage = emp['hourly_wage']
     full_bonus = emp.get('full_attendance_bonus', 100000)
+    transport_allowance = emp.get('transport_allowance') or 0
     scheduled_days = emp.get('scheduled_days', '1,2,3,4,5')  # 소정근로일 (0=일,1=월,...,6=토)
     scheduled_days_set = set(int(d) for d in scheduled_days.split(',') if d.strip())
     first_work_date_str = emp.get('first_work_date')  # 첫출근일 (예: '2026-02-24'), 없으면 None
@@ -1822,7 +1827,7 @@ def _calculate_monthly_salary(emp_id, year, month):
     is_full_attendance = set(required_days) <= worked_days
     full_attendance_bonus = full_bonus if is_full_attendance else 0
     
-    total_pay = base_pay + overtime_pay + weekly_holiday_pay + full_attendance_bonus
+    total_pay = base_pay + overtime_pay + weekly_holiday_pay + full_attendance_bonus + transport_allowance
     
     return {
         'success': True,
@@ -1834,6 +1839,7 @@ def _calculate_monthly_salary(emp_id, year, month):
             'overtime_pay': overtime_pay,
             'weekly_holiday_pay': weekly_holiday_pay,
             'full_attendance_bonus': full_attendance_bonus,
+            'transport_allowance': transport_allowance,
             'total_pay': total_pay,
             'total_hours': round(total_hours, 2),
             'total_regular_hours': round(total_regular_hours, 2),

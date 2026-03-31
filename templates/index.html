@@ -8046,6 +8046,16 @@
                   <input type="date" id="empFirstWorkDate" style="width: 100%; padding: 12px; background: #222; border: 1px solid #333; border-radius: 8px; color: #fff; box-sizing: border-box;">
                 </div>
                 <div>
+                  <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">교통비</label>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ccc; font-size: 14px;">
+                      <input type="checkbox" id="empTransportEnabled" onchange="toggleTransportInput()" style="width: 16px; height: 16px; cursor: pointer;">
+                      지급
+                    </label>
+                    <input type="number" id="empTransport" placeholder="월 지급액 (원)" disabled style="flex: 1; padding: 10px 12px; background: #111; border: 1px solid #222; border-radius: 8px; color: #555; box-sizing: border-box;">
+                  </div>
+                </div>
+                <div>
                   <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">소정근로일 & 소정근로시간</label>
                   <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
                     <div class="day-toggle selected" data-day="1" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #00ff88; color: #000; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">월</div>
@@ -8074,6 +8084,23 @@
         `;
         document.body.insertAdjacentHTML("beforeend", modal);
         initScheduledHourSelects({});
+      }
+
+      function toggleTransportInput() {
+        const cb = document.getElementById("empTransportEnabled");
+        const input = document.getElementById("empTransport");
+        if (cb.checked) {
+          input.disabled = false;
+          input.style.background = "#222";
+          input.style.borderColor = "#333";
+          input.style.color = "#fff";
+        } else {
+          input.disabled = true;
+          input.value = "";
+          input.style.background = "#111";
+          input.style.borderColor = "#222";
+          input.style.color = "#555";
+        }
       }
 
       function toggleDay(el) {
@@ -8212,6 +8239,16 @@
                   <input type="date" id="empFirstWorkDate" value="${emp.first_work_date || ''}" style="width: 100%; padding: 12px; background: #222; border: 1px solid #333; border-radius: 8px; color: #fff; box-sizing: border-box;">
                 </div>
                 <div>
+                  <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">교통비</label>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #ccc; font-size: 14px;">
+                      <input type="checkbox" id="empTransportEnabled" onchange="toggleTransportInput()" ${emp.transport_allowance ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                      지급
+                    </label>
+                    <input type="number" id="empTransport" value="${emp.transport_allowance || ''}" placeholder="월 지급액 (원)" ${emp.transport_allowance ? '' : 'disabled'} style="flex: 1; padding: 10px 12px; background: ${emp.transport_allowance ? '#222' : '#111'}; border: 1px solid ${emp.transport_allowance ? '#333' : '#222'}; border-radius: 8px; color: ${emp.transport_allowance ? '#fff' : '#555'}; box-sizing: border-box;">
+                  </div>
+                </div>
+                <div>
                   <label style="display: block; color: #888; font-size: 13px; margin-bottom: 8px;">소정근로일 & 소정근로시간</label>
                   <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
                     ${dayToggles}
@@ -8242,6 +8279,9 @@
           scheduled_days: getSelectedDays() || "1,2,3,4,5",
           scheduled_hours: getScheduledHours(),
           first_work_date: document.getElementById("empFirstWorkDate").value || null,
+          transport_allowance: document.getElementById("empTransportEnabled").checked
+            ? (parseInt(document.getElementById("empTransport").value) || null)
+            : null,
         };
 
         if (!data.name || !data.username || !data.password) {
@@ -8282,6 +8322,9 @@
           scheduled_days: getSelectedDays() || "1,2,3,4,5",
           scheduled_hours: getScheduledHours(),
           first_work_date: document.getElementById("empFirstWorkDate").value || null,
+          transport_allowance: document.getElementById("empTransportEnabled").checked
+            ? (parseInt(document.getElementById("empTransport").value) || null)
+            : null,
         };
 
         try {

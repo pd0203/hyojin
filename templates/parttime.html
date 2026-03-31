@@ -801,6 +801,10 @@
           <div class="info-card-label">⏱️ 이번달 총 근무시간</div>
           <div class="info-card-value" id="totalHours">0시간</div>
         </div>
+        <div class="info-card" id="transportCard" style="display: none;">
+          <div class="info-card-label">🚌 교통비</div>
+          <div class="info-card-value" id="transportDisplay">0원</div>
+        </div>
       </div>
 
       <!-- 월 선택 -->
@@ -850,6 +854,10 @@
           <div class="salary-item">
             <span class="salary-label">만근수당</span>
             <span class="salary-value" id="fullBonus">0원</span>
+          </div>
+          <div class="salary-item" id="transportSalaryItem" style="display: none;">
+            <span class="salary-label">교통비</span>
+            <span class="salary-value" id="transportPay">0원</span>
           </div>
         </div>
         <div class="salary-total">
@@ -1105,7 +1113,17 @@
           if (attendanceData.success) {
             document.getElementById("hourlyWage").textContent =
               formatNumber(attendanceData.hourly_wage) + "원";
-      
+
+            // 교통비 카드 표시 (지급 설정된 직원만)
+            const transportAmt = attendanceData.transport_allowance;
+            const transportCard = document.getElementById("transportCard");
+            if (transportAmt) {
+              transportCard.style.display = "";
+              document.getElementById("transportDisplay").textContent = formatNumber(transportAmt) + "원/월";
+            } else {
+              transportCard.style.display = "none";
+            }
+
             // 소정근로일 표시 로직
             const scheduledDays = attendanceData.scheduled_days || '1,2,3,4,5';
             const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
@@ -1412,6 +1430,13 @@
           document.getElementById('weeklyPay').textContent = formatNumber(breakdown.weekly_holiday_pay) + '원';
           document.getElementById('fullBonus').textContent = formatNumber(breakdown.full_attendance_bonus) + '원';
           document.getElementById('totalPay').textContent = formatNumber(breakdown.total_pay) + '원';
+          const transportSalaryItem = document.getElementById('transportSalaryItem');
+          if (breakdown.transport_allowance > 0) {
+            transportSalaryItem.style.display = "";
+            document.getElementById('transportPay').textContent = formatNumber(breakdown.transport_allowance) + '원';
+          } else {
+            transportSalaryItem.style.display = "none";
+          }
     
           // 계산 과정 상세 표시
           const detailEl = document.getElementById('salaryDetail');
@@ -1498,10 +1523,19 @@
               detail += `• 만근수당: <span style="color: #00ff88; font-weight: 600;">${formatNumber(breakdown.full_attendance_bonus)}원</span>`;
               detail += `</div></div>`;
               
+              // 교통비 (지급 설정된 경우만)
+              if (breakdown.transport_allowance > 0) {
+                detail += `<div style="background: #222; border-radius: 8px; padding: 12px; margin-bottom: 10px;">`;
+                detail += `<div style="color: #fff; font-weight: 500; margin-bottom: 8px;">🚌 교통비</div>`;
+                detail += `<div style="color: #888; font-size: 13px;">• 월 교통비: <span style="color: #00ff88; font-weight: 600;">${formatNumber(breakdown.transport_allowance)}원</span></div>`;
+                detail += `</div>`;
+              }
+
               // 최종 합계
+              const transportSuffix = breakdown.transport_allowance > 0 ? ` + ${formatNumber(breakdown.transport_allowance)}` : '';
               detail += `<div style="background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,255,136,0.05)); border: 1px solid rgba(0,255,136,0.3); border-radius: 8px; padding: 15px; margin-top: 15px;">`;
               detail += `<div style="color: #888; font-size: 12px; margin-bottom: 5px;">`;
-              detail += `${formatNumber(breakdown.base_pay)} + ${formatNumber(breakdown.overtime_pay)} + ${formatNumber(breakdown.weekly_holiday_pay)} + ${formatNumber(breakdown.full_attendance_bonus)}`;
+              detail += `${formatNumber(breakdown.base_pay)} + ${formatNumber(breakdown.overtime_pay)} + ${formatNumber(breakdown.weekly_holiday_pay)} + ${formatNumber(breakdown.full_attendance_bonus)}${transportSuffix}`;
               detail += `</div>`;
               detail += `<div style="color: #00ff88; font-weight: 600; font-size: 17px;">💰 총 지급 예정액: ${formatNumber(breakdown.total_pay)}원</div>`;
               detail += `</div>`;
