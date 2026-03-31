@@ -3602,6 +3602,18 @@
           font-size: 48px;
         }
       }
+      .sched-sel {
+        padding: 5px 6px;
+        background: #222;
+        border: 1px solid #333;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 13px;
+        cursor: pointer;
+        min-width: 52px;
+        text-align: center;
+      }
+      .sched-sel:focus { outline: none; border-color: #00ff88; }
     </style>
   </head>
   <body>
@@ -8044,13 +8056,13 @@
                     <div class="day-toggle" data-day="6" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #222; color: #666; border: 1px solid #333; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">토</div>
                     <div class="day-toggle" data-day="0" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: #222; color: #666; border: 1px solid #333; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">일</div>
                   </div>
-                  <div id="hours-1" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">월</span><input type="time" id="start-1" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-1" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
-                  <div id="hours-2" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">화</span><input type="time" id="start-2" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-2" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
-                  <div id="hours-3" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">수</span><input type="time" id="start-3" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-3" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
-                  <div id="hours-4" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">목</span><input type="time" id="start-4" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-4" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
-                  <div id="hours-5" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">금</span><input type="time" id="start-5" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-5" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
-                  <div id="hours-6" style="display: none; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">토</span><input type="time" id="start-6" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-6" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
-                  <div id="hours-0" style="display: none; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">일</span><input type="time" id="start-0" value="09:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-0" value="18:00" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>
+                  <div id="hours-1" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; min-width: 16px;">월</span><select id="start-h-1" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="start-m-1" class="sched-sel"></select><span style="color: #666; font-size: 12px; margin: 0 2px;">~</span><select id="end-h-1" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="end-m-1" class="sched-sel"></select></div>
+                  <div id="hours-2" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; min-width: 16px;">화</span><select id="start-h-2" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="start-m-2" class="sched-sel"></select><span style="color: #666; font-size: 12px; margin: 0 2px;">~</span><select id="end-h-2" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="end-m-2" class="sched-sel"></select></div>
+                  <div id="hours-3" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; min-width: 16px;">수</span><select id="start-h-3" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="start-m-3" class="sched-sel"></select><span style="color: #666; font-size: 12px; margin: 0 2px;">~</span><select id="end-h-3" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="end-m-3" class="sched-sel"></select></div>
+                  <div id="hours-4" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; min-width: 16px;">목</span><select id="start-h-4" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="start-m-4" class="sched-sel"></select><span style="color: #666; font-size: 12px; margin: 0 2px;">~</span><select id="end-h-4" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="end-m-4" class="sched-sel"></select></div>
+                  <div id="hours-5" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; min-width: 16px;">금</span><select id="start-h-5" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="start-m-5" class="sched-sel"></select><span style="color: #666; font-size: 12px; margin: 0 2px;">~</span><select id="end-h-5" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="end-m-5" class="sched-sel"></select></div>
+                  <div id="hours-6" style="display: none; align-items: center; gap: 6px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; min-width: 16px;">토</span><select id="start-h-6" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="start-m-6" class="sched-sel"></select><span style="color: #666; font-size: 12px; margin: 0 2px;">~</span><select id="end-h-6" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="end-m-6" class="sched-sel"></select></div>
+                  <div id="hours-0" style="display: none; align-items: center; gap: 6px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; min-width: 16px;">일</span><select id="start-h-0" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="start-m-0" class="sched-sel"></select><span style="color: #666; font-size: 12px; margin: 0 2px;">~</span><select id="end-h-0" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="end-m-0" class="sched-sel"></select></div>
                 </div>
               </div>
               <div class="modal-actions">
@@ -8061,6 +8073,7 @@
           </div>
         `;
         document.body.insertAdjacentHTML("beforeend", modal);
+        initScheduledHourSelects({});
       }
 
       function toggleDay(el) {
@@ -8094,14 +8107,44 @@
       function getScheduledHours() {
         const result = {};
         document.querySelectorAll("#employeeModal .day-toggle.selected").forEach(el => {
-          const dayNum = el.dataset.day;
-          const startEl = document.getElementById("start-" + dayNum);
-          const endEl = document.getElementById("end-" + dayNum);
-          if (startEl && endEl) {
-            result[dayNum] = { start: startEl.value || "09:00", end: endEl.value || "18:00" };
+          const d = el.dataset.day;
+          const sh = document.getElementById("start-h-" + d);
+          const sm = document.getElementById("start-m-" + d);
+          const eh = document.getElementById("end-h-" + d);
+          const em = document.getElementById("end-m-" + d);
+          if (sh && sm && eh && em) {
+            result[d] = { start: sh.value + ":" + sm.value, end: eh.value + ":" + em.value };
           }
         });
         return Object.keys(result).length > 0 ? result : null;
+      }
+
+      function _fillTimeSelect(sel, max, selectedVal) {
+        while (sel.firstChild) sel.removeChild(sel.firstChild);
+        for (let i = 0; i < max; i++) {
+          const v = String(i).padStart(2, "0");
+          const opt = document.createElement("option");
+          opt.value = v; opt.textContent = v;
+          if (v === selectedVal) opt.selected = true;
+          sel.appendChild(opt);
+        }
+      }
+
+      function initScheduledHourSelects(initialValues) {
+        const vals = initialValues || {};
+        [0,1,2,3,4,5,6].forEach(dayNum => {
+          const daySchedule = vals[String(dayNum)] || {};
+          const sParts = (daySchedule.start || "09:00").split(":");
+          const eParts = (daySchedule.end || "18:00").split(":");
+          const sh = document.getElementById("start-h-" + dayNum);
+          const sm = document.getElementById("start-m-" + dayNum);
+          const eh = document.getElementById("end-h-" + dayNum);
+          const em = document.getElementById("end-m-" + dayNum);
+          if (sh) _fillTimeSelect(sh, 24, sParts[0]);
+          if (sm) _fillTimeSelect(sm, 60, sParts[1]);
+          if (eh) _fillTimeSelect(eh, 24, eParts[0]);
+          if (em) _fillTimeSelect(em, 60, eParts[1]);
+        });
       }
 
       function showEditEmployeeModal(empId) {
@@ -8121,11 +8164,8 @@
           const border = isSelected ? "none" : "1px solid #333";
           const selectedClass = isSelected ? "selected" : "";
           dayToggles += `<div class="day-toggle ${selectedClass}" data-day="${dayNum}" onclick="toggleDay(this)" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: ${bgColor}; color: ${textColor}; border: ${border}; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;">${dayNames[dayNum]}</div>`;
-          const daySchedule = scheduledHours[String(dayNum)] || {};
-          const startVal = daySchedule.start || "09:00";
-          const endVal = daySchedule.end || "18:00";
           const displayStyle = isSelected ? "flex" : "none";
-          hoursHtml += `<div id="hours-${dayNum}" style="display: ${displayStyle}; align-items: center; gap: 8px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; width: 16px;">${dayNames[dayNum]}</span><input type="time" id="start-${dayNum}" value="${startVal}" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"><span style="color: #666; font-size: 12px;">~</span><input type="time" id="end-${dayNum}" value="${endVal}" style="flex: 1; padding: 6px 8px; background: #222; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 13px;"></div>`;
+          hoursHtml += `<div id="hours-${dayNum}" style="display: ${displayStyle}; align-items: center; gap: 6px; margin-bottom: 6px;"><span style="color: #888; font-size: 12px; min-width: 16px;">${dayNames[dayNum]}</span><select id="start-h-${dayNum}" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="start-m-${dayNum}" class="sched-sel"></select><span style="color: #666; font-size: 12px; margin: 0 2px;">~</span><select id="end-h-${dayNum}" class="sched-sel"></select><span style="color: #666; font-size: 11px;">:</span><select id="end-m-${dayNum}" class="sched-sel"></select></div>`;
         });
 
         const modal = `
@@ -8187,6 +8227,7 @@
           </div>
         `;
         document.body.insertAdjacentHTML("beforeend", modal);
+        initScheduledHourSelects(scheduledHours);
       }
 
       async function saveEmployee() {
